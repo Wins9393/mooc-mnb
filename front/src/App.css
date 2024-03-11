@@ -1,0 +1,42 @@
+#root {
+  min-height: 100vh;
+  width: 100vw;
+  --header-height: 5vh;
+  --white-rose: #dad2d8;
+  --white: #f7f0f0;
+  --dark: #190b28;
+  --light-blue: #3c91e6;
+  --pastel-blue: #457eac;
+  --accent-violet: #995d81;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  list-style-type: none;
+  color: var(--dark);
+}
+
+a {
+  color: var(--white);
+}
+
+button,
+input[type="submit"] {
+  background-color: var(--dark) !important;
+  border: solid 1px var(--white) !important;
+
+  span {
+    color: var(--white);
+  }
+}
+
+button:hover {
+  border: solid 1px var(--accent-violet) !important;
+}
+
+.App {
+  min-height: 100vh;
+  background-color: brown;
+}

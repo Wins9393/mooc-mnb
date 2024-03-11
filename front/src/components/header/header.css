@@ -1,0 +1,39 @@
+.header {
+  height: var(--header-height);
+  background-color: var(--dark);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+
+  .header__main-container {
+    height: 100%;
+    padding: 0 12px;
+
+    .header__nav {
+      height: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .header__nav--list {
+        flex: 1 1 auto;
+        display: flex;
+
+        li {
+          margin: 0 8px;
+          a {
+            color: var(--white);
+          }
+
+          .active {
+            color: var(--accent-violet);
+          }
+        }
+      }
+
+      .right-nav {
+        justify-content: flex-end;
+      }
+    }
+  }
+}

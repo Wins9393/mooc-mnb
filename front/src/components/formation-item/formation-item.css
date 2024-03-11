@@ -1,0 +1,65 @@
+.formationItem__card {
+  flex: 1 1 300px;
+  max-height: 500px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease-out, transform 0.2s ease-out;
+
+  .formationItem__card--imageCover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .formationItem__card--overlay {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 20%;
+    background-color: color-mix(in lab, var(--dark) 60%, transparent);
+    padding: 0 8px;
+    transition: height 0.2s ease-out;
+
+    .formationItem__card--title {
+      color: var(--white-rose);
+    }
+
+    .formationItem__card--info {
+      color: color-mix(in lab, var(--accent-violet) 60%, var(--white));
+      text-align: right;
+      opacity: 0;
+    }
+  }
+
+  .formationItem__card--button {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    right: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.formationItem__card:hover {
+  box-shadow: 0 1px 2px -2px rgba(0, 0, 0, 0.16), 0 3px 6px 0 rgba(0, 0, 0, 0.12),
+    0 5px 12px 4px rgba(0, 0, 0, 0.09);
+}
+
+.formationItem__card:hover .formationItem__card--overlay {
+  height: 30%;
+}
+
+.formationItem__card:hover .formationItem__card--info {
+  opacity: 100;
+}
+
+@media screen and (max-width: 640px) {
+  .formationItem__card--title {
+    font-size: 1.2rem;
+  }
+}

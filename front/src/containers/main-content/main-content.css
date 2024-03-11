@@ -1,0 +1,11 @@
+.main-content {
+  min-height: calc(100vh - var(--header-height));
+  background-color: var(--white);
+  padding: 32px;
+}
+
+@media screen and (max-width: 640px) {
+  .main-content {
+    padding: 8px;
+  }
+}
