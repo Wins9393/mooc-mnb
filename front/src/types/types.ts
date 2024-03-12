@@ -49,5 +49,18 @@ export interface UserAnswer {
   id_user: number;
   id_question: number;
   id_answer_option: number;
-  date_answer: Date;
+  date_answer: string;
+}
+
+export interface FullAnswerOption {
+  id: number;
+  id_question: number;
+  answer_text: string;
+  correct: boolean;
+}
+
+export interface IsCorrectAnswer {
+  isCorrectAnswerSelected: boolean;
+  idAnswerOptionSelected: number;
+  correctAnswer: FullAnswerOption;
 }

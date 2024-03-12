@@ -1,7 +1,7 @@
 import { ChangeEvent, useContext, useEffect, useState } from "react";
 import { MainContext } from "../../contexts/MainContext";
 import { useParams } from "react-router-dom";
-import { Quiz, UserAnswer, VideoWithCompleteQuiz } from "../../types/types";
+import { IsCorrectAnswer, Quiz, UserAnswer, VideoWithCompleteQuiz } from "../../types/types";
 import { Col, Row, Collapse, CollapseProps, Divider, Button } from "antd";
 import { InfoCircleTwoTone, CloseCircleTwoTone, CheckCircleTwoTone } from "@ant-design/icons";
 import "./formation-page.css";
@@ -12,16 +12,18 @@ export function FormationPage() {
 
   const mainContext = useContext(MainContext);
   if (!mainContext) return;
-  const { getVideosWithCompleteQuizByFormation, videosWithCompleteQuiz } = mainContext;
+  const { getVideosWithCompleteQuizByFormation, videosWithCompleteQuiz, getCorrectAnswer } =
+    mainContext;
 
   const authContext = useContext(AuthContext);
   if (!authContext) return;
   const { user } = authContext;
 
   const [currentVideo, setCurrentVideo] = useState<VideoWithCompleteQuiz | null>(null);
-  const [currentQuizzes, setCurrentQuizzes] = useState<Quiz[] | undefined>(undefined);
+  const [currentQuiz, setCurrentQuiz] = useState<Quiz | undefined>(undefined);
 
   const [userAnswersByQuestion, setUserAnswersByQuestion] = useState<UserAnswer[] | null>(null);
+  const [correctAnswers, setCorrectAnswers] = useState<IsCorrectAnswer[] | undefined>(undefined);
 
   const [fadeClass, setFadeClass] = useState("video--fade-in");
 
@@ -36,8 +38,9 @@ export function FormationPage() {
   }, [videosWithCompleteQuiz]);
 
   useEffect(() => {
-    setCurrentQuizzes(currentVideo?.quizzes);
+    setCurrentQuiz(currentVideo?.quizzes[0]);
     setUserAnswersByQuestion([]);
+    setCorrectAnswers([]);
   }, [currentVideo]);
 
   // A supp
@@ -48,10 +51,15 @@ export function FormationPage() {
   useEffect(() => {
     console.log("userAnswers: ", userAnswersByQuestion);
   }, [userAnswersByQuestion]);
+
+  useEffect(() => {
+    console.log("correctAnswers: ", correctAnswers);
+  }, [correctAnswers]);
   // A supp
 
   function onQuizClick(quiz: Quiz) {
     console.log(quiz);
+    setCurrentQuiz(quiz);
   }
 
   function onUserAnswerChange(
@@ -83,7 +91,7 @@ export function FormationPage() {
           id_user: user?.id,
           id_question,
           id_answer_option: id_answer,
-          date_answer: new Date(),
+          date_answer: new Date().toISOString(),
         };
 
         if (existingAnswerIndex > -1) {
@@ -100,8 +108,13 @@ export function FormationPage() {
     // }
   }
 
-  function onValidateQuiz(userAnswers: UserAnswer[]) {
-    userAnswers.forEach((userAnswer) => console.log("user answer: ", userAnswer));
+  async function onValidateQuiz(userAnswers: UserAnswer[]) {
+    const promises = userAnswers.map((userAnswer) => {
+      return getCorrectAnswer(userAnswer.id_question, userAnswer.id_answer_option);
+    });
+
+    const promisesResolved = await Promise.all(promises);
+    setCorrectAnswers(promisesResolved);
   }
 
   // Boucle sur les videos présentes dans la formation pour remplir le tableau d'Items pour le Collapse
@@ -171,15 +184,26 @@ export function FormationPage() {
           </div>
           <div className="formationPage__quiz-wrapper">
             {currentVideo
-              ? currentQuizzes?.map((quiz) =>
-                  quiz.questions.map((question) => (
-                    <div key={question.id} className="formationPage__questions-answers-bloc">
-                      <div className="formationPage__question-bloc">
-                        <h3>{question.question_text}</h3>
-                      </div>
-                      <Divider style={{ margin: "16px" }} />
-                      <div>
-                        {question.answer_options.map((answer) => (
+              ? currentQuiz?.questions.map((question) => (
+                  <div key={question.id} className="formationPage__questions-answers-bloc">
+                    <div className="formationPage__question-bloc">
+                      <h3>{question.question_text}</h3>
+                    </div>
+                    <Divider style={{ margin: "16px" }} />
+                    <div>
+                      {question.answer_options.map((answer) => (
+                        <div style={{ display: "flex" }}>
+                          {correctAnswers?.map((item) =>
+                            item.idAnswerOptionSelected === answer.id ? (
+                              item.isCorrectAnswerSelected ? (
+                                <CheckCircleTwoTone twoToneColor="#52c41a" />
+                              ) : (
+                                <CloseCircleTwoTone twoToneColor="#A30015" />
+                              )
+                            ) : (
+                              ""
+                            )
+                          )}
                           <div className="formationPage__answer-bloc" key={answer.id}>
                             <p>{answer.answer_text}</p>{" "}
                             <input
@@ -190,11 +214,11 @@ export function FormationPage() {
                               type="checkbox"
                             />
                           </div>
-                        ))}
-                      </div>
+                        </div>
+                      ))}
                     </div>
-                  ))
-                )
+                  </div>
+                ))
               : ""}
             <Button onClick={() => onValidateQuiz(userAnswersByQuestion as UserAnswer[])}>
               Valider
@@ -215,7 +239,6 @@ export function FormationPage() {
               <p>83%</p>
             </div>
           </div>
-          <div></div>
         </Col>
       </Row>
     </div>

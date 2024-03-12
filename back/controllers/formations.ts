@@ -1,33 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { fastify } from "../server";
-
-interface FormationWithVideosFromDB {
-  id_formation: number;
-  title_formation: string;
-  desc_formation: string;
-  cover_path_formation: string;
-  id_video: number;
-  path_video: string;
-  title_video: string;
-  desc_video: string;
-  cover_path_video: string;
-}
-
-interface Video {
-  id: number;
-  path: string;
-  title: string;
-  desc: string;
-  cover_path: string;
-}
-
-interface FormationWithVideosFormated {
-  id: number;
-  title: string;
-  desc: string;
-  cover_path: string;
-  videos: Video[];
-}
+import { FormationWithVideosFormated, FormationWithVideosFromDB } from "../types/types";
 
 function groupVideosByFormation(results: FormationWithVideosFromDB[]) {
   const formations: Record<number, FormationWithVideosFormated> = {}; // Utilise un objet pour regrouper les formations par id

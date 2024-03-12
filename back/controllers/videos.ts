@@ -1,54 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { fastify } from "../server";
-
-interface ParamsVideoById {
-  id: number;
-}
-
-interface ResponseFromDB {
-  id: number;
-  id_formation: number;
-  title_video: string;
-  path: string;
-  desc_video: string;
-  cover_path: string;
-  id_video: number;
-  id_quiz: number;
-  title_quiz: string;
-  question_text: string;
-  explanation: string;
-  id_question: number;
-  id_answer_option: number;
-  answer_text: string;
-}
-
-interface AnswerOption {
-  id: number;
-  answer_text: string;
-}
-
-interface Question {
-  id: number;
-  question_text: string;
-  explanation?: string;
-  answer_options: AnswerOption[];
-}
-
-interface Quiz {
-  id: number;
-  title_quiz: string;
-  questions: Question[];
-}
-
-interface StructuredVideo {
-  id: number;
-  id_formation: number;
-  path: string;
-  title: string;
-  desc?: string;
-  cover_path: string;
-  quizzes: Quiz[];
-}
+import { ParamsVideoById, ResponseFromDB, StructuredVideo } from "../types/types";
 
 function groupQuestionsAndQuizzesByVideo(results: ResponseFromDB[]) {
   const videos: Record<number, StructuredVideo> = {};

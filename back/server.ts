@@ -11,8 +11,10 @@ import { getUsers } from "./controllers/users";
 import { getCurrentUser, login, logout, register } from "./controllers/auth";
 import { getFormationsWithVideos } from "./controllers/formations";
 import { getVideosByFormationIdWithCompleteQuiz } from "./controllers/videos";
+import { getCorrectAnswerByQuestion } from "./controllers/questions";
+import { saveUserAnswer } from "./controllers/user-stats";
 
-dotenv.config();
+dotenv.config({ path: "./.env.local" });
 
 export const fastify = Fastify({
   logger: true,
@@ -56,6 +58,12 @@ fastify.get("/users", getUsers);
 /** Formations with Vidéos */
 fastify.get("/formations", getFormationsWithVideos);
 fastify.get("/formation/:id", getVideosByFormationIdWithCompleteQuiz);
+
+/** Questions */
+fastify.post("/answer/question", getCorrectAnswerByQuestion);
+
+/** User Stats */
+fastify.post("/stats/save", saveUserAnswer);
 
 fastify.listen({ port: 4000 }, (error: unknown) => {
   const address = fastify.server.address();

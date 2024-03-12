@@ -39,7 +39,9 @@ const users_1 = require("./controllers/users");
 const auth_1 = require("./controllers/auth");
 const formations_1 = require("./controllers/formations");
 const videos_1 = require("./controllers/videos");
-dotenv.config();
+const questions_1 = require("./controllers/questions");
+const user_stats_1 = require("./controllers/user-stats");
+dotenv.config({ path: "./.env.local" });
 exports.fastify = (0, fastify_1.default)({
     logger: true,
 });
@@ -76,6 +78,10 @@ exports.fastify.get("/users", users_1.getUsers);
 /** Formations with Vidéos */
 exports.fastify.get("/formations", formations_1.getFormationsWithVideos);
 exports.fastify.get("/formation/:id", videos_1.getVideosByFormationIdWithCompleteQuiz);
+/** Questions */
+exports.fastify.post("/answer/question", questions_1.getCorrectAnswerByQuestion);
+/** User Stats */
+exports.fastify.post("/stats/save", user_stats_1.saveUserAnswer);
 exports.fastify.listen({ port: 4000 }, (error) => {
     const address = exports.fastify.server.address();
     if (error) {
