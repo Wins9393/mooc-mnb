@@ -9,10 +9,14 @@ import path from "node:path";
 
 import { getUsers } from "./controllers/users";
 import { getCurrentUser, login, logout, register } from "./controllers/auth";
-import { getFormationsWithVideos } from "./controllers/formations";
-import { getVideosByFormationIdWithCompleteQuiz } from "./controllers/videos";
+import { getFormationsWithModules } from "./controllers/formations";
 import { getCorrectAnswerByQuestion } from "./controllers/questions";
-import { saveUserAnswer } from "./controllers/user-stats";
+import { getUserAnswersByQuizId, saveUserAnswer } from "./controllers/user-stats";
+import {
+  getModulesWithContentsByModuleId,
+  getQuizByModuleId,
+  resetQuizById,
+} from "./controllers/modules";
 
 dotenv.config({ path: "./.env.local" });
 
@@ -21,7 +25,7 @@ export const fastify = Fastify({
 });
 
 fastify.register(fastifyPostgres, {
-  connectionString: `postgres://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@${process.env.DATABASE_HOST}/mooc-mnb`,
+  connectionString: `postgres://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@${process.env.DATABASE_HOST}/moocmnbwithmodules`,
 });
 
 fastify.register(cors, {
@@ -55,15 +59,20 @@ fastify.post("/me", getCurrentUser);
 /** Users */
 fastify.get("/users", getUsers);
 
-/** Formations with Vidéos */
-fastify.get("/formations", getFormationsWithVideos);
-fastify.get("/formation/:id", getVideosByFormationIdWithCompleteQuiz);
+/** Formations with Modules */
+fastify.get("/formations", getFormationsWithModules);
+
+/** Modules */
+fastify.get("/module/:id/content", getModulesWithContentsByModuleId);
+fastify.get("/module/:id/quiz", getQuizByModuleId);
 
 /** Questions */
 fastify.post("/answer/question", getCorrectAnswerByQuestion);
 
 /** User Stats */
 fastify.post("/stats/save", saveUserAnswer);
+fastify.post("/stats/useranswers", getUserAnswersByQuizId);
+fastify.post("/stats/useranswers/delete", resetQuizById);
 
 fastify.listen({ port: 4000 }, (error: unknown) => {
   const address = fastify.server.address();

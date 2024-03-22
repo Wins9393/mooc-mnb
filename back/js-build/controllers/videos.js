@@ -30,7 +30,7 @@ function groupQuestionsAndQuizzesByVideo(results) {
         if (!quiz) {
             quiz = {
                 id: row.id_quiz,
-                title_quiz: row.title_quiz,
+                title: row.title_quiz,
                 questions: [],
             };
             video.quizzes.push(quiz);
@@ -39,8 +39,9 @@ function groupQuestionsAndQuizzesByVideo(results) {
         if (!question) {
             question = {
                 id: row.id_question,
-                question_text: row.question_text,
+                text: row.question_text,
                 explanation: row.explanation,
+                is_multiple_choice: row.is_multiple_choice,
                 answer_options: [],
             };
             quiz.questions.push(question);
@@ -49,7 +50,7 @@ function groupQuestionsAndQuizzesByVideo(results) {
         if (!answer_option) {
             answer_option = {
                 id: row.id_answer_option,
-                answer_text: row.answer_text,
+                text: row.answer_text,
             };
             question.answer_options.push(answer_option);
         }

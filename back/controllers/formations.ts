@@ -1,44 +1,43 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { fastify } from "../server";
-import { FormationWithVideosFormated, FormationWithVideosFromDB } from "../types/types";
+import { FormationWithModule } from "../types/types";
 
-function groupVideosByFormation(results: FormationWithVideosFromDB[]) {
-  const formations: Record<number, FormationWithVideosFormated> = {}; // Utilise un objet pour regrouper les formations par id
+function groupModulesByFormation(results: any[]): FormationWithModule[] {
+  const formations: Record<number, FormationWithModule> = {};
 
   results.forEach((row) => {
+    // Si la formation n'existe pas déjà dans l'objet formations, créez-la
     if (!formations[row.id_formation]) {
       formations[row.id_formation] = {
         id: row.id_formation,
         title: row.title_formation,
-        desc: row.desc_formation,
+        description: row.desc_formation,
         cover_path: row.cover_path_formation,
-        videos: [],
+        modules: [],
       };
     }
 
-    // Ajoute la vidéo actuelle à la formation correspondante
-    formations[row.id_formation].videos.push({
-      id: row.id_video,
-      path: row.path_video,
-      title: row.title_video,
-      desc: row.desc_video,
-      cover_path: row.cover_path_video,
+    // Ajoutez le module à la formation correspondante
+    formations[row.id_formation].modules.push({
+      id: row.id_module,
+      id_formation: row.id_formation_module,
+      title: row.title_module,
+      description: row.description_module,
     });
   });
 
-  // Convertit l'objet `formations` en un tableau de ses valeurs
+  // Convertissez l'objet formations en un tableau de ses valeurs
   return Object.values(formations);
 }
 
-export async function getFormationsWithVideos(req: FastifyRequest, res: FastifyReply) {
+export async function getFormationsWithModules(req: FastifyRequest, res: FastifyReply) {
   try {
     const query =
-      'SELECT f.id AS id_formation, f.title AS title_formation, f."desc" AS desc_formation, f.cover_path AS cover_path_formation, v.id AS id_video, v.path AS path_video, v.title AS title_video, v."desc" AS desc_video, v.cover_path AS cover_path_video FROM public.formations f INNER JOIN public.videos v ON v.id_formation = f.id;';
+      "SELECT f.id AS id_formation, f.title AS title_formation, f.description AS desc_formation, f.cover_path AS cover_path_formation, m.id AS id_module, m.id_formation AS id_formation_module, m.title AS title_module, m.description AS description_module FROM formations f INNER JOIN modules m ON m.id_formation=f.id;";
     const response = await fastify.pg.query(query);
 
-    // console.log("FORMATIONS ROWS: ", response.rows);
-    const formationsWithVideos = groupVideosByFormation(response.rows);
-    res.code(200).send(formationsWithVideos);
+    const groupedModulesByFormation = groupModulesByFormation(response.rows);
+    res.code(200).send(groupedModulesByFormation);
   } catch (error: unknown) {
     if (error instanceof Error) {
       res.code(500).send({

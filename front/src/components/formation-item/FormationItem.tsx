@@ -16,9 +16,9 @@ export const FormationItem: React.FC<FormationItemProps> = ({ formation }) => {
       <div className="formationItem__card--overlay">
         <h2 className="formationItem__card--title">{formation.title}</h2>
         <p className="formationItem__card--info">
-          {formation.videos.length > 1
-            ? `${formation.videos.length} vidéos`
-            : `${formation.videos.length} vidéo`}
+          {formation.modules.length > 1
+            ? `${formation.modules.length} modules`
+            : `${formation.modules.length} module`}
         </p>
       </div>
       <Button

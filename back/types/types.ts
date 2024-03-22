@@ -1,16 +1,4 @@
 // Formations Controller
-export interface FormationWithVideosFromDB {
-  id_formation: number;
-  title_formation: string;
-  desc_formation: string;
-  cover_path_formation: string;
-  id_video: number;
-  path_video: string;
-  title_video: string;
-  desc_video: string;
-  cover_path_video: string;
-}
-
 export interface Video {
   id: number;
   path: string;
@@ -19,16 +7,8 @@ export interface Video {
   cover_path: string;
 }
 
-export interface FormationWithVideosFormated {
-  id: number;
-  title: string;
-  desc: string;
-  cover_path: string;
-  videos: Video[];
-}
-
 // Vidéos Controller
-export interface ParamsVideoById {
+export interface ParamsId {
   id: number;
 }
 
@@ -46,24 +26,26 @@ export interface ResponseFromDB {
   explanation: string;
   id_question: number;
   id_answer_option: number;
+  is_multiple_choice: boolean;
   answer_text: string;
 }
 
 export interface AnswerOption {
   id: number;
-  answer_text: string;
+  text: string;
 }
 
 export interface Question {
   id: number;
-  question_text: string;
+  text: string;
   explanation?: string;
+  is_multiple_choice: boolean;
   answer_options: AnswerOption[];
 }
 
 export interface Quiz {
   id: number;
-  title_quiz: string;
+  title: string;
   questions: Question[];
 }
 
@@ -96,4 +78,25 @@ export interface BodySaveUserAnswer {
   id_question: number;
   id_answer_option: number;
   date_answer: string;
+  id_quiz: number;
+}
+// New DB with Modules
+export interface Module {
+  id: number;
+  id_formation: number;
+  title: string;
+  description: string;
+}
+
+export interface FormationWithModule {
+  id: number;
+  title: string;
+  description: string;
+  cover_path: string;
+  modules: Module[];
+}
+
+export interface BodyGetUserAnswer {
+  id_user: number;
+  id_quiz: number;
 }

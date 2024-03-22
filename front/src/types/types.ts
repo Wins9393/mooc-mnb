@@ -1,48 +1,72 @@
-export interface Video {
-  id: number;
-  path: string;
-  title: string;
-  desc?: string;
-  cover_path: string;
-}
-
 export interface Formation {
   id: number;
   title: string;
-  desc?: string;
+  description?: string;
   cover_path: string;
-  videos: Video[];
+  modules: Module[];
 }
 
-export interface FormationItemProps {
-  formation: Formation;
-}
-
-export interface AnswerOption {
+export interface Module {
   id: number;
-  answer_text: string;
+  id_formation: number;
+  title: string;
+  description: string;
 }
 
-export interface Question {
-  id: number;
-  question_text: string;
-  explanation?: string;
-  answer_options: AnswerOption[];
+export interface Video {
+  id_video: number;
+  path_video: string;
+  title_video: string;
+  description_video: string;
+  cover_path_video: string;
+}
+
+export interface Text {
+  id_text: number;
+  title_text: string;
+  content_text: string;
 }
 
 export interface Quiz {
   id: number;
-  title_quiz: string;
+  title: string;
   questions: Question[];
 }
 
-export interface VideoWithCompleteQuiz {
-  id: number;
-  path: string;
+export interface ModuleCollapseItem {
+  id: string;
   title: string;
-  desc?: string;
-  cover_path: string;
-  quizzes: Quiz[];
+  type: string;
+  item: Video | Text | Quiz | null;
+}
+
+export interface Question {
+  id: number;
+  text: string;
+  explanation?: string;
+  is_multiple_choice: boolean;
+  answer_options: AnswerOption[];
+}
+
+export interface AnswerOption {
+  id: number;
+  text: string;
+}
+
+export interface ContentByModule {
+  id: number;
+  videos: Video[];
+  texts: Text[];
+}
+
+export interface QuizByModule {
+  id: number;
+  title: string;
+  questions: Question[];
+}
+
+export interface FormationItemProps {
+  formation: Formation;
 }
 
 export interface UserAnswer {
@@ -50,6 +74,7 @@ export interface UserAnswer {
   id_question: number;
   id_answer_option: number;
   date_answer: string;
+  id_quiz: number;
 }
 
 export interface FullAnswerOption {

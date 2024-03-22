@@ -1,23 +1,33 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { AuthContext } from "./AuthContext";
-import { Formation, IsCorrectAnswer, UserAnswer, VideoWithCompleteQuiz } from "../types/types";
+import {
+  ContentByModule,
+  Formation,
+  IsCorrectAnswer,
+  QuizByModule,
+  UserAnswer,
+} from "../types/types";
 
 interface MainContextType {
   formations: Formation[];
-  getVideosWithCompleteQuizByFormation(id_formation: string): Promise<void>;
-  videosWithCompleteQuiz: VideoWithCompleteQuiz[];
+  getContentByModule(id_module: number): Promise<void>;
+  moduleContent: ContentByModule | null;
+  getQuizByModule(id_module: number): Promise<void>;
+  moduleQuiz: QuizByModule | null;
   getCorrectAnswer(
     id_question: number,
     id_answer_option_selected: number
   ): Promise<IsCorrectAnswer>;
   saveUserStats(userAnswer: UserAnswer): Promise<void>;
+  getUserAnswerByQuizId(id_user: number, id_quiz: number): Promise<UserAnswer[] | undefined>;
 }
 
 const MainContext = createContext<MainContextType | null>(null);
 
 const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [formations, setFormations] = useState<Formation[]>([]);
-  const [videosWithCompleteQuiz, setVideosWithCompleteQuiz] = useState<VideoWithCompleteQuiz[]>([]);
+  const [moduleContent, setModuleContent] = useState<ContentByModule | null>(null);
+  const [moduleQuiz, setModuleQuiz] = useState<QuizByModule | null>(null);
   const authContext = useContext(AuthContext);
 
   if (!authContext) return;
@@ -25,10 +35,10 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const { user } = authContext;
 
   useEffect(() => {
-    getFormationsWithVideos();
+    getFormationsWithModules();
   }, [user]);
 
-  async function getFormationsWithVideos() {
+  async function getFormationsWithModules() {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/formations`, {
         method: "GET",
@@ -41,20 +51,33 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     }
   }
 
-  async function getVideosWithCompleteQuizByFormation(id_formation: string | null): Promise<void> {
+  async function getContentByModule(id_module: number): Promise<void> {
     try {
-      const id_formation_number = Number(id_formation);
-
-      if (!isNaN(id_formation_number)) {
+      if (!isNaN(id_module)) {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/formation/${id_formation_number}`,
+          `${import.meta.env.VITE_API_URL}/module/${id_module}/content`,
           {
             method: "GET",
             credentials: "include",
           }
         );
         const data = await response.json();
-        setVideosWithCompleteQuiz(data);
+        setModuleContent(data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function getQuizByModule(id_module: number): Promise<void> {
+    try {
+      if (!isNaN(id_module)) {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/module/${id_module}/quiz`, {
+          method: "GET",
+          credentials: "include",
+        });
+        const data = await response.json();
+        setModuleQuiz(data);
       }
     } catch (error) {
       console.log(error);
@@ -83,9 +106,9 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     }
   }
 
-  async function saveUserStats(userAnswer: UserAnswer) {
+  async function saveUserStats(userAnswer: UserAnswer): Promise<void> {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/stats/save`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/stats/save`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -96,8 +119,33 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           id_question: userAnswer?.id_question,
           id_answer_option: userAnswer?.id_answer_option,
           date_answer: userAnswer?.date_answer,
+          id_quiz: userAnswer?.id_quiz,
         }),
       });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function getUserAnswerByQuizId(
+    id_user: number,
+    id_quiz: number
+  ): Promise<UserAnswer[] | undefined> {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/stats/useranswers`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id_user,
+          id_quiz,
+        }),
+      });
+
+      const userAnswers = await response.json();
+      return userAnswers;
     } catch (error) {
       console.log(error);
     }
@@ -107,10 +155,13 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     <MainContext.Provider
       value={{
         formations,
-        getVideosWithCompleteQuizByFormation,
-        videosWithCompleteQuiz,
+        getContentByModule,
+        moduleContent,
+        getQuizByModule,
+        moduleQuiz,
         getCorrectAnswer,
         saveUserStats,
+        getUserAnswerByQuizId,
       }}>
       {children}
     </MainContext.Provider>

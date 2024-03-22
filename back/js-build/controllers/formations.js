@@ -9,40 +9,39 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getFormationsWithVideos = void 0;
+exports.getFormationsWithModules = void 0;
 const server_1 = require("../server");
-function groupVideosByFormation(results) {
-    const formations = {}; // Utilise un objet pour regrouper les formations par id
+function groupModulesByFormation(results) {
+    const formations = {};
     results.forEach((row) => {
+        // Si la formation n'existe pas déjà dans l'objet formations, créez-la
         if (!formations[row.id_formation]) {
             formations[row.id_formation] = {
                 id: row.id_formation,
                 title: row.title_formation,
-                desc: row.desc_formation,
+                description: row.desc_formation,
                 cover_path: row.cover_path_formation,
-                videos: [],
+                modules: [],
             };
         }
-        // Ajoute la vidéo actuelle à la formation correspondante
-        formations[row.id_formation].videos.push({
-            id: row.id_video,
-            path: row.path_video,
-            title: row.title_video,
-            desc: row.desc_video,
-            cover_path: row.cover_path_video,
+        // Ajoutez le module à la formation correspondante
+        formations[row.id_formation].modules.push({
+            id: row.id_module,
+            id_formation: row.id_formation_module,
+            title: row.title_module,
+            description: row.description_module,
         });
     });
-    // Convertit l'objet `formations` en un tableau de ses valeurs
+    // Convertissez l'objet formations en un tableau de ses valeurs
     return Object.values(formations);
 }
-function getFormationsWithVideos(req, res) {
+function getFormationsWithModules(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const query = 'SELECT f.id AS id_formation, f.title AS title_formation, f."desc" AS desc_formation, f.cover_path AS cover_path_formation, v.id AS id_video, v.path AS path_video, v.title AS title_video, v."desc" AS desc_video, v.cover_path AS cover_path_video FROM public.formations f INNER JOIN public.videos v ON v.id_formation = f.id;';
+            const query = "SELECT f.id AS id_formation, f.title AS title_formation, f.description AS desc_formation, f.cover_path AS cover_path_formation, m.id AS id_module, m.id_formation AS id_formation_module, m.title AS title_module, m.description AS description_module FROM formations f INNER JOIN modules m ON m.id_formation=f.id;";
             const response = yield server_1.fastify.pg.query(query);
-            // console.log("FORMATIONS ROWS: ", response.rows);
-            const formationsWithVideos = groupVideosByFormation(response.rows);
-            res.code(200).send(formationsWithVideos);
+            const groupedModulesByFormation = groupModulesByFormation(response.rows);
+            res.code(200).send(groupedModulesByFormation);
         }
         catch (error) {
             if (error instanceof Error) {
@@ -60,4 +59,4 @@ function getFormationsWithVideos(req, res) {
         }
     });
 }
-exports.getFormationsWithVideos = getFormationsWithVideos;
+exports.getFormationsWithModules = getFormationsWithModules;

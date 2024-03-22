@@ -38,15 +38,15 @@ const node_path_1 = __importDefault(require("node:path"));
 const users_1 = require("./controllers/users");
 const auth_1 = require("./controllers/auth");
 const formations_1 = require("./controllers/formations");
-const videos_1 = require("./controllers/videos");
 const questions_1 = require("./controllers/questions");
 const user_stats_1 = require("./controllers/user-stats");
+const modules_1 = require("./controllers/modules");
 dotenv.config({ path: "./.env.local" });
 exports.fastify = (0, fastify_1.default)({
     logger: true,
 });
 exports.fastify.register(postgres_1.default, {
-    connectionString: `postgres://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@${process.env.DATABASE_HOST}/mooc-mnb`,
+    connectionString: `postgres://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@${process.env.DATABASE_HOST}/moocmnbwithmodules`,
 });
 exports.fastify.register(cors_1.default, {
     // ajouter des options plus tard
@@ -75,13 +75,16 @@ exports.fastify.post("/logout", auth_1.logout);
 exports.fastify.post("/me", auth_1.getCurrentUser);
 /** Users */
 exports.fastify.get("/users", users_1.getUsers);
-/** Formations with Vidéos */
-exports.fastify.get("/formations", formations_1.getFormationsWithVideos);
-exports.fastify.get("/formation/:id", videos_1.getVideosByFormationIdWithCompleteQuiz);
+/** Formations with Modules */
+exports.fastify.get("/formations", formations_1.getFormationsWithModules);
+/** Modules */
+exports.fastify.get("/module/:id/content", modules_1.getModulesWithContentsByModuleId);
+exports.fastify.get("/module/:id/quiz", modules_1.getQuizByModuleId);
 /** Questions */
 exports.fastify.post("/answer/question", questions_1.getCorrectAnswerByQuestion);
 /** User Stats */
 exports.fastify.post("/stats/save", user_stats_1.saveUserAnswer);
+exports.fastify.post("/stats/useranswers", user_stats_1.getUserAnswersByQuizId);
 exports.fastify.listen({ port: 4000 }, (error) => {
     const address = exports.fastify.server.address();
     if (error) {
