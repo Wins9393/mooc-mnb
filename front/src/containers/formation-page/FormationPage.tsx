@@ -36,6 +36,7 @@ export function FormationPage() {
     getCorrectAnswer,
     saveUserStats,
     getUserAnswerByQuizId,
+    resetQuizById,
   } = mainContext;
 
   const authContext = useContext(AuthContext);
@@ -64,9 +65,9 @@ export function FormationPage() {
   //   console.log("moduleContent: ", moduleContent);
   // }, [moduleContent]);
 
-  // useEffect(() => {
-  //   console.log("currentModuleItem: ", currentModuleItem);
-  // }, [currentModuleItem]);
+  useEffect(() => {
+    console.log("currentModuleItem: ", currentModuleItem);
+  }, [currentModuleItem]);
 
   // useEffect(() => {
   //   console.log("correctAnswers: ", correctAnswers);
@@ -76,9 +77,9 @@ export function FormationPage() {
   //   console.log("selectedUserAnswers: ", selectedUserAnswers);
   // }, [selectedUserAnswers]);
 
-  // useEffect(() => {
-  //   console.log("oldUserAnswers: ", oldUserAnswers);
-  // }, [oldUserAnswers]);
+  useEffect(() => {
+    console.log("oldUserAnswers: ", oldUserAnswers);
+  }, [oldUserAnswers]);
   // Fin Debug
 
   useEffect(() => {
@@ -246,6 +247,13 @@ export function FormationPage() {
     window.scrollTo(0, 0);
   }
 
+  async function handleResetQuiz(user_id: number, quiz_id: number) {
+    if (user_id && quiz_id) {
+      await resetQuizById(user_id, quiz_id);
+      await getOldUserAnswers(user_id, quiz_id);
+    }
+  }
+
   // Boucle sur les modules présents dans la formation pour remplir le tableau d'Items pour le Collapse
   function getCollapseItems(modules: Module[]) {
     let items: CollapseProps["items"] = [];
@@ -303,7 +311,7 @@ export function FormationPage() {
     return items;
   }
 
-  function validateQuizDateString(dateString: string) {
+  function displayQuizResult(dateString: string, id_quiz: number) {
     const dateValidation = new Date(dateString);
     return (
       (
@@ -330,7 +338,15 @@ export function FormationPage() {
               </p>
             )}
           </div>
-          {scoreByQuiz < 70 ? <Button style={{ marginTop: "8px" }}>Rééssayer</Button> : ""}
+          {scoreByQuiz < 70 ? (
+            <Button
+              style={{ marginTop: "8px" }}
+              onClick={() => (user ? handleResetQuiz(user?.id, id_quiz) : "")}>
+              Rééssayer
+            </Button>
+          ) : (
+            ""
+          )}
         </div>
       ) || undefined
     );
@@ -359,7 +375,7 @@ export function FormationPage() {
         return (
           <div className={`formationPage__quiz-wrapper ${fadeClass}`}>
             {isQuizAnswered && oldUserAnswers && oldUserAnswers.length > 0
-              ? validateQuizDateString(oldUserAnswers?.[0].date_answer)
+              ? displayQuizResult(oldUserAnswers?.[0].date_answer, quizItem.id)
               : ""}
             {quizItem?.questions.map((question) => {
               const userAnswer = oldUserAnswers?.find((a) => a.id_question === question.id);

@@ -9,69 +9,57 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createQuestion = exports.getCorrectAnswerByQuestion = void 0;
+exports.createQuiz = exports.resetQuizById = void 0;
 const server_1 = require("../server");
-function structureAnswerByQuestion(answerOptions, id_answer_option_selected) {
-    const correctAnswer = answerOptions.find((answer) => answer.correct);
-    if (correctAnswer) {
-        const isCorrectAnswerSelected = correctAnswer.id === id_answer_option_selected;
-        return {
-            isCorrectAnswerSelected,
-            idAnswerOptionSelected: id_answer_option_selected,
-            correctAnswer,
-        };
-    }
-}
-function getCorrectAnswerByQuestion(req, res) {
+function resetQuizById(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const { id_question, id_answer_option_selected } = req.body;
-            const query = "SELECT id, id_question, answer_text, correct FROM answers_options WHERE id_question=$1";
-            const value = [id_question];
-            const results = yield server_1.fastify.pg.query(query, value);
-            const correctAnswer = structureAnswerByQuestion(results.rows, id_answer_option_selected);
-            res.send(correctAnswer);
+            const { id_user, id_quiz } = req.body;
+            const query = "DELETE FROM user_answers WHERE id_user=$1 AND id_quiz=$2";
+            const values = [id_user, id_quiz];
+            const results = yield server_1.fastify.pg.query(query, values);
+            res.code(200).send("Réinitialisation réussie !");
         }
         catch (error) {
             if (error instanceof Error) {
                 res.code(500).send({
-                    error: "Erreur lors de la récupération de la bonne réponse",
+                    error: "Erreur lors de la réinitialisation du quiz",
                     details: error.message,
                 });
             }
             else {
                 // Gestion d'autres types d'erreurs si nécessaire
                 res.code(500).send({
-                    error: "Erreur inconnue lors de la récupération de la bonne réponse",
+                    error: "Erreur inconnue lors de la réinitialisation du quiz",
                 });
             }
         }
     });
 }
-exports.getCorrectAnswerByQuestion = getCorrectAnswerByQuestion;
-function createQuestion(req, res) {
+exports.resetQuizById = resetQuizById;
+function createQuiz(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const { id_quiz, question_text, explanation, is_multiple_choice } = req.body;
-            const query = "INSERT INTO questions (id_quiz, question_text, explanation, is_multiple_choice) VALUES ($1, $2, $3, $4) RETURNING id";
-            const values = [id_quiz, question_text, explanation, is_multiple_choice];
+            const { id_module, title } = req.body;
+            const query = "INSERT INTO quiz (id_module, title) VALUES ($1, $2) RETURNING id";
+            const values = [id_module, title];
             const result = yield server_1.fastify.pg.query(query, values);
             res.code(200).send(result.rows[0].id);
         }
         catch (error) {
             if (error instanceof Error) {
                 res.code(500).send({
-                    error: "Erreur lors de la création de la question",
+                    error: "Erreur lors de la création du quiz",
                     details: error.message,
                 });
             }
             else {
                 // Gestion d'autres types d'erreurs si nécessaire
                 res.code(500).send({
-                    error: "Erreur inconnue lors de la création de la question",
+                    error: "Erreur inconnue lors de la création du quiz",
                 });
             }
         }
     });
 }
-exports.createQuestion = createQuestion;
+exports.createQuiz = createQuiz;

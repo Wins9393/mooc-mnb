@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getQuizByModuleId = exports.getModulesWithContentsByModuleId = void 0;
+exports.createModule = exports.getModulesWithContentsByModuleId = exports.getQuizByModuleId = void 0;
 const server_1 = require("../server");
 function groupQuestionsAndAnswersOptionsByQuiz(resultsFromDB) {
     const quizzes = {};
@@ -36,6 +36,34 @@ function groupQuestionsAndAnswersOptionsByQuiz(resultsFromDB) {
     });
     return Object.values(quizzes);
 }
+function getQuizByModuleId(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const { id } = req.params;
+            const query = "SELECT qz.id AS quiz_id, qz.title AS quiz_title, qs.id AS question_id, qs.question_text, qs.explanation, qs.is_multiple_choice, ao.id AS answer_option_id, ao.answer_text, ao.correct FROM quiz qz INNER JOIN questions qs ON qz.id = qs.id_quiz INNER JOIN answers_options ao ON qs.id = ao.id_question WHERE qz.id_module = $1";
+            const value = [id];
+            const response = yield server_1.fastify.pg.query(query, value);
+            const quizzes = groupQuestionsAndAnswersOptionsByQuiz(response.rows);
+            const quiz = quizzes.length > 0 ? quizzes[0] : null;
+            res.code(200).send(quiz);
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                res.code(500).send({
+                    error: "Erreur lors de la récupération des quiz",
+                    details: error.message,
+                });
+            }
+            else {
+                // Gestion d'autres types d'erreurs si nécessaire
+                res.code(500).send({
+                    error: "Erreur inconnue lors de la récupération des quiz",
+                });
+            }
+        }
+    });
+}
+exports.getQuizByModuleId = getQuizByModuleId;
 function getModulesWithContentsByModuleId(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -69,31 +97,29 @@ function getModulesWithContentsByModuleId(req, res) {
     });
 }
 exports.getModulesWithContentsByModuleId = getModulesWithContentsByModuleId;
-function getQuizByModuleId(req, res) {
+function createModule(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const { id } = req.params;
-            const query = "SELECT qz.id AS quiz_id, qz.title AS quiz_title, qs.id AS question_id, qs.question_text, qs.explanation, qs.is_multiple_choice, ao.id AS answer_option_id, ao.answer_text, ao.correct FROM quiz qz INNER JOIN questions qs ON qz.id = qs.id_quiz INNER JOIN answers_options ao ON qs.id = ao.id_question WHERE qz.id_module = $1";
-            const value = [id];
-            const response = yield server_1.fastify.pg.query(query, value);
-            const quizzes = groupQuestionsAndAnswersOptionsByQuiz(response.rows);
-            const quiz = quizzes.length > 0 ? quizzes[0] : null;
-            res.code(200).send(quiz);
+            const { id_formation, title, description } = req.body;
+            const query = "INSERT INTO modules (title, description, cover_path) VALUES ($1, $2, $3) RETURNING id";
+            const values = [id_formation, title, description];
+            const result = yield server_1.fastify.pg.query(query, values);
+            res.code(200).send(result.rows[0].id);
         }
         catch (error) {
             if (error instanceof Error) {
                 res.code(500).send({
-                    error: "Erreur lors de la récupération des modules et de leurs contenu",
+                    error: "Erreur lors de la création du module",
                     details: error.message,
                 });
             }
             else {
                 // Gestion d'autres types d'erreurs si nécessaire
                 res.code(500).send({
-                    error: "Erreur inconnue lors de la récupération des modules et de leurs contenu",
+                    error: "Erreur inconnue lors de la création du module",
                 });
             }
         }
     });
 }
-exports.getQuizByModuleId = getQuizByModuleId;
+exports.createModule = createModule;

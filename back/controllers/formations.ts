@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { fastify } from "../server";
-import { FormationWithModule } from "../types/types";
+import { FormationToDB, FormationWithModule } from "../types/types";
 
 function groupModulesByFormation(results: any[]): FormationWithModule[] {
   const formations: Record<number, FormationWithModule> = {};
@@ -48,6 +48,33 @@ export async function getFormationsWithModules(req: FastifyRequest, res: Fastify
       // Gestion d'autres types d'erreurs si nécessaire
       res.code(500).send({
         error: "Erreur inconnue lors de la récupération des formations et vidéos",
+      });
+    }
+  }
+}
+
+export async function createFormation(
+  req: FastifyRequest<{ Body: FormationToDB }>,
+  res: FastifyReply
+) {
+  try {
+    const { title, description, cover_path } = req.body;
+    const query =
+      "INSERT INTO formations (title, description, cover_path) VALUES ($1, $2, $3) RETURNING id";
+    const values = [title, description, cover_path];
+    const result = await fastify.pg.query(query, values);
+
+    res.code(200).send(result.rows[0].id);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      res.code(500).send({
+        error: "Erreur lors de la création de la formation",
+        details: error.message,
+      });
+    } else {
+      // Gestion d'autres types d'erreurs si nécessaire
+      res.code(500).send({
+        error: "Erreur inconnue lors de la création de la formation",
       });
     }
   }

@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { fastify } from "../server";
-import { AnswerOptionFromDB, BodyGetCorrectAnswer } from "../types/types";
+import { AnswerOptionFromDB, BodyGetCorrectAnswer, QuestionToDB } from "../types/types";
 
 function structureAnswerByQuestion(
   answerOptions: AnswerOptionFromDB[],
@@ -41,6 +41,33 @@ export async function getCorrectAnswerByQuestion(
       // Gestion d'autres types d'erreurs si nécessaire
       res.code(500).send({
         error: "Erreur inconnue lors de la récupération de la bonne réponse",
+      });
+    }
+  }
+}
+
+export async function createQuestion(
+  req: FastifyRequest<{ Body: QuestionToDB }>,
+  res: FastifyReply
+) {
+  try {
+    const { id_quiz, question_text, explanation, is_multiple_choice } = req.body;
+    const query =
+      "INSERT INTO questions (id_quiz, question_text, explanation, is_multiple_choice) VALUES ($1, $2, $3, $4) RETURNING id";
+    const values = [id_quiz, question_text, explanation, is_multiple_choice];
+    const result = await fastify.pg.query(query, values);
+
+    res.code(200).send(result.rows[0].id);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      res.code(500).send({
+        error: "Erreur lors de la création de la question",
+        details: error.message,
+      });
+    } else {
+      // Gestion d'autres types d'erreurs si nécessaire
+      res.code(500).send({
+        error: "Erreur inconnue lors de la création de la question",
       });
     }
   }

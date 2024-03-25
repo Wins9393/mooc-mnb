@@ -55,3 +55,28 @@ export async function getUserAnswersByQuizId(
     }
   }
 }
+
+// export async function resetQuizById(
+//   req: FastifyRequest<{ Body: BodyGetUserAnswer }>,
+//   res: FastifyReply
+// ) {
+//   try {
+//     const { id_user, id_quiz } = req.body;
+//     const query = "DELETE FROM user_answers WHERE id_user=$1 AND id_quiz=$2";
+//     const values = [id_user, id_quiz];
+//     const results = fastify.pg.query(query, values);
+//     res.code(200).send("Réinitialisation réussie !");
+//   } catch (error: unknown) {
+//     if (error instanceof Error) {
+//       res.code(500).send({
+//         error: "Erreur lors de la suppression des réponses utilisateur",
+//         details: error.message,
+//       });
+//     } else {
+//       // Gestion d'autres types d'erreurs si nécessaire
+//       res.code(500).send({
+//         error: "Erreur inconnue lors de la suppression des réponses utilisateur",
+//       });
+//     }
+//   }
+// }

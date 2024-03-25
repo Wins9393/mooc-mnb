@@ -1,3 +1,7 @@
+export interface IdParams {
+  id: number;
+}
+
 // Formations Controller
 export interface Video {
   id: number;
@@ -47,6 +51,23 @@ export interface Quiz {
   id: number;
   title: string;
   questions: Question[];
+}
+
+export interface QuizFromDB {
+  quiz_id: number;
+  quiz_title: string;
+  question_id: number;
+  question_text: string;
+  explanation: string;
+  is_multiple_choice: boolean;
+  answer_option_id: number;
+  answer_text: string;
+  correct: boolean;
+}
+
+export interface BodyResetQuizById {
+  id_user: number;
+  id_quiz: number;
 }
 
 export interface StructuredVideo {
@@ -99,4 +120,48 @@ export interface FormationWithModule {
 export interface BodyGetUserAnswer {
   id_user: number;
   id_quiz: number;
+}
+
+export interface FormationToDB {
+  title: string;
+  description?: string;
+  cover_path: string;
+}
+
+export interface ModuleToDB {
+  id_formation: number;
+  title: string;
+  description?: string;
+}
+
+export interface VideoToDB {
+  id_module: number;
+  path: string;
+  title: string;
+  description?: string;
+  cover_path?: string;
+}
+
+export interface TextToDB {
+  id_module: number;
+  title: string;
+  content: string;
+}
+
+export interface QuizToDB {
+  id_module: number;
+  title: string;
+}
+
+export interface QuestionToDB {
+  id_quiz: number;
+  question_text: string;
+  explanation?: string;
+  is_multiple_choice: boolean;
+}
+
+export interface AnswerOptionToDB {
+  id_question: number;
+  answer_text: string;
+  correct: boolean;
 }

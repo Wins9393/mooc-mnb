@@ -1,27 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { fastify } from "../server";
-import { Quiz } from "../types/types";
-
-interface IdParams {
-  id: number;
-}
-
-interface QuizFromDB {
-  quiz_id: number;
-  quiz_title: string;
-  question_id: number;
-  question_text: string;
-  explanation: string;
-  is_multiple_choice: boolean;
-  answer_option_id: number;
-  answer_text: string;
-  correct: boolean;
-}
-
-interface BodyResetQuizById {
-  user_id: number;
-  quiz_id: number;
-}
+import { ModuleToDB, Quiz, IdParams, QuizFromDB } from "../types/types";
 
 function groupQuestionsAndAnswersOptionsByQuiz(resultsFromDB: QuizFromDB[]): Quiz[] {
   const quizzes: Record<number, Quiz> = {};
@@ -50,6 +29,36 @@ function groupQuestionsAndAnswersOptionsByQuiz(resultsFromDB: QuizFromDB[]): Qui
     });
   });
   return Object.values(quizzes);
+}
+
+export async function getQuizByModuleId(
+  req: FastifyRequest<{ Params: IdParams }>,
+  res: FastifyReply
+) {
+  try {
+    const { id } = req.params;
+    const query =
+      "SELECT qz.id AS quiz_id, qz.title AS quiz_title, qs.id AS question_id, qs.question_text, qs.explanation, qs.is_multiple_choice, ao.id AS answer_option_id, ao.answer_text, ao.correct FROM quiz qz INNER JOIN questions qs ON qz.id = qs.id_quiz INNER JOIN answers_options ao ON qs.id = ao.id_question WHERE qz.id_module = $1";
+    const value = [id];
+
+    const response = await fastify.pg.query(query, value);
+    const quizzes = groupQuestionsAndAnswersOptionsByQuiz(response.rows);
+    const quiz = quizzes.length > 0 ? quizzes[0] : null;
+
+    res.code(200).send(quiz);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      res.code(500).send({
+        error: "Erreur lors de la récupération des quiz",
+        details: error.message,
+      });
+    } else {
+      // Gestion d'autres types d'erreurs si nécessaire
+      res.code(500).send({
+        error: "Erreur inconnue lors de la récupération des quiz",
+      });
+    }
+  }
 }
 
 export async function getModulesWithContentsByModuleId(
@@ -89,55 +98,25 @@ export async function getModulesWithContentsByModuleId(
   }
 }
 
-export async function getQuizByModuleId(
-  req: FastifyRequest<{ Params: IdParams }>,
-  res: FastifyReply
-) {
+export async function createModule(req: FastifyRequest<{ Body: ModuleToDB }>, res: FastifyReply) {
   try {
-    const { id } = req.params;
+    const { id_formation, title, description } = req.body;
     const query =
-      "SELECT qz.id AS quiz_id, qz.title AS quiz_title, qs.id AS question_id, qs.question_text, qs.explanation, qs.is_multiple_choice, ao.id AS answer_option_id, ao.answer_text, ao.correct FROM quiz qz INNER JOIN questions qs ON qz.id = qs.id_quiz INNER JOIN answers_options ao ON qs.id = ao.id_question WHERE qz.id_module = $1";
-    const value = [id];
+      "INSERT INTO modules (title, description, cover_path) VALUES ($1, $2, $3) RETURNING id";
+    const values = [id_formation, title, description];
+    const result = await fastify.pg.query(query, values);
 
-    const response = await fastify.pg.query(query, value);
-    const quizzes = groupQuestionsAndAnswersOptionsByQuiz(response.rows);
-    const quiz = quizzes.length > 0 ? quizzes[0] : null;
-
-    res.code(200).send(quiz);
+    res.code(200).send(result.rows[0].id);
   } catch (error: unknown) {
     if (error instanceof Error) {
       res.code(500).send({
-        error: "Erreur lors de la récupération des quiz",
+        error: "Erreur lors de la création du module",
         details: error.message,
       });
     } else {
       // Gestion d'autres types d'erreurs si nécessaire
       res.code(500).send({
-        error: "Erreur inconnue lors de la récupération des quiz",
-      });
-    }
-  }
-}
-
-export async function resetQuizById(
-  req: FastifyRequest<{ Body: BodyResetQuizById }>,
-  res: FastifyReply
-) {
-  try {
-    const { user_id, quiz_id } = req.body;
-    const query = "DELETE FROM user_answers WHERE id_user=$1 AND id_quiz=$2";
-    const values = [user_id, quiz_id];
-    const results = await fastify.pg.query(query, values);
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      res.code(500).send({
-        error: "Erreur lors de la réinitialisation du quiz",
-        details: error.message,
-      });
-    } else {
-      // Gestion d'autres types d'erreurs si nécessaire
-      res.code(500).send({
-        error: "Erreur inconnue lors de la réinitialisation du quiz",
+        error: "Erreur inconnue lors de la création du module",
       });
     }
   }

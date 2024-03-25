@@ -41,6 +41,10 @@ const formations_1 = require("./controllers/formations");
 const questions_1 = require("./controllers/questions");
 const user_stats_1 = require("./controllers/user-stats");
 const modules_1 = require("./controllers/modules");
+const videos_1 = require("./controllers/videos");
+const texts_1 = require("./controllers/texts");
+const quiz_1 = require("./controllers/quiz");
+const answers_options_1 = require("./controllers/answers-options");
 dotenv.config({ path: "./.env.local" });
 exports.fastify = (0, fastify_1.default)({
     logger: true,
@@ -77,14 +81,26 @@ exports.fastify.post("/me", auth_1.getCurrentUser);
 exports.fastify.get("/users", users_1.getUsers);
 /** Formations with Modules */
 exports.fastify.get("/formations", formations_1.getFormationsWithModules);
+exports.fastify.post("/formations/create", formations_1.createFormation);
 /** Modules */
 exports.fastify.get("/module/:id/content", modules_1.getModulesWithContentsByModuleId);
 exports.fastify.get("/module/:id/quiz", modules_1.getQuizByModuleId);
+exports.fastify.post("/module/create", modules_1.createModule);
+/** Videos */
+exports.fastify.post("/video/create", videos_1.createVideo);
+/** Texts */
+exports.fastify.post("/text/create", texts_1.createText);
+/** Quiz */
+exports.fastify.post("/quiz/create", quiz_1.createQuiz);
 /** Questions */
 exports.fastify.post("/answer/question", questions_1.getCorrectAnswerByQuestion);
+exports.fastify.post("/question/create", questions_1.createQuestion);
 /** User Stats */
 exports.fastify.post("/stats/save", user_stats_1.saveUserAnswer);
 exports.fastify.post("/stats/useranswers", user_stats_1.getUserAnswersByQuizId);
+exports.fastify.post("/stats/useranswers/delete", quiz_1.resetQuizById);
+/** Answers Options */
+exports.fastify.post("/answersoptions/create", answers_options_1.createAnswerOption);
 exports.fastify.listen({ port: 4000 }, (error) => {
     const address = exports.fastify.server.address();
     if (error) {

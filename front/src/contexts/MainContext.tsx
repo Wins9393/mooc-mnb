@@ -20,6 +20,7 @@ interface MainContextType {
   ): Promise<IsCorrectAnswer>;
   saveUserStats(userAnswer: UserAnswer): Promise<void>;
   getUserAnswerByQuizId(id_user: number, id_quiz: number): Promise<UserAnswer[] | undefined>;
+  resetQuizById(id_user: number, id_quiz: number): Promise<void>;
 }
 
 const MainContext = createContext<MainContextType | null>(null);
@@ -151,6 +152,26 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     }
   }
 
+  async function resetQuizById(id_user: number, id_quiz: number): Promise<void> {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/stats/useranswers/delete`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id_user,
+          id_quiz,
+        }),
+      });
+
+      console.log("RESET OK");
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return (
     <MainContext.Provider
       value={{
@@ -162,6 +183,7 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         getCorrectAnswer,
         saveUserStats,
         getUserAnswerByQuizId,
+        resetQuizById,
       }}>
       {children}
     </MainContext.Provider>

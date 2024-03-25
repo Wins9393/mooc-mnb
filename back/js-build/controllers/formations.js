@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getFormationsWithModules = void 0;
+exports.createFormation = exports.getFormationsWithModules = void 0;
 const server_1 = require("../server");
 function groupModulesByFormation(results) {
     const formations = {};
@@ -60,3 +60,29 @@ function getFormationsWithModules(req, res) {
     });
 }
 exports.getFormationsWithModules = getFormationsWithModules;
+function createFormation(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const { title, description, cover_path } = req.body;
+            const query = "INSERT INTO formations (title, description, cover_path) VALUES ($1, $2, $3) RETURNING id";
+            const values = [title, description, cover_path];
+            const result = yield server_1.fastify.pg.query(query, values);
+            res.code(200).send(result.rows[0].id);
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                res.code(500).send({
+                    error: "Erreur lors de la création de la formation",
+                    details: error.message,
+                });
+            }
+            else {
+                // Gestion d'autres types d'erreurs si nécessaire
+                res.code(500).send({
+                    error: "Erreur inconnue lors de la création de la formation",
+                });
+            }
+        }
+    });
+}
+exports.createFormation = createFormation;

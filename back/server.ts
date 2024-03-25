@@ -9,14 +9,18 @@ import path from "node:path";
 
 import { getUsers } from "./controllers/users";
 import { getCurrentUser, login, logout, register } from "./controllers/auth";
-import { getFormationsWithModules } from "./controllers/formations";
-import { getCorrectAnswerByQuestion } from "./controllers/questions";
+import { createFormation, getFormationsWithModules } from "./controllers/formations";
+import { createQuestion, getCorrectAnswerByQuestion } from "./controllers/questions";
 import { getUserAnswersByQuizId, saveUserAnswer } from "./controllers/user-stats";
 import {
+  createModule,
   getModulesWithContentsByModuleId,
   getQuizByModuleId,
-  resetQuizById,
 } from "./controllers/modules";
+import { createVideo } from "./controllers/videos";
+import { createText } from "./controllers/texts";
+import { createQuiz, resetQuizById } from "./controllers/quiz";
+import { createAnswerOption } from "./controllers/answers-options";
 
 dotenv.config({ path: "./.env.local" });
 
@@ -61,18 +65,33 @@ fastify.get("/users", getUsers);
 
 /** Formations with Modules */
 fastify.get("/formations", getFormationsWithModules);
+fastify.post("/formations/create", createFormation);
 
 /** Modules */
 fastify.get("/module/:id/content", getModulesWithContentsByModuleId);
 fastify.get("/module/:id/quiz", getQuizByModuleId);
+fastify.post("/module/create", createModule);
+
+/** Videos */
+fastify.post("/video/create", createVideo);
+
+/** Texts */
+fastify.post("/text/create", createText);
+
+/** Quiz */
+fastify.post("/quiz/create", createQuiz);
 
 /** Questions */
 fastify.post("/answer/question", getCorrectAnswerByQuestion);
+fastify.post("/question/create", createQuestion);
 
 /** User Stats */
 fastify.post("/stats/save", saveUserAnswer);
 fastify.post("/stats/useranswers", getUserAnswersByQuizId);
 fastify.post("/stats/useranswers/delete", resetQuizById);
+
+/** Answers Options */
+fastify.post("/answersoptions/create", createAnswerOption);
 
 fastify.listen({ port: 4000 }, (error: unknown) => {
   const address = fastify.server.address();
