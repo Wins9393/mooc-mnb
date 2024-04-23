@@ -1,6 +1,11 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { fastify } from "../server";
 import { FormationToDB, FormationWithModule } from "../types/types";
+import path from "node:path";
+import util from "node:util";
+import fs from "node:fs";
+import { pipeline } from "node:stream";
+const pump = util.promisify(pipeline);
 
 function groupModulesByFormation(results: any[]): FormationWithModule[] {
   const formations: Record<number, FormationWithModule> = {};
@@ -58,6 +63,7 @@ export async function createFormation(
   res: FastifyReply
 ) {
   try {
+    console.log("NEW FORMATION: ", req.body);
     const { title, description, cover_path } = req.body;
     const query =
       "INSERT INTO formations (title, description, cover_path) VALUES ($1, $2, $3) RETURNING id";

@@ -39,7 +39,16 @@ input[type="submit"] {
   }
 }
 
-button:hover {
+button:has(.anticon) {
+  background-color: transparent !important;
+  /* border: none !important; */
+}
+
+button:has(.anticon) span {
+  color: var(--dark);
+}
+
+button:not(:has(.anticon)):hover {
   border: solid 1px var(--accent-violet) !important;
 }
 

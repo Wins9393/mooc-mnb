@@ -8,9 +8,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createFormation = exports.getFormationsWithModules = void 0;
 const server_1 = require("../server");
+const node_util_1 = __importDefault(require("node:util"));
+const node_stream_1 = require("node:stream");
+const pump = node_util_1.default.promisify(node_stream_1.pipeline);
 function groupModulesByFormation(results) {
     const formations = {};
     results.forEach((row) => {
@@ -63,6 +69,7 @@ exports.getFormationsWithModules = getFormationsWithModules;
 function createFormation(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            console.log("NEW FORMATION: ", req.body);
             const { title, description, cover_path } = req.body;
             const query = "INSERT INTO formations (title, description, cover_path) VALUES ($1, $2, $3) RETURNING id";
             const values = [title, description, cover_path];

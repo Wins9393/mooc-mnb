@@ -61,18 +61,18 @@ CREATE TABLE "quiz"(
 ALTER TABLE
     "user_answers" ADD CONSTRAINT "user_answers_id_answer_option_foreign" FOREIGN KEY("id_answer_option") REFERENCES "answers_options"("id");
 ALTER TABLE
-    "answers_options" ADD CONSTRAINT "answers_options_id_question_foreign" FOREIGN KEY("id_question") REFERENCES "questions"("id");
+    "answers_options" ADD CONSTRAINT "answers_options_id_question_foreign" FOREIGN KEY("id_question") REFERENCES "questions"("id") ON DELETE CASCADE;
 ALTER TABLE
     "user_answers" ADD CONSTRAINT "user_answers_id_question_foreign" FOREIGN KEY("id_question") REFERENCES "questions"("id");
 ALTER TABLE
     "user_answers" ADD CONSTRAINT "user_answers_id_user_foreign" FOREIGN KEY("id_user") REFERENCES "users"("id");
 ALTER TABLE
-    "videos" ADD CONSTRAINT "videos_id_module_foreign" FOREIGN KEY("id_module") REFERENCES "modules"("id");
+    "videos" ADD CONSTRAINT "videos_id_module_foreign" FOREIGN KEY("id_module") REFERENCES "modules"("id") ON DELETE CASCADE;
 ALTER TABLE
-    "quiz" ADD CONSTRAINT "quiz_id_module_foreign" FOREIGN KEY("id_module") REFERENCES "modules"("id");
+    "quiz" ADD CONSTRAINT "quiz_id_module_foreign" FOREIGN KEY("id_module") REFERENCES "modules"("id") ON DELETE CASCADE;
 ALTER TABLE
-    "texts" ADD CONSTRAINT "texts_id_module_foreign" FOREIGN KEY("id_module") REFERENCES "modules"("id");
+    "texts" ADD CONSTRAINT "texts_id_module_foreign" FOREIGN KEY("id_module") REFERENCES "modules"("id") ON DELETE CASCADE;
 ALTER TABLE
-    "questions" ADD CONSTRAINT "questions_id_quiz_foreign" FOREIGN KEY("id_quiz") REFERENCES "quiz"("id");
+    "questions" ADD CONSTRAINT "questions_id_quiz_foreign" FOREIGN KEY("id_quiz") REFERENCES "quiz"("id") ON DELETE CASCADE;
 ALTER TABLE
-    "modules" ADD CONSTRAINT "modules_id_formation_foreign" FOREIGN KEY("id_formation") REFERENCES "formations"("id");
+    "modules" ADD CONSTRAINT "modules_id_formation_foreign" FOREIGN KEY("id_formation") REFERENCES "formations"("id") ON DELETE CASCADE;

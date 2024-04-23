@@ -32,6 +32,7 @@ const postgres_1 = __importDefault(require("@fastify/postgres"));
 const cookie_1 = __importDefault(require("@fastify/cookie"));
 const session_1 = __importDefault(require("@fastify/session"));
 const static_1 = __importDefault(require("@fastify/static"));
+const multipart_1 = __importDefault(require("@fastify/multipart"));
 const dotenv = __importStar(require("dotenv"));
 const cors_1 = __importDefault(require("@fastify/cors"));
 const node_path_1 = __importDefault(require("node:path"));
@@ -45,6 +46,7 @@ const videos_1 = require("./controllers/videos");
 const texts_1 = require("./controllers/texts");
 const quiz_1 = require("./controllers/quiz");
 const answers_options_1 = require("./controllers/answers-options");
+const upload_1 = require("./controllers/upload");
 dotenv.config({ path: "./.env.local" });
 exports.fastify = (0, fastify_1.default)({
     logger: true,
@@ -71,6 +73,11 @@ exports.fastify.register(static_1.default, {
     root: node_path_1.default.join(__dirname, "../public"),
     prefix: "/public/",
     // constraints: { host: process.env.FRONT_URL },
+});
+exports.fastify.register(multipart_1.default, {
+    limits: {
+        fileSize: 1e8,
+    },
 });
 /** Auth */
 exports.fastify.post("/login", auth_1.login);
@@ -101,6 +108,8 @@ exports.fastify.post("/stats/useranswers", user_stats_1.getUserAnswersByQuizId);
 exports.fastify.post("/stats/useranswers/delete", quiz_1.resetQuizById);
 /** Answers Options */
 exports.fastify.post("/answersoptions/create", answers_options_1.createAnswerOption);
+/** Image */
+exports.fastify.post("/upload/file", upload_1.uploadFile);
 exports.fastify.listen({ port: 4000 }, (error) => {
     const address = exports.fastify.server.address();
     if (error) {

@@ -101,7 +101,7 @@ function createModule(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const { id_formation, title, description } = req.body;
-            const query = "INSERT INTO modules (title, description, cover_path) VALUES ($1, $2, $3) RETURNING id";
+            const query = "INSERT INTO modules (id_formation, title, description) VALUES ($1, $2, $3) RETURNING id";
             const values = [id_formation, title, description];
             const result = yield server_1.fastify.pg.query(query, values);
             res.code(200).send(result.rows[0].id);

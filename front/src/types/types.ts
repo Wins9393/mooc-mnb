@@ -1,3 +1,5 @@
+import { UploadFile } from "antd";
+
 export interface Formation {
   id: number;
   title: string;
@@ -6,11 +8,25 @@ export interface Formation {
   modules: Module[];
 }
 
+export interface FormationToDB {
+  type: "formation";
+  title: string;
+  description?: string;
+  cover_path: string;
+}
+
 export interface Module {
   id: number;
   id_formation: number;
   title: string;
   description: string;
+}
+
+export interface ModuleToDB {
+  type: "module";
+  id_formation: number | null;
+  title: string;
+  description?: string;
 }
 
 export interface Video {
@@ -21,16 +37,41 @@ export interface Video {
   cover_path_video: string;
 }
 
+export interface VideoToDB {
+  type: "video";
+  key: string | null;
+  id_module: number | null;
+  path: string;
+  title: string;
+  description?: string;
+  cover_path?: string;
+  video: UploadFile[];
+}
+
 export interface Text {
   id_text: number;
   title_text: string;
   content_text: string;
 }
 
+export interface TextToDB {
+  type: "text";
+  key: string | null;
+  id_module: number | null;
+  title: string;
+  content: string;
+}
+
 export interface Quiz {
   id: number;
   title: string;
   questions: Question[];
+}
+
+export interface QuizToDB {
+  type: "quiz";
+  id_module: number | null;
+  title: string;
 }
 
 export interface ModuleCollapseItem {
@@ -42,15 +83,33 @@ export interface ModuleCollapseItem {
 
 export interface Question {
   id: number;
-  text: string;
+  id_quiz: number | null;
+  question_text: string;
   explanation?: string;
   is_multiple_choice: boolean;
   answer_options: AnswerOption[];
 }
 
+export interface QuestionToDB {
+  type: "question";
+  id_quiz: number | null;
+  question_text: string;
+  explanation?: string;
+  is_multiple_choice: boolean;
+  answer_options: AnswerOptionToDB[];
+}
+
 export interface AnswerOption {
   id: number;
   text: string;
+}
+
+export interface AnswerOptionToDB {
+  type: "answeroption";
+  key: number | null;
+  id_question: number | null;
+  answer_text: string;
+  correct: boolean;
 }
 
 export interface ContentByModule {
@@ -88,4 +147,24 @@ export interface IsCorrectAnswer {
   isCorrectAnswerSelected: boolean;
   idAnswerOptionSelected: number;
   correctAnswer: FullAnswerOption;
+}
+
+export interface ModuleWithAllChildrens {
+  title: string;
+  description?: string;
+  videos: VideoToDB[];
+  texts: TextToDB[];
+  quiz: QuizToDB;
+  questions: QuestionToDB[];
+  answers_options: AnswerOptionToDB[];
+}
+
+export interface QuizQuestionsAndAnswersContent {
+  [key: string]: [
+    {
+      type: "quiz";
+      quiz_title: string;
+      questions: QuestionToDB[];
+    }
+  ];
 }

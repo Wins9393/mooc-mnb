@@ -384,7 +384,7 @@ export function FormationPage() {
                   key={`question-${question.id}`}
                   className="formationPage__questions-answers-bloc">
                   <div className="formationPage__question-bloc">
-                    <h3>{question.text}</h3>
+                    <h3>{question.question_text}</h3>
                   </div>
                   <Divider style={{ margin: "16px" }} />
                   <div>

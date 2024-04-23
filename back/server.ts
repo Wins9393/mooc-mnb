@@ -3,6 +3,7 @@ import fastifyPostgres from "@fastify/postgres";
 import fastifyCookie from "@fastify/cookie";
 import fastifySession from "@fastify/session";
 import fastifyStatic from "@fastify/static";
+import fastifyMultipart from "@fastify/multipart";
 import * as dotenv from "dotenv";
 import cors from "@fastify/cors";
 import path from "node:path";
@@ -21,6 +22,7 @@ import { createVideo } from "./controllers/videos";
 import { createText } from "./controllers/texts";
 import { createQuiz, resetQuizById } from "./controllers/quiz";
 import { createAnswerOption } from "./controllers/answers-options";
+import { uploadFile } from "./controllers/upload";
 
 dotenv.config({ path: "./.env.local" });
 
@@ -52,6 +54,12 @@ fastify.register(fastifyStatic, {
   root: path.join(__dirname, "../public"),
   prefix: "/public/",
   // constraints: { host: process.env.FRONT_URL },
+});
+
+fastify.register(fastifyMultipart, {
+  limits: {
+    fileSize: 1e8,
+  },
 });
 
 /** Auth */
@@ -92,6 +100,9 @@ fastify.post("/stats/useranswers/delete", resetQuizById);
 
 /** Answers Options */
 fastify.post("/answersoptions/create", createAnswerOption);
+
+/** Image */
+fastify.post("/upload/file", uploadFile);
 
 fastify.listen({ port: 4000 }, (error: unknown) => {
   const address = fastify.server.address();

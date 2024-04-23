@@ -102,7 +102,7 @@ export async function createModule(req: FastifyRequest<{ Body: ModuleToDB }>, re
   try {
     const { id_formation, title, description } = req.body;
     const query =
-      "INSERT INTO modules (title, description, cover_path) VALUES ($1, $2, $3) RETURNING id";
+      "INSERT INTO modules (id_formation, title, description) VALUES ($1, $2, $3) RETURNING id";
     const values = [id_formation, title, description];
     const result = await fastify.pg.query(query, values);
 
