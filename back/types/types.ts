@@ -41,7 +41,7 @@ export interface AnswerOption {
 
 export interface Question {
   id: number;
-  text: string;
+  question_text: string;
   explanation?: string;
   is_multiple_choice: boolean;
   answer_options: AnswerOption[];

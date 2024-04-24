@@ -11,7 +11,7 @@ import {
   Video,
   Text,
 } from "../../types/types";
-import { Col, Row, Collapse, CollapseProps, Divider, Button } from "antd";
+import { Col, Row, Collapse, CollapseProps, Divider, Button, message } from "antd";
 import {
   CloseCircleTwoTone,
   CheckCircleTwoTone,
@@ -79,8 +79,16 @@ export function FormationPage() {
 
   useEffect(() => {
     console.log("oldUserAnswers: ", oldUserAnswers);
-  }, [oldUserAnswers]);
+    console.log("isQuizAnswered: ", isQuizAnswered);
+    console.log("correctAnswers: ", correctAnswers);
+
+  }, [oldUserAnswers, isQuizAnswered, correctAnswers]);
   // Fin Debug
+
+  useEffect(() => {
+    if(user && currentModuleItem)
+    getOldUserAnswers(user?.id, (currentModuleItem?.item as Quiz).id)
+  }, [correctAnswers])
 
   useEffect(() => {
     // console.log("isQuizAnswered: ", isQuizAnswered);
@@ -91,7 +99,7 @@ export function FormationPage() {
 
   useEffect(() => {
     getScoreByQuiz(correctAnswers);
-  }, [correctAnswers]);
+  }, [correctAnswers, isQuizAnswered]);
 
   useEffect(() => {
     if (currentModuleItem) {
@@ -229,6 +237,7 @@ export function FormationPage() {
   async function onValidateQuiz(userAnswers: UserAnswer[], quizItem: Quiz) {
     if (userAnswers.length < quizItem.questions.length) {
       console.log("Veuillez choisir une réponse pour chaque question !");
+      message.error("Veuillez choisir une réponse pour chaque question !")
       return;
     }
 
@@ -364,7 +373,7 @@ export function FormationPage() {
           <video
             controls
             className={`formationPage__video ${fadeClass}`}
-            src={`${import.meta.env.VITE_API_URL}/public/video-${videoItem.path_video}`}></video>
+            src={`${import.meta.env.VITE_API_URL}/public/${videoItem.path_video}`}></video>
         );
       case "text":
         const textItem = item as Text;
@@ -374,9 +383,9 @@ export function FormationPage() {
 
         return (
           <div className={`formationPage__quiz-wrapper ${fadeClass}`}>
-            {isQuizAnswered && oldUserAnswers && oldUserAnswers.length > 0
+            {isQuizAnswered && oldUserAnswers?.length
               ? displayQuizResult(oldUserAnswers?.[0].date_answer, quizItem.id)
-              : ""}
+              : "allo"}
             {quizItem?.questions.map((question) => {
               const userAnswer = oldUserAnswers?.find((a) => a.id_question === question.id);
               return (

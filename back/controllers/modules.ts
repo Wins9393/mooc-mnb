@@ -2,12 +2,18 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { fastify } from "../server";
 import { ModuleToDB, Quiz, IdParams, QuizFromDB } from "../types/types";
 
-function groupQuestionsAndAnswersOptionsByQuiz(resultsFromDB: QuizFromDB[]): Quiz[] {
+function groupQuestionsAndAnswersOptionsByQuiz(
+  resultsFromDB: QuizFromDB[]
+): Quiz[] {
   const quizzes: Record<number, Quiz> = {};
 
   resultsFromDB.forEach((row) => {
     if (!quizzes[row.quiz_id]) {
-      quizzes[row.quiz_id] = { id: row.quiz_id, title: row.quiz_title, questions: [] };
+      quizzes[row.quiz_id] = {
+        id: row.quiz_id,
+        title: row.quiz_title,
+        questions: [],
+      };
     }
     const quiz = quizzes[row.quiz_id];
 
@@ -15,7 +21,7 @@ function groupQuestionsAndAnswersOptionsByQuiz(resultsFromDB: QuizFromDB[]): Qui
     if (!question) {
       question = {
         id: row.question_id,
-        text: row.question_text,
+        question_text: row.question_text,
         explanation: row.explanation,
         is_multiple_choice: row.is_multiple_choice,
         answer_options: [],
@@ -92,13 +98,17 @@ export async function getModulesWithContentsByModuleId(
     } else {
       // Gestion d'autres types d'erreurs si nécessaire
       res.code(500).send({
-        error: "Erreur inconnue lors de la récupération des modules et de leurs contenu",
+        error:
+          "Erreur inconnue lors de la récupération des modules et de leurs contenu",
       });
     }
   }
 }
 
-export async function createModule(req: FastifyRequest<{ Body: ModuleToDB }>, res: FastifyReply) {
+export async function createModule(
+  req: FastifyRequest<{ Body: ModuleToDB }>,
+  res: FastifyReply
+) {
   try {
     const { id_formation, title, description } = req.body;
     const query =

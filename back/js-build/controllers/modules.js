@@ -15,14 +15,18 @@ function groupQuestionsAndAnswersOptionsByQuiz(resultsFromDB) {
     const quizzes = {};
     resultsFromDB.forEach((row) => {
         if (!quizzes[row.quiz_id]) {
-            quizzes[row.quiz_id] = { id: row.quiz_id, title: row.quiz_title, questions: [] };
+            quizzes[row.quiz_id] = {
+                id: row.quiz_id,
+                title: row.quiz_title,
+                questions: [],
+            };
         }
         const quiz = quizzes[row.quiz_id];
         let question = quiz.questions.find((q) => q.id === row.question_id);
         if (!question) {
             question = {
                 id: row.question_id,
-                text: row.question_text,
+                question_text: row.question_text,
                 explanation: row.explanation,
                 is_multiple_choice: row.is_multiple_choice,
                 answer_options: [],

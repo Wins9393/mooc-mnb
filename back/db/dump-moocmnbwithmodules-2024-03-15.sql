@@ -43,6 +43,7 @@ CREATE TABLE "questions"(
 CREATE TABLE "user_answers"(
     "id" SERIAL PRIMARY KEY NOT NULL,
     "id_user" INTEGER NOT NULL,
+    "id_quiz" INTEGER NOT NULL,
     "id_question" INTEGER NOT NULL,
     "id_answer_option" INTEGER NOT NULL,
     "date_answer" TIMESTAMP(0) WITHOUT TIME ZONE NULL
@@ -66,6 +67,8 @@ ALTER TABLE
     "user_answers" ADD CONSTRAINT "user_answers_id_question_foreign" FOREIGN KEY("id_question") REFERENCES "questions"("id");
 ALTER TABLE
     "user_answers" ADD CONSTRAINT "user_answers_id_user_foreign" FOREIGN KEY("id_user") REFERENCES "users"("id");
+ALTER TABLE
+    "user_answers" ADD CONSTRAINT "user_answers_id_quiz_foreign" FOREIGN KEY("id_quiz") REFERENCES "quiz"("id");
 ALTER TABLE
     "videos" ADD CONSTRAINT "videos_id_module_foreign" FOREIGN KEY("id_module") REFERENCES "modules"("id") ON DELETE CASCADE;
 ALTER TABLE
