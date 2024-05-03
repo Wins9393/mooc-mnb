@@ -1,25 +1,22 @@
-import {
-  Button,
-  Form,
-  FormListFieldData,
-  Input,
-  Select,
-  Upload,
-  UploadFile,
-  UploadProps,
-  message,
-} from "antd";
-import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import { Button, Card, Form, Input, Select, Upload, UploadProps, message } from "antd";
+import { PlusOutlined, CloseOutlined } from "@ant-design/icons";
 import { ModuleToDB, TextToDB, VideoToDB } from "../../types/types";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect } from "react";
 
 interface TypeCoursFormProps {
   newModules: ModuleToDB[];
-  newVideos: VideoToDB[];
+  // newVideos: VideoToDB[];
   setNewVideos: React.Dispatch<React.SetStateAction<VideoToDB[]>>;
-  newTexts: TextToDB[];
+  // newTexts: TextToDB[];
   setNewTexts: React.Dispatch<React.SetStateAction<TextToDB[]>>;
-  setSelectedVideoFile: React.Dispatch<React.SetStateAction<UploadFile | null>>;
+  allValuesTypeForm: { [key: string]: (VideoToDB | TextToDB)[] };
+  setAllValuesTypeForm: React.Dispatch<
+    React.SetStateAction<{ [key: string]: (VideoToDB | TextToDB)[] }>
+  >;
+}
+
+interface ModuleContents {
+  [key: string]: (VideoToDB | TextToDB)[];
 }
 
 const normFile = (e: any) => {
@@ -31,153 +28,84 @@ const normFile = (e: any) => {
 
 export function CreateTypeCoursForm({
   newModules,
-  newVideos,
   setNewVideos,
-  newTexts,
   setNewTexts,
-  setSelectedVideoFile,
+  allValuesTypeForm,
+  setAllValuesTypeForm,
 }: TypeCoursFormProps) {
   const [form] = Form.useForm();
-  const [contentTypeSelections, setContentTypeSelections] = useState<{ [key: string]: string }>({});
-  const [formValues, setFormValues] = useState<{ [key: string]: any[] }>({});
-
-  // useEffect(() => {
-  //   console.log("contentTypeSelections", contentTypeSelections);
-  // }, [contentTypeSelections]);
-
-  // useEffect(() => {
-  //   const fields = form.getFieldsValue();
-  //   setFormValues(fields);
-  // }, [form]);
+  const maxSize = 1e7;
 
   useEffect(() => {
-    let newFormValues: { [key: string]: any[] } = {};
+    form.setFieldsValue(allValuesTypeForm);
+  }, [form]);
 
-    newModules.forEach((module, moduleIndex) => {
-      const contentItems = [];
-      // Construisez la clé pour les vidéos et les textes de ce module
-      // const keyForModule = `types_cours_module-${moduleIndex}`;
-
-      const videosForThisModule = newVideos.filter((video) => {
-        const videoKey = video?.key ? parseInt(video?.key?.split("-")[1]) : null;
-        if (video.key) {
-          const videoKeyAsString = String(video.key);
-          setContentTypeSelections((prev) => ({ ...prev, [videoKeyAsString]: "video" }));
-        }
-        return videoKey === moduleIndex;
-      });
-
-      const textsForThisModule = newTexts.filter((text) => {
-        const textKey = text?.key ? parseInt(text?.key?.split("-")[1]) : null;
-        if (text.key) {
-          const textKeyAsString = String(text.key);
-          setContentTypeSelections((prev) => ({ ...prev, [textKeyAsString]: "text" }));
-        }
-        return textKey === moduleIndex;
-      });
-
-      contentItems.push(...videosForThisModule, ...textsForThisModule);
-      newFormValues[moduleIndex] = contentItems;
-    });
-
-    setFormValues(newFormValues);
-  }, [newVideos, newTexts, form]);
-
-  useEffect(() => {
-    form.setFieldsValue(formValues);
-    console.log("formValues: ", formValues);
-    console.log("newVideos: ", newVideos);
-    console.log("newTexts: ", newTexts);
-  }, [formValues, form]);
+  function returnFileSizeFormated(number: number) {
+    if (number < 1024) {
+      return `${number} bytes`;
+    } else if (number >= 1024 && number < 1048576) {
+      return `${(number / 1024).toFixed(1)} KB`;
+    } else if (number >= 1048576) {
+      return `${(number / 1048576).toFixed(1)} MB`;
+    }
+  }
 
   const uploadProps: UploadProps = {
     beforeUpload: (file) => {
       const isMP4 = file.type === "video/mp4";
+
       if (!isMP4) {
         message.error(`${file.name} n'est pas un fichier .mp4`);
+        return Upload.LIST_IGNORE;
+      }
+
+      if (file.size > maxSize) {
+        message.error(
+          `La taille maximum d'une vidéo ne peut excéder ${returnFileSizeFormated(maxSize)}. ${
+            file.name
+          } pèse ${returnFileSizeFormated(file.size)} `
+        );
+        return Upload.LIST_IGNORE;
       }
       return false;
     },
     onChange: (info) => {
       console.log(info);
-      if (info.file.status === "removed") {
-        setSelectedVideoFile(null);
-      } else {
-        setSelectedVideoFile(info.file);
-        // setNewVideos((prevVideo: VideoToDB) => ({
-        //   ...prevVideo,
-        //   cover_path: info.file.name,
-        // }));
-      }
     },
     maxCount: 1,
     listType: "picture-card",
   };
 
-  const handleContentTypeChange = (key: string, value: string) => {
-    console.log(key, value);
-    setContentTypeSelections((prev) => ({ ...prev, [key]: value }));
-  };
+  async function handleValuesChange(allValues: ModuleContents): Promise<void> {
+    console.log("allValues: ", allValues);
+    setAllValuesTypeForm(allValues);
+    const allValuesKeys = Object.keys(allValues);
 
-  const onVideosChange = (
-    field: "title" | "description",
-    e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
-    key: string
-  ) => {
-    const videoIndex = newVideos.findIndex((video) => video.key === key);
+    const updatedVideos = allValuesKeys.flatMap((key: string) => {
+      return allValues[key]
+        ?.filter((content) => content?.type === "video" && content.title && content.video)
+        .map((content) => {
+          const videoContent = content as VideoToDB;
+          return {
+            ...videoContent,
+            id_module: null,
+            key: key,
+            path: videoContent.video?.[0]?.name,
+          };
+        });
+    });
 
-    if (videoIndex !== -1) {
-      // Mise à jour de l'élément existant
-      const updatedVideos = [...newVideos];
-      updatedVideos[videoIndex] = { ...updatedVideos[videoIndex], [field]: e.target.value };
-      setNewVideos(updatedVideos);
-    } else {
-      // Ajout d'un nouvel élément si non trouvé
-      setNewVideos([
-        ...newVideos,
-        {
-          key,
-          title: field === "title" ? e.target.value : "",
-          description: field === "description" ? e.target.value : "",
-          type: "video",
-          id_module: null,
-          path: "",
-        },
-      ]);
-    }
-  };
+    const updatedTexts = allValuesKeys.flatMap((key: string) => {
+      return allValues[key]
+        ?.filter((content) => content?.type === "text" && content.title)
+        .map((content) => {
+          const textContent = content as TextToDB;
+          return { ...textContent, id_module: null, key: key };
+        });
+    });
 
-  const onTextsChange = (
-    field: "title" | "content",
-    e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
-    key: string
-  ) => {
-    const textIndex = newTexts.findIndex((text) => text.key === key);
-
-    if (textIndex !== -1) {
-      // Mise à jour de l'élément existant
-      const updatedTexts = [...newTexts];
-      updatedTexts[textIndex] = { ...updatedTexts[textIndex], [field]: e.target.value };
-      setNewTexts(updatedTexts);
-    } else {
-      // Ajout d'un nouvel élément si non trouvé
-      setNewTexts([
-        ...newTexts,
-        {
-          key,
-          title: field === "title" ? e.target.value : "",
-          content: field === "content" ? e.target.value : "",
-          type: "text",
-          id_module: null,
-        },
-      ]);
-    }
-  };
-
-  function onRemoveTypeCours(field: FormListFieldData, removeFunction: (index: number) => void) {
-    removeFunction(field.name);
-    const fields = form.getFieldsValue();
-    console.log("fields: ", fields);
+    setNewVideos(updatedVideos);
+    setNewTexts(updatedTexts);
   }
 
   return (
@@ -185,124 +113,153 @@ export function CreateTypeCoursForm({
       <h2 className="dashboardPage__main-content--h2">
         Choisissez un type de contenu pour chaque module
       </h2>
-      <div style={{ display: "flex", gap: "16px" }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, width: "100%" }}>
         {newModules.map((module, moduleIndex) => (
-          <div key={moduleIndex} style={{ display: "flex", flexDirection: "column" }}>
+          <div
+            key={moduleIndex}
+            style={{ display: "flex", flexDirection: "column", flex: "1 1 30%" }}>
             <h3 style={{ fontSize: "1.4rem" }}>{module.title}</h3>
             <Form
+              labelCol={{ span: 24 }}
+              wrapperCol={{ span: 24 }}
               form={form}
-              name={`dynamic_type_cours_form-${moduleIndex}`}
+              name={`form-module-${moduleIndex}`}
+              // style={{ maxWidth: 600, minWidth: 300 }}
+              autoComplete="off"
               layout="vertical"
-              style={{ maxWidth: 600 }}
-              initialValues={{ module: [{}] }}>
-              <Form.List name={moduleIndex}>
+              onValuesChange={(newValues, allValues) => handleValuesChange(allValues)}>
+              <Form.List name={`module-${moduleIndex}`} initialValue={[]}>
                 {(fields, { add, remove }) => (
-                  <>
-                    {fields.map((field, fieldIndex) => {
-                      const key = `module-${moduleIndex}-field-${fieldIndex}`;
+                  <div style={{ display: "flex", rowGap: 16, flexDirection: "column" }}>
+                    {fields.map((field) => (
+                      <Card
+                        size="small"
+                        title={`Contenu ${field.name + 1}`}
+                        key={field.key}
+                        extra={
+                          <CloseOutlined
+                            onClick={() => {
+                              remove(field.name);
+                            }}
+                          />
+                        }>
+                        <Form.Item {...field} label="Type de contenu" name={[field.name, "type"]}>
+                          <Select
+                            options={[
+                              { value: "video", label: <span>Video</span> },
+                              { value: "text", label: <span>Text</span> },
+                            ]}
+                          />
+                        </Form.Item>
 
-                      return (
-                        <div key={field.key}>
-                          <Form.Item
-                            name={[field.name, "type"]}
-                            label="Choisissez un type de contenu">
-                            <Select
-                              defaultValue={contentTypeSelections[key]}
-                              onChange={(value) => handleContentTypeChange(key, value)}
-                              options={[
-                                { value: "video", label: <span>Video</span> },
-                                { value: "text", label: <span>Text</span> },
-                              ]}
-                            />
-                          </Form.Item>
-                          {contentTypeSelections[key] === "video" && (
-                            <div
-                              style={{
-                                borderRadius: 8,
-                                border: "solid 1px var(--white-rose)",
-                                padding: "16px",
-                                marginBottom: 8,
-                              }}>
-                              <h3 style={{ marginBottom: 8 }}>Nouvelle Vidéo</h3>
-                              <Form.Item
-                                label="Titre de la vidéo"
-                                name={[field.name, "title"]}
-                                rules={[
-                                  { required: true, message: "Le titre de la vidéo est requis" },
-                                ]}>
-                                <Input onChange={(e) => onVideosChange("title", e, key)} />
-                              </Form.Item>
-                              <Form.Item
-                                label="Description de la vidéo"
-                                name={[field.name, "description"]}
-                                rules={[
-                                  {
-                                    required: false,
-                                    message: "La description de la vidéo est requis",
-                                  },
-                                ]}>
-                                <Input.TextArea
-                                  onChange={(e) => onVideosChange("description", e, key)}
-                                />
-                              </Form.Item>
-                              <Form.Item
-                                required
-                                label="Fichier vidéo (.mp4 requis)"
-                                valuePropName="fileList"
-                                getValueFromEvent={normFile}>
-                                <Upload {...uploadProps}>
-                                  <button style={{ border: 0, background: "none" }} type="button">
-                                    <PlusOutlined />
-                                    <div style={{ marginTop: 8 }}>Upload</div>
-                                  </button>
-                                </Upload>
-                              </Form.Item>
-                            </div>
-                          )}
-                          {contentTypeSelections[key] === "text" && (
-                            <div
-                              style={{
-                                borderRadius: 8,
-                                border: "solid 1px var(--white-rose)",
-                                padding: "16px",
-                                marginBottom: 8,
-                              }}>
-                              <h3 style={{ marginBottom: 8 }}>Nouveau Texte</h3>
-                              <Form.Item
-                                label="Titre du cours texte"
-                                name={[field.name, "title"]}
-                                rules={[
-                                  { required: true, message: "Le titre du cours texte est requis" },
-                                ]}>
-                                <Input onChange={(e) => onTextsChange("title", e, key)} />
-                              </Form.Item>
-                              <Form.Item
-                                label="Contenu du cours texte"
-                                name={[field.name, "content"]}
-                                rules={[
-                                  {
-                                    required: false,
-                                    message: "Le contenu du cours texte est requis",
-                                  },
-                                ]}>
-                                <Input.TextArea
-                                  onChange={(e) => onTextsChange("content", e, key)}
-                                />
-                              </Form.Item>
-                            </div>
-                          )}
-                          <MinusCircleOutlined onClick={() => onRemoveTypeCours(field, remove)} />
-                        </div>
-                      );
-                    })}
-                    <Form.Item>
-                      <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                        Ajouter un contenu
-                      </Button>
-                    </Form.Item>
-                  </>
+                        <Form.Item shouldUpdate>
+                          {() => {
+                            return form.getFieldValue([
+                              `module-${moduleIndex}`,
+                              field.name,
+                              "type",
+                            ]) === "video" ? (
+                              <div
+                                style={{
+                                  borderRadius: 8,
+                                  border: "solid 1px var(--white-rose)",
+                                  padding: "16px",
+                                  marginBottom: 8,
+                                }}>
+                                <h3 style={{ marginBottom: 8 }}>Nouvelle Vidéo</h3>
+                                <Form.Item
+                                  label="Titre de la vidéo"
+                                  name={[field.name, "title"]}
+                                  rules={[
+                                    { required: true, message: "Le titre de la vidéo est requis" },
+                                  ]}>
+                                  <Input />
+                                </Form.Item>
+                                <Form.Item
+                                  label="Description de la vidéo"
+                                  name={[field.name, "description"]}
+                                  rules={[
+                                    {
+                                      required: false,
+                                      message: "La description de la vidéo est requise",
+                                    },
+                                  ]}>
+                                  <Input.TextArea />
+                                </Form.Item>
+                                <Form.Item
+                                  required
+                                  label={`Fichier vidéo (.mp4 requis | taille max: ${returnFileSizeFormated(
+                                    maxSize
+                                  )})`}
+                                  name={[field.name, "video"]}
+                                  valuePropName="fileList"
+                                  getValueFromEvent={normFile}>
+                                  <Upload {...uploadProps}>
+                                    <button style={{ border: 0, background: "none" }} type="button">
+                                      <PlusOutlined />
+                                      <div style={{ marginTop: 8 }}>Upload</div>
+                                    </button>
+                                  </Upload>
+                                </Form.Item>
+                              </div>
+                            ) : form.getFieldValue([
+                                `module-${moduleIndex}`,
+                                field.name,
+                                "type",
+                              ]) === "text" ? (
+                              <div
+                                style={{
+                                  borderRadius: 8,
+                                  border: "solid 1px var(--white-rose)",
+                                  padding: "16px",
+                                  marginBottom: 8,
+                                }}>
+                                <h3 style={{ marginBottom: 8 }}>Nouveau Texte</h3>
+                                <Form.Item
+                                  label="Titre du cours texte"
+                                  name={[field.name, "title"]}
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: "Le titre du cours texte est requis",
+                                    },
+                                  ]}>
+                                  <Input />
+                                </Form.Item>
+                                <Form.Item
+                                  label="Contenu du cours texte"
+                                  name={[field.name, "content"]}
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: "Le contenu du cours texte est requis",
+                                    },
+                                  ]}>
+                                  <Input.TextArea />
+                                </Form.Item>
+                              </div>
+                            ) : (
+                              ""
+                            );
+                          }}
+                        </Form.Item>
+                      </Card>
+                    ))}
+
+                    <Button type="dashed" onClick={() => add()} block>
+                      + Ajouter un contenu
+                    </Button>
+                  </div>
                 )}
               </Form.List>
+
+              {/* <Form.Item noStyle shouldUpdate>
+                {() => (
+                  <Typography>
+                    <pre>{JSON.stringify(form.getFieldsValue(), null, 2)}</pre>
+                  </Typography>
+                )}
+              </Form.Item> */}
             </Form>
           </div>
         ))}

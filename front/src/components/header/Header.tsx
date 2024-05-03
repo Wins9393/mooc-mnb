@@ -56,6 +56,13 @@ export function Header(props: HeaderProps) {
             </nav>
           ) : (
             <nav className="header__nav">
+              <ul className="header__nav--list left-nav">
+                <li>
+                  <NavLink to="/" className={({ isActive }) => (isActive ? "active" : "")}>
+                    Accueil
+                  </NavLink>
+                </li>
+              </ul>
               <ul className="header__nav--list right-nav">
                 <li>
                   <NavLink to="/login" className={({ isActive }) => (isActive ? "active" : "")}>

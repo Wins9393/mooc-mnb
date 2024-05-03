@@ -154,7 +154,7 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
   async function resetQuizById(id_user: number, id_quiz: number): Promise<void> {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/stats/useranswers/delete`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/stats/useranswers/delete`, {
         method: "POST",
         credentials: "include",
         headers: {

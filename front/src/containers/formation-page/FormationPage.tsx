@@ -55,6 +55,10 @@ export function FormationPage() {
   const [scoreByQuiz, setScoreByQuiz] = useState<number>(0);
 
   const [fadeClass, setFadeClass] = useState("content--fade-in");
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+
+  const [scorePercentage, setScorePercentage] = useState<number>(25);
+  const [progressionPercentage, setProgressionPercentage] = useState<number>(50);
 
   // Debug
   // useEffect(() => {
@@ -65,33 +69,34 @@ export function FormationPage() {
   //   console.log("moduleContent: ", moduleContent);
   // }, [moduleContent]);
 
-  useEffect(() => {
-    console.log("currentModuleItem: ", currentModuleItem);
-  }, [currentModuleItem]);
+  // useEffect(() => {
+  //   console.log("formations: ", formations);
+  // }, [formations]);
 
   // useEffect(() => {
-  //   console.log("correctAnswers: ", correctAnswers);
-  // }, [correctAnswers]);
+  //   console.log("modules: ", modules);
+  // }, [modules]);
+
+  // useEffect(() => {
+  //   console.log("currentModuleItem: ", currentModuleItem);
+  // }, [currentModuleItem]);
+
+  useEffect(() => {
+    console.log("correctAnswers: ", correctAnswers);
+  }, [correctAnswers]);
 
   // useEffect(() => {
   //   console.log("selectedUserAnswers: ", selectedUserAnswers);
   // }, [selectedUserAnswers]);
 
-  useEffect(() => {
-    console.log("oldUserAnswers: ", oldUserAnswers);
-    console.log("isQuizAnswered: ", isQuizAnswered);
-    console.log("correctAnswers: ", correctAnswers);
-
-  }, [oldUserAnswers, isQuizAnswered, correctAnswers]);
+  // useEffect(() => {
+  //   console.log("oldUserAnswers: ", oldUserAnswers);
+  //   console.log("isQuizAnswered: ", isQuizAnswered);
+  //   console.log("correctAnswers: ", correctAnswers);
+  // }, [oldUserAnswers]);
   // Fin Debug
 
   useEffect(() => {
-    if(user && currentModuleItem)
-    getOldUserAnswers(user?.id, (currentModuleItem?.item as Quiz).id)
-  }, [correctAnswers])
-
-  useEffect(() => {
-    // console.log("isQuizAnswered: ", isQuizAnswered);
     if (oldUserAnswers) {
       getCorrectAnswersTab(oldUserAnswers);
     }
@@ -133,16 +138,15 @@ export function FormationPage() {
 
   function getModulesByFormationId(id_formation: string) {
     const modules: Module[] | null =
-      formations.find((f) => f.id === Number(id_formation))?.modules ?? null;
-    // console.log("modules: ", modules);
+      formations.find((f) => f.id === Number(id_formation))?.modules.sort((a, b) => a.id - b.id) ??
+      null;
     setModules(modules);
   }
 
   function onItemModuleClick(moduleItem: ModuleCollapseItem) {
-    // console.log("MODULE ITEM:", moduleItem);
-
     if (moduleItem.id !== currentModuleItem?.id) {
       setFadeClass("content--fade-out");
+      setSelectedItemId(moduleItem.id);
 
       setTimeout(() => {
         setCurrentModuleItem(moduleItem);
@@ -157,8 +161,10 @@ export function FormationPage() {
   }
 
   async function getOldUserAnswers(id_user: number, id_quiz: number) {
-    const oldUserAnswers = await getUserAnswerByQuizId(id_user, id_quiz);
-    setOldUserAnswers(oldUserAnswers);
+    setTimeout(async () => {
+      const oldUserAnswers = await getUserAnswerByQuizId(id_user, id_quiz);
+      setOldUserAnswers(oldUserAnswers);
+    }, 500);
   }
 
   function onUserAnswerChange(
@@ -236,8 +242,7 @@ export function FormationPage() {
 
   async function onValidateQuiz(userAnswers: UserAnswer[], quizItem: Quiz) {
     if (userAnswers.length < quizItem.questions.length) {
-      console.log("Veuillez choisir une réponse pour chaque question !");
-      message.error("Veuillez choisir une réponse pour chaque question !")
+      message.error("Veuillez choisir une réponse pour chaque question !");
       return;
     }
 
@@ -260,6 +265,7 @@ export function FormationPage() {
     if (user_id && quiz_id) {
       await resetQuizById(user_id, quiz_id);
       await getOldUserAnswers(user_id, quiz_id);
+      setSelectedUserAnswers([]);
     }
   }
 
@@ -294,8 +300,8 @@ export function FormationPage() {
         <p
           key={content.id}
           onClick={() => onItemModuleClick(content)}
-          className="formationPage__collapse-item"
-          style={{ display: "flex", justifyContent: "space-between" }}>
+          className="formationPage__collapse-item">
+          <span className={content.id === selectedItemId ? "selected-item" : ""}></span>
           {content.title}
           {content.type === "video" && <PlayCircleOutlined />}
           {content.type === "text" && <FileTextOutlined />}
@@ -385,7 +391,7 @@ export function FormationPage() {
           <div className={`formationPage__quiz-wrapper ${fadeClass}`}>
             {isQuizAnswered && oldUserAnswers?.length
               ? displayQuizResult(oldUserAnswers?.[0].date_answer, quizItem.id)
-              : "allo"}
+              : ""}
             {quizItem?.questions.map((question) => {
               const userAnswer = oldUserAnswers?.find((a) => a.id_question === question.id);
               return (
@@ -515,13 +521,15 @@ export function FormationPage() {
           <div className="formationPage__score-wrapper">
             <div className="score-wrapper__progression-container">
               <p>Progression:</p>
-              <div className="score-wrapper__progress-bar-progression"></div>
-              <p>83%</p>
+              <div className="score-wrapper__progress-bar-progression">
+                <p style={{ width: `${progressionPercentage}%` }}>{progressionPercentage}%</p>
+              </div>
             </div>
             <div className="score-wrapper__score-container">
               <p>Score:</p>
-              <div className="score-wrapper__progress-bar-score"></div>
-              <p>83%</p>
+              <div className="score-wrapper__progress-bar-score">
+                <p style={{ width: `${scorePercentage}%` }}>{scorePercentage}%</p>
+              </div>
             </div>
           </div>
         </Col>

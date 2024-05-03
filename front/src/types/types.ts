@@ -149,16 +149,6 @@ export interface IsCorrectAnswer {
   correctAnswer: FullAnswerOption;
 }
 
-export interface ModuleWithAllChildrens {
-  title: string;
-  description?: string;
-  videos: VideoToDB[];
-  texts: TextToDB[];
-  quiz: QuizToDB;
-  questions: QuestionToDB[];
-  answers_options: AnswerOptionToDB[];
-}
-
 export interface QuizQuestionsAndAnswersContent {
   [key: string]: [
     {

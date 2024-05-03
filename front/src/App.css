@@ -54,5 +54,4 @@ button:not(:has(.anticon)):hover {
 
 .App {
   min-height: 100vh;
-  background-color: brown;
 }

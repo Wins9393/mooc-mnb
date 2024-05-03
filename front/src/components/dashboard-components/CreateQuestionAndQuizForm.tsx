@@ -1,33 +1,19 @@
-import { Button, Card, Divider, Form, Input, Radio, Typography } from "antd";
+import { Button, Card, Divider, Form, Input, Radio } from "antd";
 import { CloseOutlined } from "@ant-design/icons";
-import {
-  ModuleToDB,
-  // Question,
-  // QuestionToDB,
-  QuizQuestionsAndAnswersContent,
-  // QuizToDB,
-} from "../../types/types";
+import { ModuleToDB, QuizQuestionsAndAnswersContent } from "../../types/types";
 import { useEffect } from "react";
 
 interface QuestionFormProps {
   newModules: ModuleToDB[];
   quizQuestionsAndAnswers: QuizQuestionsAndAnswersContent;
   setQuizQuestionsAndAnswers: React.Dispatch<React.SetStateAction<QuizQuestionsAndAnswersContent>>;
-  // newQuiz: QuizToDB;
-  // setNewQuiz: React.Dispatch<React.SetStateAction<QuizToDB>>;
-  // newQuestions: Question[];
-  // setNewQuestions: React.Dispatch<React.SetStateAction<Question[]>>;
 }
 
 export function CreateQuestionAndQuizForm({
   newModules,
   quizQuestionsAndAnswers,
   setQuizQuestionsAndAnswers,
-}: // newQuiz,
-// setNewQuiz,
-// newQuestions,
-// setNewQuestions,
-QuestionFormProps) {
+}: QuestionFormProps) {
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -239,13 +225,13 @@ QuestionFormProps) {
                   </div>
                 )}
               </Form.List>
-              <Form.Item noStyle shouldUpdate>
+              {/* <Form.Item noStyle shouldUpdate>
                 {() => (
                   <Typography>
                     <pre>{JSON.stringify(form.getFieldsValue(), null, 2)}</pre>
                   </Typography>
                 )}
-              </Form.Item>
+              </Form.Item> */}
             </Form>
           </div>
         ))}

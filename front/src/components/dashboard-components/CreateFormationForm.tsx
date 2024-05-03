@@ -22,12 +22,36 @@ export function CreateFormationForm({
   setNewFormation,
   setSelectedFile,
 }: FormationFormProps) {
+  const maxSize = 500000;
+
+  function returnFileSizeFormated(number: number) {
+    if (number < 1024) {
+      return `${number} bytes`;
+    } else if (number >= 1024 && number < 1048576) {
+      return `${(number / 1024).toFixed(1)} KB`;
+    } else if (number >= 1048576) {
+      return `${(number / 1048576).toFixed(1)} MB`;
+    }
+  }
+
   const uploadProps: UploadProps = {
     beforeUpload: (file) => {
       const isJPG = file.type === "image/jpeg";
+
       if (!isJPG) {
         message.error(`${file.name} n'est pas un fichier .jpg`);
+        return Upload.LIST_IGNORE;
       }
+
+      if (file.size > maxSize) {
+        message.error(
+          `La taille maximum d'une photos ne peut excéder ${returnFileSizeFormated(maxSize)}. ${
+            file.name
+          } pèse ${returnFileSizeFormated(file.size)} `
+        );
+        return Upload.LIST_IGNORE;
+      }
+
       return false;
     },
     onChange: (info) => {
@@ -72,7 +96,9 @@ export function CreateFormationForm({
           </Form.Item>
           <Form.Item
             required
-            label="Image de la formation (.jpg requis)"
+            label={`Image de la formation (.jpg requis | taille max: ${returnFileSizeFormated(
+              maxSize
+            )})`}
             valuePropName="fileList"
             getValueFromEvent={normFile}>
             <Upload {...uploadProps}>

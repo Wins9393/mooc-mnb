@@ -4,9 +4,7 @@ import { useEffect, useState } from "react";
 import {
   FormationToDB,
   ModuleToDB,
-  // Question,
   QuizQuestionsAndAnswersContent,
-  // QuizToDB,
   TextToDB,
   VideoToDB,
 } from "../../types/types";
@@ -14,10 +12,10 @@ import type { GetProp, UploadFile, UploadProps } from "antd";
 import "./dashboard.css";
 import { CreateModuleForm } from "../../components/dashboard-components/CreateModuleForm";
 import { CreateQuestionAndQuizForm } from "../../components/dashboard-components/CreateQuestionAndQuizForm";
-import { CreateTypeCoursForm2 } from "../../components/dashboard-components/CreateTypeCoursForm2";
+import { CreateTypeCoursForm } from "../../components/dashboard-components/CreateTypeCoursForm";
 
 type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
-type ContentType = "formation" | "module" | "video" | "text" | "quiz" | "question" | "answeroption"; // Ajoutez d'autres types au besoin
+type ContentType = "formation" | "module" | "video" | "text" | "quiz" | "question" | "answeroption";
 
 interface Content {
   type: ContentType;
@@ -31,12 +29,10 @@ const apiUrlMap: { [key in ContentType]: string } = {
   quiz: `${import.meta.env.VITE_API_URL}/quiz/create`,
   question: `${import.meta.env.VITE_API_URL}/question/create`,
   answeroption: `${import.meta.env.VITE_API_URL}/answersoptions/create`,
-  // Ajoutez d'autres mappings ici selon le besoin
 };
 
 export function Dashboard() {
   const [current, setCurrent] = useState<number>(0);
-  // States utilisés dans le composant CreateFormationForm
   const [newFormation, setNewFormation] = useState<FormationToDB>({
     type: "formation",
     title: "",
@@ -44,50 +40,43 @@ export function Dashboard() {
     cover_path: "",
   });
   const [selectedFile, setSelectedFile] = useState<UploadFile | null>(null);
-  // States utilisés dans le composant CreateModuleForm
   const [newModules, setNewModules] = useState<ModuleToDB[]>([]);
   const [newVideos, setNewVideos] = useState<VideoToDB[]>([]);
   const [newTexts, setNewTexts] = useState<TextToDB[]>([]);
   const [allValuesTypeForm, setAllValuesTypeForm] = useState<{
     [key: string]: (VideoToDB | TextToDB)[];
   }>({});
-  // const [newQuiz, setNewQuiz] = useState<QuizToDB>({
-  //   type: "quiz",
-  //   id_module: null,
-  //   title: "",
-  // });
-  // const [newQuestions, setNewQuestions] = useState<Question[]>([]);
   const [quizQuestionsAndAnswers, setQuizQuestionsAndAnswers] =
     useState<QuizQuestionsAndAnswersContent>({});
 
   // Debugg
-  useEffect(() => {
-    console.log("newFormation: ", newFormation);
-  }, [newFormation]);
+  // useEffect(() => {
+  //   console.log("newFormation: ", newFormation);
+  // }, [newFormation]);
 
   useEffect(() => {
     console.log("selectedFile: ", selectedFile);
   }, [selectedFile]);
 
-  useEffect(() => {
-    console.log("newModules: ", newModules);
-  }, [newModules]);
+  // useEffect(() => {
+  //   console.log("newModules: ", newModules);
+  // }, [newModules]);
 
-  useEffect(() => {
-    console.log("newVideos: ", newVideos);
-  }, [newVideos]);
+  // useEffect(() => {
+  //   console.log("newVideos: ", newVideos);
+  // }, [newVideos]);
 
-  useEffect(() => {
-    console.log("newTexts: ", newTexts);
-  }, [newTexts]);
+  // useEffect(() => {
+  //   console.log("newTexts: ", newTexts);
+  // }, [newTexts]);
 
-  useEffect(() => {
-    console.log("allValuesTypeForm: ", allValuesTypeForm);
-  }, [allValuesTypeForm]);
+  // useEffect(() => {
+  //   console.log("allValuesTypeForm: ", allValuesTypeForm);
+  // }, [allValuesTypeForm]);
 
-  useEffect(() => {
-    console.log("quizQuestionsAndAnswers: ", quizQuestionsAndAnswers);
-  }, [quizQuestionsAndAnswers]);
+  // useEffect(() => {
+  //   console.log("quizQuestionsAndAnswers: ", quizQuestionsAndAnswers);
+  // }, [quizQuestionsAndAnswers]);
 
   const steps = [
     {
@@ -107,7 +96,7 @@ export function Dashboard() {
     {
       title: "Type de Cours",
       content: (
-        <CreateTypeCoursForm2
+        <CreateTypeCoursForm
           newModules={newModules}
           setNewVideos={setNewVideos}
           setNewTexts={setNewTexts}
@@ -123,10 +112,6 @@ export function Dashboard() {
           newModules={newModules}
           quizQuestionsAndAnswers={quizQuestionsAndAnswers}
           setQuizQuestionsAndAnswers={setQuizQuestionsAndAnswers}
-          // newQuiz={newQuiz}
-          // setNewQuiz={setNewQuiz}
-          // newQuestions={newQuestions}
-          // setNewQuestions={setNewQuestions}
         />
       ),
     },
@@ -135,8 +120,6 @@ export function Dashboard() {
   async function uploadFile(file: UploadFile) {
     const formData = new FormData();
     formData.append("file", file as FileType);
-
-    console.log("formData: ", formData);
 
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/upload/file`, {
@@ -157,7 +140,7 @@ export function Dashboard() {
     }
   }
 
-  async function sendContentToAPI(content: Content | Content[]): Promise<number[] | undefined> {
+  async function sendContentToAPI(content: Content | Content[]): Promise<number[]> {
     const sendRequest = async (cont: Content) => {
       const apiUrl = apiUrlMap[cont.type];
       if (!apiUrl) {
@@ -177,16 +160,15 @@ export function Dashboard() {
       if (!response.ok) {
         throw new Error(`Failed to send content to API for type ${cont.type}`);
       }
-
-      console.log("response send content: ", response);
-
-      return response.json();
+      const data = await response.json();
+      return data;
     };
 
     if (Array.isArray(content)) {
       // Envoi de chaque élément du tableau séparément et attente de tous les résultats
-      const promises = content.map((cont) => sendRequest(cont));
-      return Promise.all(promises);
+      const promises = content.map(async (cont) => await sendRequest(cont));
+      const promisesResolved = await Promise.all(promises);
+      return promisesResolved;
     } else {
       // Envoi d'un seul élément
       return sendRequest(content).then((id) => [id]);
@@ -202,216 +184,124 @@ export function Dashboard() {
     quizQuestionsAndAnswers: QuizQuestionsAndAnswersContent
   ) {
     try {
-      // mettre des blocs if negatifs ex: si pas de formation => return etc...
-      // Boucler sur chaque tableau et return si pas de données required
-      if (
-        formation.title &&
-        selectedFile &&
-        modules[0].title &&
-        quizQuestionsAndAnswers["module-0"].length > 0 &&
-        quizQuestionsAndAnswers["module-0"][0].questions.length > 0 &&
-        quizQuestionsAndAnswers["module-0"][0].questions[0].answer_options.length > 0
-      ) {
-        const idFormationTab = await sendContentToAPI(formation);
-        if (idFormationTab) {
-          const idFormation = idFormationTab[0];
-          uploadFile(selectedFile);
-          console.log("formation: ", formation);
-          console.log("idFormation: ", idFormation);
+      const modulesKeys = Object.keys(quizQuestionsAndAnswers);
 
-          const moduleWithFormationId = modules.map((module) => ({
-            ...module,
-            id_formation: idFormation,
-          }));
-          const idModuleTmp = await sendContentToAPI(moduleWithFormationId);
-          console.log("idModuleTmp: ", idModuleTmp);
-          console.log("moduleWithFormationId: ", moduleWithFormationId);
-          console.log("videos: ", videos);
-          console.log("texts: ", texts);
-          console.log("quizQuestionsAndAnswers: ", quizQuestionsAndAnswers);
-          console.log("selectedFile: ", selectedFile);
-
-          if (idModuleTmp) {
-            const videosWithModuleId = videos.map((video) => {
-              const moduleIndex = video.key ? parseInt(video.key?.split("-")[1]) : -1;
-              if (idModuleTmp && moduleIndex !== -1) {
-                video.video[0].originFileObj ? uploadFile(video.video[0].originFileObj) : "";
-                return {
-                  type: video.type,
-                  id_module: idModuleTmp[moduleIndex],
-                  title: video.title,
-                  description: video.description,
-                  path: video.path,
-                };
-              } else {
-                throw new Error("Une erreur est survenue ! VIDEO");
-              }
-            });
-
-            const textsWithModuleId = texts.map((text) => {
-              const moduleIndex = text.key ? parseInt(text.key?.split("-")[1]) : -1;
-              if (idModuleTmp && moduleIndex !== -1) {
-                return {
-                  type: text.type,
-                  id_module: idModuleTmp[moduleIndex],
-                  title: text.title,
-                  content: text.content,
-                };
-              } else {
-                throw new Error("Une erreur est survenue ! TEXT");
-              }
-            });
-
-            console.log("videosWithModuleId: ", videosWithModuleId);
-            console.log("textsWithModuleId: ", textsWithModuleId);
-            if (videosWithModuleId.length > 0) await sendContentToAPI(videosWithModuleId);
-            if (textsWithModuleId.length > 0) await sendContentToAPI(textsWithModuleId);
-          } else {
-            console.log("pas de module id");
+      if (!formation || !formation.title) {
+        message.error("La formation n'existe pas !");
+        return;
+      }
+      if (!selectedFile) {
+        message.error("Le fichier n'existe pas !");
+        return;
+      }
+      modules.forEach((module) => {
+        if (!module.title) {
+          message.error("Des informations sont manquantes sur un ou plusieurs modules !");
+          return;
+        }
+      });
+      modulesKeys.forEach((key) => {
+        quizQuestionsAndAnswers[key].map((quiz) => {
+          if (!quiz.quiz_title) {
+            throw new Error("Le titre d'un ou plusieurs quiz n'est pas renseigné !");
           }
-
-          const quizzesKeys = Object.keys(quizQuestionsAndAnswers);
-
-          quizzesKeys.map(async (key) => {
-            const moduleIndex = parseInt(key?.split("-")[1]);
-            if (idModuleTmp) {
-              const quiz = {
-                type: quizQuestionsAndAnswers[key][0].type,
-                id_module: idModuleTmp[moduleIndex],
-                title: quizQuestionsAndAnswers[key][0].quiz_title,
-              };
-              const idQuiz = await sendContentToAPI(quiz);
-              console.log("idQuiz: ", idQuiz);
-
-              quizQuestionsAndAnswers[key][0].questions.map(async (q) => {
-                if (idQuiz) {
-                  const question = {
-                    type: q.type,
-                    id_quiz: idQuiz[0],
-                    is_multiple_choice: q.is_multiple_choice,
-                    question_text: q.question_text,
-                    explanation: q.explanation,
-                  };
-                  const idQuestions = await sendContentToAPI(question);
-                  console.log("idQuestions: ", idQuestions);
-
-                  q.answer_options.map(async (ao) => {
-                    if (idQuestions) {
-                      const answer_option = {
-                        type: ao.type,
-                        id_question: idQuestions[0],
-                        answer_text: ao.answer_text,
-                        correct: ao.correct,
-                      };
-
-                      const idAnswerOptions = sendContentToAPI(answer_option);
-                      console.log("idAnswerOptions: ", idAnswerOptions);
-                    }
-                  });
-                }
-              });
+          if (quiz.questions.length < 1) {
+            throw new Error("Un ou plusieurs quiz ne comporte pas de questions !");
+          }
+          quiz.questions.forEach((question) => {
+            if (question === undefined) {
+              throw new Error("Une ou plusieurs questions n'ont pas été correctement rempli !");
+            }
+            if (!question.question_text) {
+              throw new Error("L'intitulé d'une ou plusieurs questions est manquant !");
+            }
+            if (question.is_multiple_choice === null || question.is_multiple_choice === undefined) {
+              throw new Error(
+                "L'option 'choix multiple' d'une ou plusieurs questions est manquant !"
+              );
+            }
+            if (!question.answer_options) {
+              throw new Error("Les réponses d'une ou plusieurs questions sont manquantes !");
+            }
+            if (question.answer_options.length < 2) {
+              throw new Error("Une ou plusieurs questions comporte moins de deux réponses !");
+            }
+            question.answer_options.forEach((ao) => {
+              if (ao === undefined) {
+                throw new Error("Une ou plusieurs réponses n'ont pas été correctement rempli !");
+              }
+              if (!ao.answer_text) {
+                throw new Error("L'intitulé d'une ou plusieurs réponses est manquant !");
+              }
+              if (ao.correct === null || ao.correct === undefined) {
+                throw new Error("La bonne réponse pour une ou plusieurs réponses est manquante !");
+              }
+            });
+            if (!question.answer_options.some((ao) => ao.correct === true)) {
+              throw new Error("Une ou plusieurs questions ne contient pas de bonne réponse !");
             }
           });
+        });
+      });
 
-          // stand by
-          // const quizzesWithModulesId = quizzesKeys.map((key) => {
-          //   const moduleIndex = parseInt(key?.split("-")[1]);
-          //   if (idModuleTmp && moduleIndex !== -1) {
-          //     return {
-          //       type: quizQuestionsAndAnswers[key][0].type,
-          //       id_module: idModuleTmp[moduleIndex],
-          //       title: quizQuestionsAndAnswers[key][0].quiz_title,
-          //     };
-          //   } else {
-          //     throw new Error("Une erreur est survenue ! QUIZ");
-          //   }
-          // });
+      const formData = new FormData();
+      formData.append("formation", JSON.stringify(formation));
+      if (selectedFile instanceof File) {
+        formData.append("selectedFile", selectedFile, selectedFile.name);
+      } else {
+        throw new Error("Le fichier sélectionné n'est pas valide");
+      }
+      formData.append("modules", JSON.stringify(modules));
 
-          // console.log("quizzes: ", quizzesWithModulesId);
-
-          // if (quizzesWithModulesId.length > 0) {
-          //   const idQuizzes = await sendContentToAPI(quizzesWithModulesId);
-          //   console.log("idQuizzes: ", idQuizzes);
-
-          //   const questionsWithQuizId = quizzesKeys.flatMap((key) => {
-          //     const moduleIndex = parseInt(key?.split("-")[1]);
-          //     if (idModuleTmp && moduleIndex !== -1) {
-          //       return quizQuestionsAndAnswers[key][0].questions.map((question) => {
-          //         if (idQuizzes) {
-          //           return {
-          //             type: question.type,
-          //             id_quiz: idQuizzes[moduleIndex],
-          //             is_multiple_choice: question.is_multiple_choice,
-          //             question_text: question.question_text,
-          //             explanation: question.explanation,
-          //           };
-          //         } else {
-          //           throw new Error("Une erreur est survenue ! QUESTIONS");
-          //         }
-          //       });
-          //     } else {
-          //       throw new Error("Une erreur est survenue !");
-          //     }
-          //   });
-
-          //   console.log("questionsWithQuizId: ", questionsWithQuizId);
-          //   const idQuestions = await sendContentToAPI(questionsWithQuizId);
-
-          //   console.log("idQuestions: ", idQuestions);
-
-          //   if (idQuestions) {
-          //     const answersWithQuestionId = quizzesKeys.flatMap((key) => {
-          //       return quizQuestionsAndAnswers[key][0].questions.flatMap((question) => {
-          //         return question.answer_options.flatMap((ao) => {
-          //           return {
-          // type: ao.type,
-          // id_question: ao.key,
-          // answer_text: ao.answer_text,
-          // correct: ao.correct,
-          //           };
-          //         });
-          //       });
-          //     });
-          //     console.log("answersWithQuestionId: ", answersWithQuestionId);
-          //   }
-          // }
-          // stand by
-
-          // rajouter les étapes avant reset
-
-          // setNewFormation({
-          //   type: "formation",
-          //   title: "",
-          //   description: undefined,
-          //   cover_path: "",
-          // });
-          // setNewModules([]);
-          // setSelectedFile(null);
-          // setAllValuesTypeForm({});
-          // setNewVideos([]);
-          // setNewTexts([]);
-          // setQuizQuestionsAndAnswers({});
-          // setCurrent(0);
-          message.success("Nouvelle formation créée avec succès !");
+      videos.map((video, index) => {
+        if (video.video && video.video.length > 0 && video.video[0].originFileObj instanceof File) {
+          formData.append(
+            `videoFile${index}`,
+            video.video[0].originFileObj,
+            video.video[0].originFileObj.name
+          );
         }
+      });
+      formData.append("videos", JSON.stringify(videos));
+      formData.append("texts", JSON.stringify(texts));
+      formData.append("quizQuestionsAndAnswers", JSON.stringify(quizQuestionsAndAnswers));
+
+      const completeFormationResults = await fetch(
+        `${import.meta.env.VITE_API_URL}/complete-formation/create`,
+        {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        }
+      );
+
+      setNewFormation({
+        type: "formation",
+        title: "",
+        description: undefined,
+        cover_path: "",
+      });
+      setNewModules([]);
+      setSelectedFile(null);
+      setAllValuesTypeForm({});
+      setNewVideos([]);
+      setNewTexts([]);
+      setQuizQuestionsAndAnswers({});
+      setCurrent(0);
+      console.log("completeFormationResult: ", completeFormationResults);
+      if (completeFormationResults.ok) {
+        message.success("Nouvelle formation créée avec succès !");
+      } else {
+        message.error(`${completeFormationResults.statusText}`);
       }
     } catch (error) {
-      message.error(`Erreur lors de la création de la formation: ${error}`);
+      message.error(`${error}`);
       console.log("Erreur création formation: ", error);
+      return;
     }
   }
 
   const next = () => {
-    console.log(
-      "current: ",
-      current,
-      "newFormation: ",
-      newFormation,
-      "selectedFile",
-      selectedFile,
-      "newModule: ",
-      newModules
-    );
     if (current === 0) {
       if (newFormation.title && selectedFile) setCurrent(current + 1);
       else message.error("Des informations sont manquantes !");
@@ -423,7 +313,7 @@ export function Dashboard() {
 
       const isAllModuleFilled = modulesKeys.some((key) => {
         const contents = allValuesTypeForm[key];
-        console.log("contents: ", contents);
+        // console.log("contents: ", contents);
         return contents.some((content) => {
           if (content?.type === "video") {
             return content.title && content.video.length !== 0;
@@ -433,7 +323,7 @@ export function Dashboard() {
           return false;
         });
       });
-      console.log("isAllModuleFilled: ", isAllModuleFilled);
+      // console.log("isAllModuleFilled: ", isAllModuleFilled);
 
       if (isAllModuleFilled && newVideos.length + newTexts.length >= newModules.length)
         setCurrent(current + 1);
@@ -442,10 +332,8 @@ export function Dashboard() {
   };
 
   const prev = () => {
-    console.log("current: ", current);
+    // console.log("current: ", current);
     if (current === 2) {
-      // setNewVideos([]);
-      // setNewTexts([]);
       setCurrent(current - 1);
     } else {
       setCurrent(current - 1);

@@ -8,13 +8,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __asyncValues = (this && this.__asyncValues) || function (o) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var m = o[Symbol.asyncIterator], i;
+    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
+    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
+    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createFormation = exports.getFormationsWithModules = void 0;
+exports.createCompleteFormation = exports.createFormation = exports.getFormationsWithModules = void 0;
 const server_1 = require("../server");
+const node_path_1 = __importDefault(require("node:path"));
 const node_util_1 = __importDefault(require("node:util"));
+const node_fs_1 = __importDefault(require("node:fs"));
 const node_stream_1 = require("node:stream");
 const pump = node_util_1.default.promisify(node_stream_1.pipeline);
 function groupModulesByFormation(results) {
@@ -93,3 +102,162 @@ function createFormation(req, res) {
     });
 }
 exports.createFormation = createFormation;
+function createCompleteFormation(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            return yield server_1.fastify.pg.transact((client) => __awaiter(this, void 0, void 0, function* () {
+                var _a, e_1, _b, _c;
+                var _d, _e;
+                const parts = req.parts();
+                const fields = {};
+                try {
+                    for (var _f = true, parts_1 = __asyncValues(parts), parts_1_1; parts_1_1 = yield parts_1.next(), _a = parts_1_1.done, !_a; _f = true) {
+                        _c = parts_1_1.value;
+                        _f = false;
+                        const part = _c;
+                        if (part.type === "file") {
+                            const filePath = node_path_1.default.join(__dirname, "../../public", part.filename);
+                            const output = node_fs_1.default.createWriteStream(filePath);
+                            yield pump(part.file, output);
+                        }
+                        else {
+                            // part.type === 'field
+                            fields[part.fieldname] = (yield part.value);
+                        }
+                    }
+                }
+                catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                finally {
+                    try {
+                        if (!_f && !_a && (_b = parts_1.return)) yield _b.call(parts_1);
+                    }
+                    finally { if (e_1) throw e_1.error; }
+                }
+                const { formation, modules, videos, texts, quizQuestionsAndAnswers } = fields;
+                // Insert formation
+                const parsedFormation = JSON.parse(formation);
+                const formationResult = yield client.query("INSERT INTO formations (title, description, cover_path) VALUES ($1, $2, $3) RETURNING id", [parsedFormation.title, parsedFormation.description, parsedFormation.cover_path]);
+                const formationId = formationResult.rows[0].id;
+                if (!formationId) {
+                    throw new Error("Erreur lors de l'insertion de la formation !");
+                }
+                // Insert modules
+                const modulesIds = [];
+                const parsedModules = JSON.parse(modules);
+                for (const module of parsedModules) {
+                    const resultModules = yield client.query("INSERT INTO modules (id_formation, title, description) VALUES ($1, $2, $3) RETURNING id", [formationId, module.title, module.description]);
+                    if (!resultModules.rows[0].id) {
+                        throw new Error("Erreur lors de l'insertion d'un module !");
+                    }
+                    modulesIds.push(resultModules.rows[0].id);
+                }
+                // Insert videos
+                const parsedVideos = JSON.parse(videos);
+                if (parsedVideos.length > 0) {
+                    for (const video of parsedVideos) {
+                        const moduleIndex = video.key ? parseInt((_d = video.key) === null || _d === void 0 ? void 0 : _d.split("-")[1]) : -1;
+                        const resultVideos = yield client.query("INSERT INTO videos (id_module, path, title, description, cover_path) VALUES ($1, $2, $3, $4, $5) RETURNING id", [modulesIds[moduleIndex], video.path, video.title, video.description, null]);
+                        if (!resultVideos.rows[0].id) {
+                            throw new Error("Erreur lors de l'insertion d'une vidéo !");
+                        }
+                    }
+                }
+                // Insert texts
+                const parsedTexts = JSON.parse(texts);
+                if (parsedTexts.length > 0) {
+                    for (const text of parsedTexts) {
+                        const moduleIndex = text.key ? parseInt((_e = text.key) === null || _e === void 0 ? void 0 : _e.split("-")[1]) : -1;
+                        const resultTexts = yield client.query("INSERT INTO texts (id_module, title, content) VALUES ($1, $2, $3) RETURNING id", [modulesIds[moduleIndex], text.title, text.content]);
+                        if (!resultTexts.rows[0].id) {
+                            throw new Error("Erreur lors de l'insertion d'un texte !");
+                        }
+                    }
+                }
+                // Insert quiz, questions and answers
+                const parsedQuizQuestionsAndAnswers = JSON.parse(quizQuestionsAndAnswers);
+                const quizzesKeys = Object.keys(parsedQuizQuestionsAndAnswers);
+                for (const key of quizzesKeys) {
+                    const moduleIndex = parseInt(key === null || key === void 0 ? void 0 : key.split("-")[1]);
+                    if (!modulesIds[moduleIndex]) {
+                        throw new Error(`Index du module introuvable`);
+                    }
+                    const resultQuiz = yield client.query("INSERT INTO quiz (id_module, title) VALUES ($1, $2) RETURNING id", [modulesIds[moduleIndex], parsedQuizQuestionsAndAnswers[key][0].quiz_title]);
+                    const idQuiz = resultQuiz.rows[0].id;
+                    if (!idQuiz) {
+                        throw new Error(`Erreur lors de l'insertion d'un quiz !`);
+                    }
+                    for (const q of parsedQuizQuestionsAndAnswers[key][0].questions) {
+                        const resultQuestion = yield client.query("INSERT INTO questions (id_quiz, question_text, explanation, is_multiple_choice) VALUES ($1, $2, $3, $4) RETURNING id", [idQuiz, q.question_text, q.explanation, q.is_multiple_choice]);
+                        const idQuestion = resultQuestion.rows[0].id;
+                        if (!idQuestion) {
+                            throw new Error(`Erreur lors de l'insertion d'une question !`);
+                        }
+                        for (const ao of q.answer_options) {
+                            yield client.query("INSERT INTO answers_options (id_question, answer_text, correct) VALUES ($1, $2, $3) RETURNING id", [idQuestion, ao.answer_text, ao.correct]);
+                        }
+                    }
+                }
+                //
+                // const promisesQuiz = quizzesKeys.map(async (key) => {
+                //   try {
+                //     const moduleIndex = parseInt(key?.split("-")[1]);
+                //     if (!modulesIds[moduleIndex]) {
+                //       throw new Error(`Index du module introuvable`);
+                //     }
+                //     const resultQuiz = await client.query(
+                //       "INSERT INTO quiz (id_module, title) VALUES ($1, $2) RETURNING id",
+                //       [modulesIds[moduleIndex], parsedQuizQuestionsAndAnswers[key][0].quiz_title]
+                //     );
+                //     const idQuiz = resultQuiz.rows[0].id;
+                //     if (!idQuiz) {
+                //       throw new Error(`Erreur lors de l'insertion d'un quiz !`);
+                //     }
+                //     const questionPromises = parsedQuizQuestionsAndAnswers[key][0].questions.map(
+                //       async (q: QuestionFromFront) => {
+                //         try {
+                //           const resultQuestion = await client.query(
+                //             "INSERT INTO questions (id_quiz, question_text, explanation, is_multiple_choice) VALUES ($1, $2, $3, $4) RETURNING id",
+                //             [idQuiz, q.question_text, q.explanation, q.is_multiple_choice]
+                //           );
+                //           const idQuestion = resultQuestion.rows[0].id;
+                //           if (!idQuestion) {
+                //             throw new Error(`Erreur lors de l'insertion d'une question !`);
+                //           }
+                //           const answerOptionsPromises = q.answer_options.map(async (ao) => {
+                //             await client.query(
+                //               "INSERT INTO answers_options (id_question, answer_text, correct) VALUES ($1, $2, $3) RETURNING id",
+                //               [idQuestion, ao.answer_text, ao.correct]
+                //             );
+                //           });
+                //           await Promise.all(answerOptionsPromises);
+                //         } catch (error) {
+                //           throw new Error(`${error}`);
+                //         }
+                //       }
+                //     );
+                //     await Promise.all(questionPromises);
+                //   } catch (error) {
+                //     throw new Error(`${error}`);
+                //   }
+                // });
+                // await Promise.all(promisesQuiz);
+                res.send({ message: "Formation créée avec succès" });
+            }));
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                res.code(500).send({
+                    error: "Erreur lors de la création de la formation complète !",
+                    details: error.message,
+                });
+            }
+            else {
+                // Gestion d'autres types d'erreurs si nécessaire
+                res.code(500).send({
+                    error: "Erreur inconnue lors de la création de la formation",
+                });
+            }
+        }
+    });
+}
+exports.createCompleteFormation = createCompleteFormation;

@@ -6,6 +6,9 @@
         top: calc(var(--header-height) + 1vh);
       }
       .formationPage__collapse-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         cursor: pointer;
       }
       .formationPage__collapse-item:not(:last-child) {
@@ -54,6 +57,47 @@
         }
       }
     }
+    .formationPage__scores-container {
+      .formationPage__score-wrapper {
+        position: sticky;
+        top: calc(var(--header-height) + 1vh);
+        padding: 16px;
+        margin: 16px 0;
+        border: solid 1px var(--white-rose);
+        border-radius: 8px;
+        background-color: rgba(0, 0, 0, 0.02);
+
+        .score-wrapper__progression-container {
+          .score-wrapper__progress-bar-progression {
+            width: 100%;
+            height: 24px;
+            border: solid 1px rgba(0, 180, 10, 1);
+            p {
+              max-width: 100%;
+              height: 23px;
+              background-color: rgba(0, 180, 10, 0.25);
+              font-weight: bold;
+              text-align: center;
+            }
+          }
+        }
+
+        .score-wrapper__score-container {
+          .score-wrapper__progress-bar-score {
+            width: 100%;
+            height: 24px;
+            border: solid 1px rgba(0, 180, 10, 1);
+            p {
+              max-width: 100%;
+              height: 23px;
+              background-color: rgba(0, 180, 10, 0.25);
+              font-weight: bold;
+              text-align: center;
+            }
+          }
+        }
+      }
+    }
   }
 }
 
@@ -82,4 +126,12 @@
 .quiz-echec {
   background-color: rgba(180, 0, 10, 0.1);
   border: solid 1px rgba(180, 0, 10, 1);
+}
+
+.selected-item {
+  width: 12px;
+  height: 12px;
+  border-radius: 6px;
+  border: solid 1px rgba(0, 180, 10, 1);
+  background-color: rgba(0, 180, 10, 0.1);
 }

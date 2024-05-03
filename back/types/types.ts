@@ -165,3 +165,75 @@ export interface AnswerOptionToDB {
   answer_text: string;
   correct: boolean;
 }
+
+// TMP
+export interface CompleteFormationToDB {
+  formation: FormationToDB;
+  selectedFile: File;
+  modules: ModuleFromFront[];
+  videos: VideoFromFront[];
+  texts: TextFromFront[];
+  quizQuestionsAndAnswers: QuizQuestionsAndAnswersFromFront;
+}
+
+export interface QuizQuestionsAndAnswersFromFront {
+  [key: string]: [
+    {
+      type: "quiz";
+      quiz_title: string;
+      questions: QuestionFromFront[];
+    }
+  ];
+}
+
+export interface ModuleFromFront {
+  type: "module";
+  id_formation: number | null;
+  title: string;
+  description?: string;
+}
+
+export interface VideoFromFront {
+  type: "video";
+  key: string | null;
+  id_module: number | null;
+  path: string;
+  title: string;
+  description?: string;
+  cover_path?: string;
+  video: File[];
+}
+
+export interface TextFromFront {
+  type: "text";
+  key: string | null;
+  id_module: number | null;
+  title: string;
+  content: string;
+}
+
+export interface QuestionFromFront {
+  type: "question";
+  id_quiz: number | null;
+  question_text: string;
+  explanation?: string;
+  is_multiple_choice: boolean;
+  answer_options: AnswerOptionFromFront[];
+}
+
+export interface AnswerOptionFromFront {
+  type: "answeroption";
+  key: number | null;
+  id_question: number | null;
+  answer_text: string;
+  correct: boolean;
+}
+
+// export interface MediaFile {
+//   lastModified: number;
+//   name: string;
+//   size: number;
+//   type: string;
+//   uid: string;
+// }
+// TMP

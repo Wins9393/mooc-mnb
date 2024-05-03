@@ -110,6 +110,8 @@ exports.fastify.post("/stats/useranswers/delete", quiz_1.resetQuizById);
 exports.fastify.post("/answersoptions/create", answers_options_1.createAnswerOption);
 /** Image */
 exports.fastify.post("/upload/file", upload_1.uploadFile);
+/** Complete Formation */
+exports.fastify.post("/complete-formation/create", formations_1.createCompleteFormation);
 exports.fastify.listen({ port: 4000 }, (error) => {
     const address = exports.fastify.server.address();
     if (error) {

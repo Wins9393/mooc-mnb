@@ -10,7 +10,11 @@ import path from "node:path";
 
 import { getUsers } from "./controllers/users";
 import { getCurrentUser, login, logout, register } from "./controllers/auth";
-import { createFormation, getFormationsWithModules } from "./controllers/formations";
+import {
+  createCompleteFormation,
+  createFormation,
+  getFormationsWithModules,
+} from "./controllers/formations";
 import { createQuestion, getCorrectAnswerByQuestion } from "./controllers/questions";
 import { getUserAnswersByQuizId, saveUserAnswer } from "./controllers/user-stats";
 import {
@@ -103,6 +107,9 @@ fastify.post("/answersoptions/create", createAnswerOption);
 
 /** Image */
 fastify.post("/upload/file", uploadFile);
+
+/** Complete Formation */
+fastify.post("/complete-formation/create", createCompleteFormation);
 
 fastify.listen({ port: 4000 }, (error: unknown) => {
   const address = fastify.server.address();
