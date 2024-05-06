@@ -15,9 +15,16 @@ function resetQuizById(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const { id_user, id_quiz } = req.body;
-            const query = "DELETE FROM user_answers WHERE id_user=$1 AND id_quiz=$2";
-            const values = [id_user, id_quiz];
-            const results = yield server_1.fastify.pg.query(query, values);
+            yield server_1.fastify.pg.transact((client) => __awaiter(this, void 0, void 0, function* () {
+                yield client.query("DELETE FROM user_answers WHERE id_user=$1 AND id_quiz=$2", [
+                    id_user,
+                    id_quiz,
+                ]);
+                yield client.query("DELETE FROM user_progression WHERE id_user=$1 AND id_quiz=$2", [
+                    id_user,
+                    id_quiz,
+                ]);
+            }));
             res.code(200).send("Réinitialisation réussie !");
         }
         catch (error) {

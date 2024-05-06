@@ -13,10 +13,16 @@ import { getCurrentUser, login, logout, register } from "./controllers/auth";
 import {
   createCompleteFormation,
   createFormation,
+  getContentsNumberByFormation,
   getFormationsWithModules,
 } from "./controllers/formations";
 import { createQuestion, getCorrectAnswerByQuestion } from "./controllers/questions";
-import { getUserAnswersByQuizId, saveUserAnswer } from "./controllers/user-stats";
+import {
+  getUserAnswersByQuizId,
+  getUserProgressionByUser,
+  saveUserAnswer,
+  saveUserProgression,
+} from "./controllers/user-stats";
 import {
   createModule,
   getModulesWithContentsByModuleId,
@@ -77,6 +83,7 @@ fastify.get("/users", getUsers);
 
 /** Formations with Modules */
 fastify.get("/formations", getFormationsWithModules);
+fastify.get("/formations/:id/contents", getContentsNumberByFormation);
 fastify.post("/formations/create", createFormation);
 
 /** Modules */
@@ -101,6 +108,8 @@ fastify.post("/question/create", createQuestion);
 fastify.post("/stats/save", saveUserAnswer);
 fastify.post("/stats/useranswers", getUserAnswersByQuizId);
 fastify.post("/stats/useranswers/delete", resetQuizById);
+fastify.post("/progression/user", getUserProgressionByUser);
+fastify.post("/progression/save", saveUserProgression);
 
 /** Answers Options */
 fastify.post("/answersoptions/create", createAnswerOption);

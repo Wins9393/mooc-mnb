@@ -1,13 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { fastify } from "../server";
-import {
-  CompleteFormationToDB,
-  FormationToDB,
-  FormationWithModule,
-  QuestionFromFront,
-  TextFromFront,
-  VideoFromFront,
-} from "../types/types";
+import { FormationToDB, FormationWithModule, IdParams } from "../types/types";
 import path from "node:path";
 import util from "node:util";
 import fs from "node:fs";
@@ -18,7 +11,6 @@ function groupModulesByFormation(results: any[]): FormationWithModule[] {
   const formations: Record<number, FormationWithModule> = {};
 
   results.forEach((row) => {
-    // Si la formation n'existe pas déjà dans l'objet formations, créez-la
     if (!formations[row.id_formation]) {
       formations[row.id_formation] = {
         id: row.id_formation,
@@ -29,7 +21,6 @@ function groupModulesByFormation(results: any[]): FormationWithModule[] {
       };
     }
 
-    // Ajoutez le module à la formation correspondante
     formations[row.id_formation].modules.push({
       id: row.id_module,
       id_formation: row.id_formation_module,
@@ -38,7 +29,6 @@ function groupModulesByFormation(results: any[]): FormationWithModule[] {
     });
   });
 
-  // Convertissez l'objet formations en un tableau de ses valeurs
   return Object.values(formations);
 }
 
@@ -64,6 +54,34 @@ export async function getFormationsWithModules(req: FastifyRequest, res: Fastify
     }
   }
 }
+
+export async function getContentsNumberByFormation(
+  req: FastifyRequest<{ Params: IdParams }>,
+  res: FastifyReply
+) {
+  try {
+    const { id } = req.params;
+    const response = await fastify.pg.query(
+      "SELECT f.id AS formation_id, f.title AS formation_title, CAST (COUNT(DISTINCT v.id) AS INTEGER) AS video_count, CAST (COUNT(DISTINCT t.id) AS INTEGER) AS text_count, CAST (COUNT(DISTINCT q.id) AS INTEGER) AS quiz_count FROM  formations f LEFT JOIN  modules m ON f.id = m.id_formation LEFT JOIN  videos v ON m.id = v.id_module LEFT JOIN texts t ON m.id = t.id_module LEFT JOIN quiz q ON m.id = q.id_module WHERE f.id=$1 GROUP BY f.id, f.title;",
+      [id]
+    );
+    res.code(200).send(response.rows[0]);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      res.code(500).send({
+        error: "Erreur lors de la récupération du nombre de contenu par formation",
+        details: error.message,
+      });
+    } else {
+      // Gestion d'autres types d'erreurs si nécessaire
+      res.code(500).send({
+        error: "Erreur inconnue lors de la récupération des formations et vidéos",
+      });
+    }
+  }
+}
+
+// Ajouter fonction qui récupère toutes les user_answers par formation id
 
 export async function createFormation(
   req: FastifyRequest<{ Body: FormationToDB }>,

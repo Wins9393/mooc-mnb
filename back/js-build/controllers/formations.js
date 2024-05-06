@@ -19,7 +19,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createCompleteFormation = exports.createFormation = exports.getFormationsWithModules = void 0;
+exports.createCompleteFormation = exports.createFormation = exports.getContentsNumberByFormation = exports.getFormationsWithModules = void 0;
 const server_1 = require("../server");
 const node_path_1 = __importDefault(require("node:path"));
 const node_util_1 = __importDefault(require("node:util"));
@@ -29,7 +29,6 @@ const pump = node_util_1.default.promisify(node_stream_1.pipeline);
 function groupModulesByFormation(results) {
     const formations = {};
     results.forEach((row) => {
-        // Si la formation n'existe pas déjà dans l'objet formations, créez-la
         if (!formations[row.id_formation]) {
             formations[row.id_formation] = {
                 id: row.id_formation,
@@ -39,7 +38,6 @@ function groupModulesByFormation(results) {
                 modules: [],
             };
         }
-        // Ajoutez le module à la formation correspondante
         formations[row.id_formation].modules.push({
             id: row.id_module,
             id_formation: row.id_formation_module,
@@ -47,7 +45,6 @@ function groupModulesByFormation(results) {
             description: row.description_module,
         });
     });
-    // Convertissez l'objet formations en un tableau de ses valeurs
     return Object.values(formations);
 }
 function getFormationsWithModules(req, res) {
@@ -75,6 +72,30 @@ function getFormationsWithModules(req, res) {
     });
 }
 exports.getFormationsWithModules = getFormationsWithModules;
+function getContentsNumberByFormation(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const { id } = req.params;
+            const response = yield server_1.fastify.pg.query("SELECT f.id AS formation_id, f.title AS formation_title, CAST (COUNT(DISTINCT v.id) AS INTEGER) AS video_count, CAST (COUNT(DISTINCT t.id) AS INTEGER) AS text_count, CAST (COUNT(DISTINCT q.id) AS INTEGER) AS quiz_count FROM  formations f LEFT JOIN  modules m ON f.id = m.id_formation LEFT JOIN  videos v ON m.id = v.id_module LEFT JOIN texts t ON m.id = t.id_module LEFT JOIN quiz q ON m.id = q.id_module WHERE f.id=$1 GROUP BY f.id, f.title;", [id]);
+            res.code(200).send(response.rows[0]);
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                res.code(500).send({
+                    error: "Erreur lors de la récupération du nombre de contenu par formation",
+                    details: error.message,
+                });
+            }
+            else {
+                // Gestion d'autres types d'erreurs si nécessaire
+                res.code(500).send({
+                    error: "Erreur inconnue lors de la récupération des formations et vidéos",
+                });
+            }
+        }
+    });
+}
+exports.getContentsNumberByFormation = getContentsNumberByFormation;
 function createFormation(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {

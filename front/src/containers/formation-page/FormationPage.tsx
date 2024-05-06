@@ -3,13 +3,14 @@ import { MainContext } from "../../contexts/MainContext";
 import { useParams } from "react-router-dom";
 import {
   Formation,
-  IsCorrectAnswer,
   Module,
   ModuleCollapseItem,
   Quiz,
   UserAnswer,
   Video,
   Text,
+  UserAnswerWithoutCorrect,
+  UserProgression,
 } from "../../types/types";
 import { Col, Row, Collapse, CollapseProps, Divider, Button, message } from "antd";
 import {
@@ -37,6 +38,11 @@ export function FormationPage() {
     saveUserStats,
     getUserAnswerByQuizId,
     resetQuizById,
+    saveUserProgression,
+    getUserProgressionByUser,
+    userProgression,
+    getContentsByFormationId,
+    contentsByFormation,
   } = mainContext;
 
   const authContext = useContext(AuthContext);
@@ -48,9 +54,10 @@ export function FormationPage() {
   const [currentModule, setCurrentModule] = useState<Module | null>(null);
   const [currentModuleItem, setCurrentModuleItem] = useState<ModuleCollapseItem | null>(null);
 
-  const [selectedUserAnswers, setSelectedUserAnswers] = useState<UserAnswer[] | null>(null);
+  const [selectedUserAnswers, setSelectedUserAnswers] = useState<UserAnswerWithoutCorrect[] | null>(
+    null
+  );
   const [oldUserAnswers, setOldUserAnswers] = useState<UserAnswer[] | undefined>(undefined);
-  const [correctAnswers, setCorrectAnswers] = useState<IsCorrectAnswer[] | undefined>(undefined);
   const [isQuizAnswered, setIsQuizAnswered] = useState<boolean>(false);
   const [scoreByQuiz, setScoreByQuiz] = useState<number>(0);
 
@@ -63,7 +70,17 @@ export function FormationPage() {
   // Debug
   // useEffect(() => {
   //   console.log("currentFormation: ", currentFormation);
-  // }, [currentFormation]);
+  //   console.log("currentModule: ", currentModule);
+  //   console.log("currentModuleItem: ", currentModuleItem);
+  // }, [currentModule, currentModuleItem, currentFormation]);
+
+  // useEffect(() => {
+  //   console.log("progressionPercentage: ", parseFloat(progressionPercentage.toFixed(1)));
+  // }, [progressionPercentage]);
+
+  useEffect(() => {
+    console.log("scoreByQuiz: ", scoreByQuiz);
+  }, [scoreByQuiz]);
 
   // useEffect(() => {
   //   console.log("moduleContent: ", moduleContent);
@@ -81,30 +98,26 @@ export function FormationPage() {
   //   console.log("currentModuleItem: ", currentModuleItem);
   // }, [currentModuleItem]);
 
-  useEffect(() => {
-    console.log("correctAnswers: ", correctAnswers);
-  }, [correctAnswers]);
-
   // useEffect(() => {
   //   console.log("selectedUserAnswers: ", selectedUserAnswers);
   // }, [selectedUserAnswers]);
 
   // useEffect(() => {
   //   console.log("oldUserAnswers: ", oldUserAnswers);
-  //   console.log("isQuizAnswered: ", isQuizAnswered);
-  //   console.log("correctAnswers: ", correctAnswers);
   // }, [oldUserAnswers]);
+
+  // useEffect(() => {
+  //   console.log("contentsByFormation: ", contentsByFormation);
+  // }, [contentsByFormation]);
   // Fin Debug
 
   useEffect(() => {
-    if (oldUserAnswers) {
-      getCorrectAnswersTab(oldUserAnswers);
-    }
-  }, [isQuizAnswered, currentModuleItem]);
+    if (userProgression) getProgressionPercentageByFormation(userProgression);
+  }, [userProgression, currentFormation]);
 
   useEffect(() => {
-    getScoreByQuiz(correctAnswers);
-  }, [correctAnswers, isQuizAnswered]);
+    getScoreByQuiz(oldUserAnswers);
+  }, [isQuizAnswered]);
 
   useEffect(() => {
     if (currentModuleItem) {
@@ -120,13 +133,17 @@ export function FormationPage() {
     if (id_formation) {
       getCurrentFormation(id_formation);
       getModulesByFormationId(id_formation);
+      getContentsByFormationId(id_formation);
     }
   }, [id_formation]);
 
   useEffect(() => {
     setSelectedUserAnswers([]);
-    setCorrectAnswers([]);
   }, [currentModuleItem]);
+
+  useEffect(() => {
+    if (user) getUserProgressionByUser(user.id);
+  }, [currentModuleItem, oldUserAnswers]);
 
   function getCurrentFormation(id_formation: string) {
     const id_formation_number = Number(id_formation);
@@ -143,10 +160,62 @@ export function FormationPage() {
     setModules(modules);
   }
 
+  function isProgressionSavedByType(
+    userProgression: UserProgression[] | null,
+    id_content: number,
+    type: string
+  ): boolean {
+    if (userProgression && userProgression.length > 0) {
+      if (type === "video") {
+        return userProgression.some((progress) => progress.id_video === id_content);
+      }
+      if (type === "text") {
+        return userProgression.some((progress) => progress.id_text === id_content);
+      }
+      if (type === "quiz") {
+        return userProgression.some((progress) => progress.id_quiz === id_content);
+      }
+    }
+
+    return false;
+  }
+
   function onItemModuleClick(moduleItem: ModuleCollapseItem) {
+    console.log("MODULE ITEM: ", moduleItem);
+
     if (moduleItem.id !== currentModuleItem?.id) {
       setFadeClass("content--fade-out");
       setSelectedItemId(moduleItem.id);
+
+      if (
+        user &&
+        currentModule &&
+        moduleItem.type === "video" &&
+        !isProgressionSavedByType(userProgression, (moduleItem?.item as Video).id_video, "video")
+      ) {
+        saveUserProgression({
+          id_user: user?.id,
+          id_formation: currentModule?.id_formation,
+          id_module: currentModule.id,
+          id_video: (moduleItem.item as Video).id_video,
+          complete: true,
+        });
+      }
+
+      if (
+        user &&
+        currentModule &&
+        moduleItem.type === "text" &&
+        !isProgressionSavedByType(userProgression, (moduleItem.item as Text).id_text, "text")
+      ) {
+        saveUserProgression({
+          id_user: user?.id,
+          id_formation: currentModule?.id_formation,
+          id_module: currentModule.id,
+          id_text: (moduleItem.item as Text).id_text,
+          complete: true,
+        });
+      }
 
       setTimeout(() => {
         setCurrentModuleItem(moduleItem);
@@ -161,10 +230,8 @@ export function FormationPage() {
   }
 
   async function getOldUserAnswers(id_user: number, id_quiz: number) {
-    setTimeout(async () => {
-      const oldUserAnswers = await getUserAnswerByQuizId(id_user, id_quiz);
-      setOldUserAnswers(oldUserAnswers);
-    }, 500);
+    const oldUserAnswers = await getUserAnswerByQuizId(id_user, id_quiz);
+    setOldUserAnswers(oldUserAnswers);
   }
 
   function onUserAnswerChange(
@@ -215,12 +282,12 @@ export function FormationPage() {
     // }
   }
 
-  async function getScoreByQuiz(correctAnswersTab: IsCorrectAnswer[] | undefined) {
-    const questionsNumber = correctAnswersTab?.length;
+  async function getScoreByQuiz(userAnswers: UserAnswer[] | undefined) {
+    const questionsNumber = userAnswers?.length;
     let goodAnswers = 0;
 
-    correctAnswersTab?.forEach((answer) => {
-      if (answer.isCorrectAnswerSelected) goodAnswers++;
+    userAnswers?.forEach((answer) => {
+      if (answer.correct) goodAnswers++;
     });
 
     if (questionsNumber) {
@@ -229,14 +296,22 @@ export function FormationPage() {
     }
   }
 
-  async function getCorrectAnswersTab(answersTab: UserAnswer[]) {
-    if (answersTab) {
-      const promises = answersTab.map((userAnswer) => {
-        return getCorrectAnswer(userAnswer.id_question, userAnswer.id_answer_option);
-      });
+  async function getProgressionPercentageByFormation(
+    userProgression: UserProgression[]
+  ): Promise<void> {
+    const progressionByFormationTab = userProgression.filter(
+      (progress) => progress.id_formation === currentFormation?.id
+    );
 
-      const promisesResolved = await Promise.all(promises);
-      setCorrectAnswers(promisesResolved);
+    if (contentsByFormation) {
+      const contentsCount =
+        contentsByFormation.video_count +
+        contentsByFormation.text_count +
+        contentsByFormation.quiz_count;
+
+      setProgressionPercentage(
+        parseFloat(((progressionByFormationTab.length / contentsCount) * 100).toFixed(1))
+      );
     }
   }
 
@@ -251,13 +326,43 @@ export function FormationPage() {
     });
 
     const promisesResolved = await Promise.all(promises);
-    setCorrectAnswers(promisesResolved);
 
-    userAnswers.forEach((answer) => {
-      saveUserStats(answer);
+    const validatedAnswer = userAnswers.flatMap((answer) =>
+      promisesResolved
+        .map((correctAnswers) => {
+          if (answer.id_answer_option === correctAnswers.idAnswerOptionSelected) {
+            return { ...answer, correct: correctAnswers.isCorrectAnswerSelected };
+          }
+        })
+        .filter((answer) => answer !== undefined)
+    );
+
+    validatedAnswer.forEach((answer) => {
+      if (answer !== undefined) saveUserStats(answer);
     });
+    console.log("quizItem: ", quizItem);
+    // Test
+    if (
+      user &&
+      currentModule &&
+      quizItem &&
+      !isProgressionSavedByType(userProgression, quizItem.id, "quiz")
+    ) {
+      saveUserProgression({
+        id_user: user?.id,
+        id_formation: currentModule?.id_formation,
+        id_module: currentModule.id,
+        id_quiz: quizItem.id,
+        complete: true,
+      });
+    }
+    // Fin test
 
-    if (user) getOldUserAnswers(user?.id, quizItem.id);
+    if (user) {
+      setTimeout(() => {
+        getOldUserAnswers(user?.id, quizItem.id);
+      }, 400);
+    }
     window.scrollTo(0, 0);
   }
 
@@ -267,6 +372,25 @@ export function FormationPage() {
       await getOldUserAnswers(user_id, quiz_id);
       setSelectedUserAnswers([]);
     }
+  }
+
+  function changeCollapseBGColor(userProgression: UserProgression[], content: ModuleCollapseItem) {
+    const result = userProgression?.some((progress) => {
+      if (content.type === "video") {
+        return (content?.item as Video).id_video === progress.id_video;
+      }
+      if (content.type === "text") {
+        return (content?.item as Text).id_text === progress.id_text;
+      }
+      if (content.type === "quiz") {
+        return (content?.item as Quiz).id === progress.id_quiz;
+      }
+    });
+
+    if (result) {
+      return { backgroundColor: "#dad2d8" };
+    }
+    return {};
   }
 
   // Boucle sur les modules présents dans la formation pour remplir le tableau d'Items pour le Collapse
@@ -297,16 +421,19 @@ export function FormationPage() {
       ];
 
       const contentItems = combinedContent.map((content) => (
-        <p
+        <div
+          className="formationPage__collapse-item-box"
+          style={
+            userProgression && content.item ? changeCollapseBGColor(userProgression, content) : {}
+          }
           key={content.id}
-          onClick={() => onItemModuleClick(content)}
-          className="formationPage__collapse-item">
+          onClick={() => onItemModuleClick(content)}>
           <span className={content.id === selectedItemId ? "selected-item" : ""}></span>
-          {content.title}
+          <p className="formationPage__collapse-item">{content.title}</p>
           {content.type === "video" && <PlayCircleOutlined />}
           {content.type === "text" && <FileTextOutlined />}
           {content.type === "quiz" && <QuestionCircleOutlined />}
-        </p>
+        </div>
       ));
 
       items?.push({
@@ -405,9 +532,9 @@ export function FormationPage() {
                   <div>
                     {question.answer_options.map((answer) => (
                       <div style={{ display: "flex" }} key={`answer-${answer.id}`}>
-                        {correctAnswers?.map((item) =>
-                          item.idAnswerOptionSelected === answer.id ? (
-                            item.isCorrectAnswerSelected ? (
+                        {oldUserAnswers?.map((item) =>
+                          item.id_answer_option === answer.id ? (
+                            item.correct ? (
                               <CheckCircleTwoTone
                                 key={`answer-${answer.id}`}
                                 twoToneColor="#52c41a"

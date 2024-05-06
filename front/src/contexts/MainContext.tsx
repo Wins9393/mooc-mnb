@@ -2,10 +2,12 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { AuthContext } from "./AuthContext";
 import {
   ContentByModule,
+  ContentsByFormation,
   Formation,
   IsCorrectAnswer,
   QuizByModule,
   UserAnswer,
+  UserProgression,
 } from "../types/types";
 
 interface MainContextType {
@@ -21,14 +23,21 @@ interface MainContextType {
   saveUserStats(userAnswer: UserAnswer): Promise<void>;
   getUserAnswerByQuizId(id_user: number, id_quiz: number): Promise<UserAnswer[] | undefined>;
   resetQuizById(id_user: number, id_quiz: number): Promise<void>;
+  saveUserProgression(userProgression: UserProgression): Promise<void>;
+  getUserProgressionByUser(id_user: number): Promise<void>;
+  userProgression: UserProgression[] | null;
+  getContentsByFormationId(id: string): Promise<void>;
+  contentsByFormation: ContentsByFormation | null;
 }
 
 const MainContext = createContext<MainContextType | null>(null);
 
 const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [formations, setFormations] = useState<Formation[]>([]);
+  const [contentsByFormation, setContentsByFormation] = useState<ContentsByFormation | null>(null);
   const [moduleContent, setModuleContent] = useState<ContentByModule | null>(null);
   const [moduleQuiz, setModuleQuiz] = useState<QuizByModule | null>(null);
+  const [userProgression, setUserProgression] = useState<UserProgression[] | null>(null);
   const authContext = useContext(AuthContext);
 
   if (!authContext) return;
@@ -37,6 +46,9 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
   useEffect(() => {
     getFormationsWithModules();
+    if (user) {
+      getUserProgressionByUser(user.id);
+    }
   }, [user]);
 
   async function getFormationsWithModules() {
@@ -47,6 +59,21 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       });
       const data = await response.json();
       setFormations(data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function getContentsByFormationId(id_formation: string): Promise<void> {
+    const id = parseInt(id_formation);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/formations/${id}/contents`, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      const data = await response.json();
+      setContentsByFormation(data);
     } catch (error) {
       console.log(error);
     }
@@ -121,6 +148,7 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           id_answer_option: userAnswer?.id_answer_option,
           date_answer: userAnswer?.date_answer,
           id_quiz: userAnswer?.id_quiz,
+          correct: userAnswer?.correct,
         }),
       });
     } catch (error) {
@@ -165,8 +193,41 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           id_quiz,
         }),
       });
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
-      console.log("RESET OK");
+  async function getUserProgressionByUser(id: number): Promise<void> {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/progression/user`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id,
+        }),
+      });
+
+      const userProgressionResult = await response.json();
+      setUserProgression(userProgressionResult);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function saveUserProgression(userProgression: UserProgression): Promise<void> {
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL}/progression/save`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userProgression),
+      });
     } catch (error) {
       console.log(error);
     }
@@ -184,6 +245,11 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         saveUserStats,
         getUserAnswerByQuizId,
         resetQuizById,
+        saveUserProgression,
+        getUserProgressionByUser,
+        userProgression,
+        getContentsByFormationId,
+        contentsByFormation,
       }}>
       {children}
     </MainContext.Provider>

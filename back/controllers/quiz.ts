@@ -8,9 +8,16 @@ export async function resetQuizById(
 ) {
   try {
     const { id_user, id_quiz } = req.body;
-    const query = "DELETE FROM user_answers WHERE id_user=$1 AND id_quiz=$2";
-    const values = [id_user, id_quiz];
-    const results = await fastify.pg.query(query, values);
+    await fastify.pg.transact(async (client) => {
+      await client.query("DELETE FROM user_answers WHERE id_user=$1 AND id_quiz=$2", [
+        id_user,
+        id_quiz,
+      ]);
+      await client.query("DELETE FROM user_progression WHERE id_user=$1 AND id_quiz=$2", [
+        id_user,
+        id_quiz,
+      ]);
+    });
     res.code(200).send("Réinitialisation réussie !");
   } catch (error: unknown) {
     if (error instanceof Error) {

@@ -88,6 +88,7 @@ exports.fastify.post("/me", auth_1.getCurrentUser);
 exports.fastify.get("/users", users_1.getUsers);
 /** Formations with Modules */
 exports.fastify.get("/formations", formations_1.getFormationsWithModules);
+exports.fastify.get("/formations/:id/contents", formations_1.getContentsNumberByFormation);
 exports.fastify.post("/formations/create", formations_1.createFormation);
 /** Modules */
 exports.fastify.get("/module/:id/content", modules_1.getModulesWithContentsByModuleId);
@@ -106,6 +107,8 @@ exports.fastify.post("/question/create", questions_1.createQuestion);
 exports.fastify.post("/stats/save", user_stats_1.saveUserAnswer);
 exports.fastify.post("/stats/useranswers", user_stats_1.getUserAnswersByQuizId);
 exports.fastify.post("/stats/useranswers/delete", quiz_1.resetQuizById);
+exports.fastify.post("/progression/user", user_stats_1.getUserProgressionByUser);
+exports.fastify.post("/progression/save", user_stats_1.saveUserProgression);
 /** Answers Options */
 exports.fastify.post("/answersoptions/create", answers_options_1.createAnswerOption);
 /** Image */

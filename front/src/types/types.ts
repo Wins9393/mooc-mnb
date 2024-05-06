@@ -134,6 +134,15 @@ export interface UserAnswer {
   id_answer_option: number;
   date_answer: string;
   id_quiz: number;
+  correct: boolean;
+}
+
+export interface UserAnswerWithoutCorrect {
+  id_user: number;
+  id_question: number;
+  id_answer_option: number;
+  date_answer: string;
+  id_quiz: number;
 }
 
 export interface FullAnswerOption {
@@ -157,4 +166,22 @@ export interface QuizQuestionsAndAnswersContent {
       questions: QuestionToDB[];
     }
   ];
+}
+
+export interface UserProgression {
+  id_user: number;
+  id_formation: number;
+  id_module: number;
+  id_video?: number;
+  id_text?: number;
+  id_quiz?: number;
+  complete: boolean;
+}
+
+export interface ContentsByFormation {
+  formation_id: number;
+  formation_title: string;
+  video_count: number;
+  text_count: number;
+  quiz_count: number;
 }

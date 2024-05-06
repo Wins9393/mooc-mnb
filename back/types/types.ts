@@ -100,6 +100,7 @@ export interface BodySaveUserAnswer {
   id_answer_option: number;
   date_answer: string;
   id_quiz: number;
+  correct: boolean;
 }
 // New DB with Modules
 export interface Module {
@@ -229,11 +230,12 @@ export interface AnswerOptionFromFront {
   correct: boolean;
 }
 
-// export interface MediaFile {
-//   lastModified: number;
-//   name: string;
-//   size: number;
-//   type: string;
-//   uid: string;
-// }
-// TMP
+export interface UserProgression {
+  id_user: number;
+  id_formation: number;
+  id_module: number;
+  id_video?: number;
+  id_text?: number;
+  id_quiz?: number;
+  complete: boolean;
+}
