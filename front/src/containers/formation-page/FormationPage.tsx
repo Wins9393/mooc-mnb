@@ -11,6 +11,7 @@ import {
   Text,
   UserAnswerWithoutCorrect,
   UserProgression,
+  QuestionFromDB,
 } from "../../types/types";
 import { Col, Row, Collapse, CollapseProps, Divider, Button, message } from "antd";
 import {
@@ -43,12 +44,17 @@ export function FormationPage() {
     userProgression,
     getContentsByFormationId,
     contentsByFormation,
+    getUserAnswersByFormationByUserId,
+    totalUserAnswersByFormation,
+    getQuestionsByFormation,
+    totalQuestionsByFormation,
   } = mainContext;
 
   const authContext = useContext(AuthContext);
   if (!authContext) return;
   const { user } = authContext;
 
+  const [idFormation, setIdFormation] = useState<number | null>(null);
   const [currentFormation, setCurrentFormation] = useState<Formation | null>(null);
   const [modules, setModules] = useState<Module[] | null>(null);
   const [currentModule, setCurrentModule] = useState<Module | null>(null);
@@ -64,8 +70,8 @@ export function FormationPage() {
   const [fadeClass, setFadeClass] = useState("content--fade-in");
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
 
-  const [scorePercentage, setScorePercentage] = useState<number>(25);
-  const [progressionPercentage, setProgressionPercentage] = useState<number>(50);
+  const [scorePercentage, setScorePercentage] = useState<number>(0);
+  const [progressionPercentage, setProgressionPercentage] = useState<number>(0);
 
   // Debug
   // useEffect(() => {
@@ -78,9 +84,9 @@ export function FormationPage() {
   //   console.log("progressionPercentage: ", parseFloat(progressionPercentage.toFixed(1)));
   // }, [progressionPercentage]);
 
-  useEffect(() => {
-    console.log("scoreByQuiz: ", scoreByQuiz);
-  }, [scoreByQuiz]);
+  // useEffect(() => {
+  //   console.log("scoreByQuiz: ", scoreByQuiz);
+  // }, [scoreByQuiz]);
 
   // useEffect(() => {
   //   console.log("moduleContent: ", moduleContent);
@@ -109,11 +115,48 @@ export function FormationPage() {
   // useEffect(() => {
   //   console.log("contentsByFormation: ", contentsByFormation);
   // }, [contentsByFormation]);
+
+  useEffect(() => {
+    console.log("Total Questions: ", totalQuestionsByFormation);
+  }, [totalQuestionsByFormation]);
+
+  useEffect(() => {
+    console.log("Total UA: ", totalUserAnswersByFormation);
+  }, [totalUserAnswersByFormation]);
   // Fin Debug
 
   useEffect(() => {
-    if (userProgression) getProgressionPercentageByFormation(userProgression);
-  }, [userProgression, currentFormation]);
+    if (id_formation) {
+      setIdFormation(parseInt(id_formation));
+    }
+  }, [id_formation]);
+
+  useEffect(() => {
+    if (idFormation) {
+      getCurrentFormation(idFormation);
+      getModulesByFormationId(idFormation);
+      getContentsByFormationId(idFormation);
+      getQuestionsByFormation(idFormation);
+    }
+  }, [idFormation, id_formation]);
+
+  useEffect(() => {
+    if (user && idFormation) {
+      getUserAnswersByFormationByUserId(user?.id, idFormation);
+    }
+  }, [idFormation, oldUserAnswers]);
+
+  useEffect(() => {
+    if (userProgression) {
+      getProgressionPercentageByFormation(userProgression);
+    }
+  }, [userProgression, contentsByFormation, idFormation]);
+
+  useEffect(() => {
+    if (totalUserAnswersByFormation && totalQuestionsByFormation) {
+      getScorePercentageByFormation(totalUserAnswersByFormation, totalQuestionsByFormation);
+    }
+  }, [totalQuestionsByFormation, totalUserAnswersByFormation]);
 
   useEffect(() => {
     getScoreByQuiz(oldUserAnswers);
@@ -130,14 +173,6 @@ export function FormationPage() {
   }, [oldUserAnswers, currentModuleItem]);
 
   useEffect(() => {
-    if (id_formation) {
-      getCurrentFormation(id_formation);
-      getModulesByFormationId(id_formation);
-      getContentsByFormationId(id_formation);
-    }
-  }, [id_formation]);
-
-  useEffect(() => {
     setSelectedUserAnswers([]);
   }, [currentModuleItem]);
 
@@ -145,18 +180,16 @@ export function FormationPage() {
     if (user) getUserProgressionByUser(user.id);
   }, [currentModuleItem, oldUserAnswers]);
 
-  function getCurrentFormation(id_formation: string) {
-    const id_formation_number = Number(id_formation);
+  function getCurrentFormation(id_formation: number) {
     const formation: Formation | undefined = formations.find(
-      (formation) => formation.id === id_formation_number
+      (formation) => formation.id === id_formation
     );
     if (formation) setCurrentFormation(formation);
   }
 
-  function getModulesByFormationId(id_formation: string) {
+  function getModulesByFormationId(id_formation: number) {
     const modules: Module[] | null =
-      formations.find((f) => f.id === Number(id_formation))?.modules.sort((a, b) => a.id - b.id) ??
-      null;
+      formations.find((f) => f.id === id_formation)?.modules.sort((a, b) => a.id - b.id) ?? null;
     setModules(modules);
   }
 
@@ -300,8 +333,10 @@ export function FormationPage() {
     userProgression: UserProgression[]
   ): Promise<void> {
     const progressionByFormationTab = userProgression.filter(
-      (progress) => progress.id_formation === currentFormation?.id
+      (progress) => progress.id_formation === idFormation
     );
+
+    console.log("progressTab: ", progressionByFormationTab);
 
     if (contentsByFormation) {
       const contentsCount =
@@ -309,10 +344,24 @@ export function FormationPage() {
         contentsByFormation.text_count +
         contentsByFormation.quiz_count;
 
-      setProgressionPercentage(
-        parseFloat(((progressionByFormationTab.length / contentsCount) * 100).toFixed(1))
+      let progressPercentage = parseFloat(
+        ((progressionByFormationTab.length / contentsCount) * 100).toFixed(1)
       );
+
+      setProgressionPercentage(progressPercentage);
     }
+  }
+
+  async function getScorePercentageByFormation(
+    userAnswers: UserAnswer[],
+    questions: QuestionFromDB[]
+  ): Promise<void> {
+    const correctAnswersCount = userAnswers.filter((ua) => ua.correct).length;
+    console.log("user answers: ", userAnswers);
+
+    const scorePercentage = parseFloat(((correctAnswersCount / questions.length) * 100).toFixed(1));
+
+    setScorePercentage(scorePercentage);
   }
 
   async function onValidateQuiz(userAnswers: UserAnswer[], quizItem: Quiz) {
@@ -643,7 +692,7 @@ export function FormationPage() {
         </Col>
         <Col xs={24} sm={24} md={24} lg={6} xl={6} className="formationPage__scores-container">
           <div className="formationPage__title">
-            <h2 className="title-h2">Mes scores</h2>
+            <h2 className="title-h2">Statistiques</h2>
           </div>
           <div className="formationPage__score-wrapper">
             <div className="score-wrapper__progression-container">

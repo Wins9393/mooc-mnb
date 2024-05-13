@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createQuestion = exports.getCorrectAnswerByQuestion = void 0;
+exports.createQuestion = exports.getQuestionsByFormation = exports.getCorrectAnswerByQuestion = void 0;
 const server_1 = require("../server");
 function structureAnswerByQuestion(answerOptions, id_answer_option_selected) {
     const correctAnswer = answerOptions.find((answer) => answer.correct);
@@ -49,6 +49,30 @@ function getCorrectAnswerByQuestion(req, res) {
     });
 }
 exports.getCorrectAnswerByQuestion = getCorrectAnswerByQuestion;
+function getQuestionsByFormation(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const { id_formation } = req.body;
+            const response = yield server_1.fastify.pg.query("SELECT q.id, q.id_quiz, q.question_text, q.explanation, q.is_multiple_choice FROM formations f JOIN modules m ON f.id = m.id_formation JOIN quiz qz ON m.id = qz.id_module JOIN questions q ON qz.id = q.id_quiz WHERE f.id=$1", [id_formation]);
+            res.code(200).send(response.rows);
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                res.code(500).send({
+                    error: "Erreur lors de la récupération des questions",
+                    details: error.message,
+                });
+            }
+            else {
+                // Gestion d'autres types d'erreurs si nécessaire
+                res.code(500).send({
+                    error: "Erreur inconnue lors de la récupération des questions",
+                });
+            }
+        }
+    });
+}
+exports.getQuestionsByFormation = getQuestionsByFormation;
 function createQuestion(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {

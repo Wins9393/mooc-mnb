@@ -5,6 +5,7 @@ import {
   ContentsByFormation,
   Formation,
   IsCorrectAnswer,
+  QuestionFromDB,
   QuizByModule,
   UserAnswer,
   UserProgression,
@@ -26,8 +27,12 @@ interface MainContextType {
   saveUserProgression(userProgression: UserProgression): Promise<void>;
   getUserProgressionByUser(id_user: number): Promise<void>;
   userProgression: UserProgression[] | null;
-  getContentsByFormationId(id: string): Promise<void>;
+  getContentsByFormationId(id: number): Promise<void>;
   contentsByFormation: ContentsByFormation | null;
+  getUserAnswersByFormationByUserId(id_user: number, id_formation: number): Promise<void>;
+  totalUserAnswersByFormation: UserAnswer[] | null;
+  getQuestionsByFormation(id_formation: number): Promise<void>;
+  totalQuestionsByFormation: QuestionFromDB[] | null;
 }
 
 const MainContext = createContext<MainContextType | null>(null);
@@ -38,6 +43,12 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const [moduleContent, setModuleContent] = useState<ContentByModule | null>(null);
   const [moduleQuiz, setModuleQuiz] = useState<QuizByModule | null>(null);
   const [userProgression, setUserProgression] = useState<UserProgression[] | null>(null);
+  const [totalUserAnswersByFormation, setTotalUserAnswersByFormation] = useState<
+    UserAnswer[] | null
+  >(null);
+  const [totalQuestionsByFormation, setTotalQuestionsByFormation] = useState<
+    QuestionFromDB[] | null
+  >(null);
   const authContext = useContext(AuthContext);
 
   if (!authContext) return;
@@ -64,8 +75,7 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     }
   }
 
-  async function getContentsByFormationId(id_formation: string): Promise<void> {
-    const id = parseInt(id_formation);
+  async function getContentsByFormationId(id: number): Promise<void> {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/formations/${id}/contents`, {
         method: "GET",
@@ -156,6 +166,48 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     }
   }
 
+  async function getUserAnswersByFormationByUserId(
+    id_user: number,
+    id_formation: number
+  ): Promise<void> {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/stats/useranswers/user/formation`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ id_user, id_formation }),
+        }
+      );
+      const data = await response.json();
+      // console.log("data UA MAIN: ", data);
+      setTotalUserAnswersByFormation(data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function getQuestionsByFormation(id_formation: number): Promise<void> {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/questions/formation`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id_formation }),
+      });
+      const data = await response.json();
+      // console.log("data question main: ", data);
+      setTotalQuestionsByFormation(data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   async function getUserAnswerByQuizId(
     id_user: number,
     id_quiz: number
@@ -212,6 +264,7 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       });
 
       const userProgressionResult = await response.json();
+      console.log("userProgression: ", userProgression);
       setUserProgression(userProgressionResult);
     } catch (error) {
       console.log(error);
@@ -250,6 +303,10 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         userProgression,
         getContentsByFormationId,
         contentsByFormation,
+        getUserAnswersByFormationByUserId,
+        totalUserAnswersByFormation,
+        getQuestionsByFormation,
+        totalQuestionsByFormation,
       }}>
       {children}
     </MainContext.Provider>

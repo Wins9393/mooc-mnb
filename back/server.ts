@@ -16,8 +16,13 @@ import {
   getContentsNumberByFormation,
   getFormationsWithModules,
 } from "./controllers/formations";
-import { createQuestion, getCorrectAnswerByQuestion } from "./controllers/questions";
 import {
+  createQuestion,
+  getCorrectAnswerByQuestion,
+  getQuestionsByFormation,
+} from "./controllers/questions";
+import {
+  getUserAnswersByFormationByUser,
   getUserAnswersByQuizId,
   getUserProgressionByUser,
   saveUserAnswer,
@@ -102,11 +107,13 @@ fastify.post("/quiz/create", createQuiz);
 
 /** Questions */
 fastify.post("/answer/question", getCorrectAnswerByQuestion);
+fastify.post("/questions/formation", getQuestionsByFormation);
 fastify.post("/question/create", createQuestion);
 
 /** User Stats */
 fastify.post("/stats/save", saveUserAnswer);
 fastify.post("/stats/useranswers", getUserAnswersByQuizId);
+fastify.post("/stats/useranswers/user/formation", getUserAnswersByFormationByUser);
 fastify.post("/stats/useranswers/delete", resetQuizById);
 fastify.post("/progression/user", getUserProgressionByUser);
 fastify.post("/progression/save", saveUserProgression);

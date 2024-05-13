@@ -1,6 +1,12 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { fastify } from "../server";
-import { BodySaveUserAnswer, BodyGetUserAnswer, UserProgression, IdParams } from "../types/types";
+import {
+  BodySaveUserAnswer,
+  BodyGetUserAnswer,
+  UserProgression,
+  IdParams,
+  UserAnswersByFormationByUser,
+} from "../types/types";
 
 export async function saveUserAnswer(
   req: FastifyRequest<{ Body: BodySaveUserAnswer }>,
@@ -52,6 +58,32 @@ export async function getUserAnswersByQuizId(
       // Gestion d'autres types d'erreurs si nécessaire
       res.code(500).send({
         error: "Erreur inconnue lors de la récupération des résultats de l'utilisateur",
+      });
+    }
+  }
+}
+
+export async function getUserAnswersByFormationByUser(
+  req: FastifyRequest<{ Body: UserAnswersByFormationByUser }>,
+  res: FastifyReply
+) {
+  try {
+    const { id_user, id_formation } = req.body;
+    const response = await fastify.pg.query(
+      "SELECT ua.* FROM user_answers ua JOIN questions q ON ua.id_question = q.id JOIN quiz z ON q.id_quiz = z.id JOIN modules m ON z.id_module = m.id JOIN formations f ON m.id_formation = f.id WHERE id_user=$1 AND f.id=$2;",
+      [id_user, id_formation]
+    );
+    res.code(200).send(response.rows);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      res.code(500).send({
+        error: "Erreur lors de la récupération du nombre de contenu par formation",
+        details: error.message,
+      });
+    } else {
+      // Gestion d'autres types d'erreurs si nécessaire
+      res.code(500).send({
+        error: "Erreur inconnue lors de la récupération des formations et vidéos",
       });
     }
   }

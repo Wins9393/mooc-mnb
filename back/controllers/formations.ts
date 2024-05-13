@@ -81,8 +81,6 @@ export async function getContentsNumberByFormation(
   }
 }
 
-// Ajouter fonction qui récupère toutes les user_answers par formation id
-
 export async function createFormation(
   req: FastifyRequest<{ Body: FormationToDB }>,
   res: FastifyReply

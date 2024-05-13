@@ -102,10 +102,12 @@ exports.fastify.post("/text/create", texts_1.createText);
 exports.fastify.post("/quiz/create", quiz_1.createQuiz);
 /** Questions */
 exports.fastify.post("/answer/question", questions_1.getCorrectAnswerByQuestion);
+exports.fastify.post("/questions/formation", questions_1.getQuestionsByFormation);
 exports.fastify.post("/question/create", questions_1.createQuestion);
 /** User Stats */
 exports.fastify.post("/stats/save", user_stats_1.saveUserAnswer);
 exports.fastify.post("/stats/useranswers", user_stats_1.getUserAnswersByQuizId);
+exports.fastify.post("/stats/useranswers/user/formation", user_stats_1.getUserAnswersByFormationByUser);
 exports.fastify.post("/stats/useranswers/delete", quiz_1.resetQuizById);
 exports.fastify.post("/progression/user", user_stats_1.getUserProgressionByUser);
 exports.fastify.post("/progression/save", user_stats_1.saveUserProgression);

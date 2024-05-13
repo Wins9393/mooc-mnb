@@ -90,6 +90,14 @@ export interface Question {
   answer_options: AnswerOption[];
 }
 
+export interface QuestionFromDB {
+  id: number;
+  id_quiz: number | null;
+  question_text: string;
+  explanation?: string;
+  is_multiple_choice: boolean;
+}
+
 export interface QuestionToDB {
   type: "question";
   id_quiz: number | null;

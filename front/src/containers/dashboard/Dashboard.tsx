@@ -8,28 +8,11 @@ import {
   TextToDB,
   VideoToDB,
 } from "../../types/types";
-import type { GetProp, UploadFile, UploadProps } from "antd";
+import type { UploadFile } from "antd";
 import "./dashboard.css";
 import { CreateModuleForm } from "../../components/dashboard-components/CreateModuleForm";
 import { CreateQuestionAndQuizForm } from "../../components/dashboard-components/CreateQuestionAndQuizForm";
 import { CreateTypeCoursForm } from "../../components/dashboard-components/CreateTypeCoursForm";
-
-type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
-type ContentType = "formation" | "module" | "video" | "text" | "quiz" | "question" | "answeroption";
-
-interface Content {
-  type: ContentType;
-}
-
-const apiUrlMap: { [key in ContentType]: string } = {
-  formation: `${import.meta.env.VITE_API_URL}/formations/create`,
-  module: `${import.meta.env.VITE_API_URL}/module/create`,
-  video: `${import.meta.env.VITE_API_URL}/video/create`,
-  text: `${import.meta.env.VITE_API_URL}/text/create`,
-  quiz: `${import.meta.env.VITE_API_URL}/quiz/create`,
-  question: `${import.meta.env.VITE_API_URL}/question/create`,
-  answeroption: `${import.meta.env.VITE_API_URL}/answersoptions/create`,
-};
 
 export function Dashboard() {
   const [current, setCurrent] = useState<number>(0);
@@ -49,34 +32,9 @@ export function Dashboard() {
   const [quizQuestionsAndAnswers, setQuizQuestionsAndAnswers] =
     useState<QuizQuestionsAndAnswersContent>({});
 
-  // Debugg
-  // useEffect(() => {
-  //   console.log("newFormation: ", newFormation);
-  // }, [newFormation]);
-
   useEffect(() => {
     console.log("selectedFile: ", selectedFile);
   }, [selectedFile]);
-
-  // useEffect(() => {
-  //   console.log("newModules: ", newModules);
-  // }, [newModules]);
-
-  // useEffect(() => {
-  //   console.log("newVideos: ", newVideos);
-  // }, [newVideos]);
-
-  // useEffect(() => {
-  //   console.log("newTexts: ", newTexts);
-  // }, [newTexts]);
-
-  // useEffect(() => {
-  //   console.log("allValuesTypeForm: ", allValuesTypeForm);
-  // }, [allValuesTypeForm]);
-
-  // useEffect(() => {
-  //   console.log("quizQuestionsAndAnswers: ", quizQuestionsAndAnswers);
-  // }, [quizQuestionsAndAnswers]);
 
   const steps = [
     {
@@ -116,64 +74,6 @@ export function Dashboard() {
       ),
     },
   ];
-
-  async function uploadFile(file: UploadFile) {
-    const formData = new FormData();
-    formData.append("file", file as FileType);
-
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/upload/file`, {
-        method: "POST",
-        credentials: "include",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Échec de l'envoi du fichier");
-      }
-
-      // Traiter la réponse du serveur ici
-      const responseData = await response.json();
-      console.log(responseData);
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  async function sendContentToAPI(content: Content | Content[]): Promise<number[]> {
-    const sendRequest = async (cont: Content) => {
-      const apiUrl = apiUrlMap[cont.type];
-      if (!apiUrl) {
-        console.error("Type de contenu non pris en charge");
-        return;
-      }
-
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(cont),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to send content to API for type ${cont.type}`);
-      }
-      const data = await response.json();
-      return data;
-    };
-
-    if (Array.isArray(content)) {
-      // Envoi de chaque élément du tableau séparément et attente de tous les résultats
-      const promises = content.map(async (cont) => await sendRequest(cont));
-      const promisesResolved = await Promise.all(promises);
-      return promisesResolved;
-    } else {
-      // Envoi d'un seul élément
-      return sendRequest(content).then((id) => [id]);
-    }
-  }
 
   async function handleValidateStep(
     formation: FormationToDB,
@@ -313,7 +213,7 @@ export function Dashboard() {
 
       const isAllModuleFilled = modulesKeys.some((key) => {
         const contents = allValuesTypeForm[key];
-        // console.log("contents: ", contents);
+
         return contents.some((content) => {
           if (content?.type === "video") {
             return content.title && content.video.length !== 0;
@@ -323,7 +223,6 @@ export function Dashboard() {
           return false;
         });
       });
-      // console.log("isAllModuleFilled: ", isAllModuleFilled);
 
       if (isAllModuleFilled && newVideos.length + newTexts.length >= newModules.length)
         setCurrent(current + 1);
@@ -332,7 +231,6 @@ export function Dashboard() {
   };
 
   const prev = () => {
-    // console.log("current: ", current);
     if (current === 2) {
       setCurrent(current - 1);
     } else {

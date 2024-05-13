@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.saveUserProgression = exports.getUserProgressionByUser = exports.getUserAnswersByQuizId = exports.saveUserAnswer = void 0;
+exports.saveUserProgression = exports.getUserProgressionByUser = exports.getUserAnswersByFormationByUser = exports.getUserAnswersByQuizId = exports.saveUserAnswer = void 0;
 const server_1 = require("../server");
 function saveUserAnswer(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -63,6 +63,30 @@ function getUserAnswersByQuizId(req, res) {
     });
 }
 exports.getUserAnswersByQuizId = getUserAnswersByQuizId;
+function getUserAnswersByFormationByUser(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const { id_user, id_formation } = req.body;
+            const response = yield server_1.fastify.pg.query("SELECT ua.* FROM user_answers ua JOIN questions q ON ua.id_question = q.id JOIN quiz z ON q.id_quiz = z.id JOIN modules m ON z.id_module = m.id JOIN formations f ON m.id_formation = f.id WHERE id_user=$1 AND f.id=$2;", [id_user, id_formation]);
+            res.code(200).send(response.rows);
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                res.code(500).send({
+                    error: "Erreur lors de la récupération du nombre de contenu par formation",
+                    details: error.message,
+                });
+            }
+            else {
+                // Gestion d'autres types d'erreurs si nécessaire
+                res.code(500).send({
+                    error: "Erreur inconnue lors de la récupération des formations et vidéos",
+                });
+            }
+        }
+    });
+}
+exports.getUserAnswersByFormationByUser = getUserAnswersByFormationByUser;
 function getUserProgressionByUser(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {

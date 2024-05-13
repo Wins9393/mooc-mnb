@@ -2,6 +2,15 @@ export interface IdParams {
   id: number;
 }
 
+export interface UserAnswersByFormationByUser {
+  id_user: number;
+  id_formation: number;
+}
+
+export interface QuestionsByFormationBody {
+  id_formation: number;
+}
+
 // Formations Controller
 export interface Video {
   id: number;

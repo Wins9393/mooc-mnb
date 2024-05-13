@@ -1,6 +1,11 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { fastify } from "../server";
-import { AnswerOptionFromDB, BodyGetCorrectAnswer, QuestionToDB } from "../types/types";
+import {
+  AnswerOptionFromDB,
+  BodyGetCorrectAnswer,
+  QuestionToDB,
+  QuestionsByFormationBody,
+} from "../types/types";
 
 function structureAnswerByQuestion(
   answerOptions: AnswerOptionFromDB[],
@@ -41,6 +46,32 @@ export async function getCorrectAnswerByQuestion(
       // Gestion d'autres types d'erreurs si nécessaire
       res.code(500).send({
         error: "Erreur inconnue lors de la récupération de la bonne réponse",
+      });
+    }
+  }
+}
+
+export async function getQuestionsByFormation(
+  req: FastifyRequest<{ Body: QuestionsByFormationBody }>,
+  res: FastifyReply
+) {
+  try {
+    const { id_formation } = req.body;
+    const response = await fastify.pg.query(
+      "SELECT q.id, q.id_quiz, q.question_text, q.explanation, q.is_multiple_choice FROM formations f JOIN modules m ON f.id = m.id_formation JOIN quiz qz ON m.id = qz.id_module JOIN questions q ON qz.id = q.id_quiz WHERE f.id=$1",
+      [id_formation]
+    );
+    res.code(200).send(response.rows);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      res.code(500).send({
+        error: "Erreur lors de la récupération des questions",
+        details: error.message,
+      });
+    } else {
+      // Gestion d'autres types d'erreurs si nécessaire
+      res.code(500).send({
+        error: "Erreur inconnue lors de la récupération des questions",
       });
     }
   }
