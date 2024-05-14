@@ -12,6 +12,7 @@ import { Formations } from "./containers/formations/Formations.tsx";
 import "./index.css";
 import { FormationPage } from "./containers/formation-page/FormationPage.tsx";
 import { Dashboard } from "./containers/dashboard/Dashboard.tsx";
+import { CreateFormation } from "./containers/dashboard/CreateFormation.tsx";
 
 const router = createBrowserRouter([
   {
@@ -44,6 +45,11 @@ const router = createBrowserRouter([
         path: "/dashboard",
         element: <AuthGuard />,
         children: [{ index: true, element: <Dashboard /> }],
+      },
+      {
+        path: "/dashboard/create-formation",
+        element: <AuthGuard />,
+        children: [{ index: true, element: <CreateFormation /> }],
       },
     ],
   },

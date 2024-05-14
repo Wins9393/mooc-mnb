@@ -30,7 +30,7 @@ export function Home() {
             fontSize: "16rem",
             color: "var(--dark)",
             letterSpacing: "0rem",
-            fontWeight: "bolder",
+            fontWeight: "bold",
             textShadow: "0 0 8px white",
           }}>
           MNB

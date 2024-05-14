@@ -79,17 +79,25 @@ export function Header(props: HeaderProps) {
           )}
         </div>
       </header>
-      {props.currentLocation === "/dashboard" ? (
+      {props.currentLocation.startsWith("/dashboard") ? (
         <div className="second-header">
           <div className="header__second-container">
             <nav className="header__second-nav">
               <ul className="header__second-nav--list">
                 <li>
-                  <p>Create Formation</p>
+                  <NavLink
+                    to={"/dashboard/create-formation"}
+                    className={({ isActive }) => (isActive ? "active" : "")}>
+                    Create Formation
+                  </NavLink>
                 </li>
-                <li>
-                  <p>Update formation</p>
-                </li>
+                {/* <li>
+                  <NavLink
+                    to={"/dashboard/update-formation"}
+                    className={({ isActive }) => (isActive ? "active" : "")}>
+                    Update Formation
+                  </NavLink>
+                </li> */}
               </ul>
             </nav>
           </div>

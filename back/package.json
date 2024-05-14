@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc server.ts",
     "start": "tsc && node ./js-build/server.js",
-    "restoredb": "psql -U postgres -c \"DROP DATABASE IF EXISTS \\\"mooc-mnb\\\";\" && psql -U postgres -c \"CREATE DATABASE \\\"mooc-mnb\\\" WITH OWNER postgres ENCODING 'UTF8' TEMPLATE template0 LC_COLLATE = 'French_France.1252' LC_CTYPE = 'French_France.1252' TABLESPACE = pg_default CONNECTION LIMIT = -1;\" && psql -U postgres -d mooc-mnb -f db/drawSQL-pgsql-export-2024-03-04.sql"
+    "restoredb": "psql -U postgres -c \"DROP DATABASE IF EXISTS \"moocmnb\";\" && psql -U postgres -c \"CREATE DATABASE \"moocmnb\";\" && psql -U postgres -d mooc-mnb -f db/db_mooc_mnb.sql"
   },
   "author": "",
   "license": "ISC",
