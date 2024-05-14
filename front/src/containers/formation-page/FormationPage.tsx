@@ -73,6 +73,8 @@ export function FormationPage() {
   const [scorePercentage, setScorePercentage] = useState<number>(0);
   const [progressionPercentage, setProgressionPercentage] = useState<number>(0);
 
+  const [isVideoEnded, setIsVideoEnded] = useState<boolean>(false);
+
   // Debug
   // useEffect(() => {
   //   console.log("currentFormation: ", currentFormation);
@@ -116,13 +118,17 @@ export function FormationPage() {
   //   console.log("contentsByFormation: ", contentsByFormation);
   // }, [contentsByFormation]);
 
-  useEffect(() => {
-    console.log("Total Questions: ", totalQuestionsByFormation);
-  }, [totalQuestionsByFormation]);
+  // useEffect(() => {
+  //   console.log("Total Questions: ", totalQuestionsByFormation);
+  // }, [totalQuestionsByFormation]);
 
-  useEffect(() => {
-    console.log("Total UA: ", totalUserAnswersByFormation);
-  }, [totalUserAnswersByFormation]);
+  // useEffect(() => {
+  //   console.log("Total UA: ", totalUserAnswersByFormation);
+  // }, [totalUserAnswersByFormation]);
+
+  // useEffect(() => {
+  //   console.log("isVideoEnded: ", isVideoEnded);
+  // }, [isVideoEnded]);
   // Fin Debug
 
   useEffect(() => {
@@ -138,11 +144,11 @@ export function FormationPage() {
       getContentsByFormationId(idFormation);
       getQuestionsByFormation(idFormation);
     }
-  }, [idFormation, id_formation]);
+  }, [idFormation]);
 
   useEffect(() => {
     if (user && idFormation) {
-      getUserAnswersByFormationByUserId(user?.id, idFormation);
+      getUserAnswersByFormationByUserId(user.id, idFormation);
     }
   }, [idFormation, oldUserAnswers]);
 
@@ -150,7 +156,7 @@ export function FormationPage() {
     if (userProgression) {
       getProgressionPercentageByFormation(userProgression);
     }
-  }, [userProgression, contentsByFormation, idFormation]);
+  }, [userProgression, contentsByFormation]);
 
   useEffect(() => {
     if (totalUserAnswersByFormation && totalQuestionsByFormation) {
@@ -160,15 +166,14 @@ export function FormationPage() {
 
   useEffect(() => {
     getScoreByQuiz(oldUserAnswers);
-  }, [isQuizAnswered]);
+  }, [isQuizAnswered, oldUserAnswers]);
 
   useEffect(() => {
     if (currentModuleItem) {
       const quizAnswered = oldUserAnswers?.some(
         (oldAnswer) => oldAnswer.id_quiz === (currentModuleItem?.item as Quiz).id
       );
-      if (quizAnswered === true) setIsQuizAnswered(true);
-      else setIsQuizAnswered(false);
+      setIsQuizAnswered(quizAnswered === true);
     }
   }, [oldUserAnswers, currentModuleItem]);
 
@@ -178,7 +183,27 @@ export function FormationPage() {
 
   useEffect(() => {
     if (user) getUserProgressionByUser(user.id);
-  }, [currentModuleItem, oldUserAnswers]);
+  }, [currentModuleItem, oldUserAnswers, isVideoEnded]);
+
+  function onVideoEnded(video: Video) {
+    if (
+      user &&
+      currentModule &&
+      !isProgressionSavedByType(userProgression, video.id_video, "video")
+    ) {
+      console.log("video: ", video);
+      saveUserProgression({
+        id_user: user?.id,
+        id_formation: currentModule?.id_formation,
+        id_module: currentModule.id,
+        id_video: video.id_video,
+        complete: true,
+      });
+      setTimeout(() => {
+        setIsVideoEnded(true);
+      }, 200);
+    }
+  }
 
   function getCurrentFormation(id_formation: number) {
     const formation: Formation | undefined = formations.find(
@@ -214,26 +239,10 @@ export function FormationPage() {
   }
 
   function onItemModuleClick(moduleItem: ModuleCollapseItem) {
-    console.log("MODULE ITEM: ", moduleItem);
-
     if (moduleItem.id !== currentModuleItem?.id) {
       setFadeClass("content--fade-out");
       setSelectedItemId(moduleItem.id);
-
-      if (
-        user &&
-        currentModule &&
-        moduleItem.type === "video" &&
-        !isProgressionSavedByType(userProgression, (moduleItem?.item as Video).id_video, "video")
-      ) {
-        saveUserProgression({
-          id_user: user?.id,
-          id_formation: currentModule?.id_formation,
-          id_module: currentModule.id,
-          id_video: (moduleItem.item as Video).id_video,
-          complete: true,
-        });
-      }
+      setIsVideoEnded(false);
 
       if (
         user &&
@@ -253,7 +262,7 @@ export function FormationPage() {
       setTimeout(() => {
         setCurrentModuleItem(moduleItem);
         setFadeClass("content--fade-in");
-      }, 500);
+      }, 400);
     }
 
     if (moduleItem && moduleItem.type === "quiz" && user) {
@@ -336,8 +345,6 @@ export function FormationPage() {
       (progress) => progress.id_formation === idFormation
     );
 
-    console.log("progressTab: ", progressionByFormationTab);
-
     if (contentsByFormation) {
       const contentsCount =
         contentsByFormation.video_count +
@@ -357,7 +364,6 @@ export function FormationPage() {
     questions: QuestionFromDB[]
   ): Promise<void> {
     const correctAnswersCount = userAnswers.filter((ua) => ua.correct).length;
-    console.log("user answers: ", userAnswers);
 
     const scorePercentage = parseFloat(((correctAnswersCount / questions.length) * 100).toFixed(1));
 
@@ -389,8 +395,7 @@ export function FormationPage() {
     validatedAnswer.forEach((answer) => {
       if (answer !== undefined) saveUserStats(answer);
     });
-    console.log("quizItem: ", quizItem);
-    // Test
+
     if (
       user &&
       currentModule &&
@@ -405,7 +410,6 @@ export function FormationPage() {
         complete: true,
       });
     }
-    // Fin test
 
     if (user) {
       setTimeout(() => {
@@ -553,6 +557,7 @@ export function FormationPage() {
         const videoItem = item as Video;
         return (
           <video
+            onEnded={() => onVideoEnded(videoItem)}
             controls
             className={`formationPage__video ${fadeClass}`}
             src={`${import.meta.env.VITE_API_URL}/public/${videoItem.path_video}`}></video>

@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { MainContext } from "../../contexts/MainContext";
 import { FormationItem } from "../../components/formation-item/FormationItem";
 import { Formation } from "../../types/types";
@@ -8,10 +8,6 @@ export function Formations() {
   const mainContext = useContext(MainContext);
   if (!mainContext) return;
   const { formations } = mainContext;
-
-  useEffect(() => {
-    console.log("formations: ", formations);
-  }, [formations]);
 
   return (
     <div className="formations__container">

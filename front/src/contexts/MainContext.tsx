@@ -264,7 +264,6 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       });
 
       const userProgressionResult = await response.json();
-      console.log("userProgression: ", userProgression);
       setUserProgression(userProgressionResult);
     } catch (error) {
       console.log(error);
