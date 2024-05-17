@@ -2,6 +2,7 @@ import React, { createContext, useEffect, useState } from "react";
 
 interface AuthContextType {
   user: user | null;
+  loading: boolean;
   login(email: string, password: string): Promise<boolean>;
   logout(): Promise<void>;
   register(firstname: string, lastname: string, email: string, password: string): Promise<boolean>;
@@ -20,6 +21,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<user | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     getCurrentUser();
@@ -56,6 +58,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   }
 
   async function getCurrentUser(): Promise<void> {
+    setLoading(true);
     const response = await fetch(`${import.meta.env.VITE_API_URL}/me`, {
       method: "POST",
       credentials: "include",
@@ -75,6 +78,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     } else {
       setUser(null);
     }
+    setLoading(false);
   }
 
   async function logout(): Promise<void> {
@@ -131,7 +135,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, register }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, register }}>
       {children}
     </AuthContext.Provider>
   );

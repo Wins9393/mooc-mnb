@@ -1,17 +1,25 @@
 import { useContext } from "react";
-import { Outlet, Navigate } from "react-router-dom";
+import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
 
 const AuthGuard = () => {
   const authContext = useContext(AuthContext);
+  const location = useLocation();
 
-  if (!authContext) return;
+  const { user, loading } = authContext ?? {};
 
-  const { user } = authContext;
+  if (loading) {
+    return <p>Chargement...</p>;
+  }
 
   if (!user?.authenticated) {
     return <Navigate to="/" />;
   }
+
+  if (user.role === "user" && location.pathname.startsWith("/dashboard")) {
+    return <Navigate to="/" />;
+  }
+
   return <Outlet />;
 };
 
