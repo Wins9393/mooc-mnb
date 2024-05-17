@@ -26,11 +26,13 @@ import { AuthContext } from "../../contexts/AuthContext";
 
 export function FormationPage() {
   let { id_formation } = useParams();
+  console.log("id_formation: ", id_formation);
 
   const mainContext = useContext(MainContext);
   if (!mainContext) return;
   const {
     formations,
+    isLoadingFormations,
     getContentByModule,
     moduleContent,
     getQuizByModule,
@@ -92,7 +94,7 @@ export function FormationPage() {
       getContentsByFormationId(idFormation);
       getQuestionsByFormation(idFormation);
     }
-  }, [idFormation]);
+  }, [idFormation, isLoadingFormations]);
 
   useEffect(() => {
     if (user && idFormation) {

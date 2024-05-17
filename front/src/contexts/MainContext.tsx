@@ -13,6 +13,7 @@ import {
 
 interface MainContextType {
   formations: Formation[];
+  isLoadingFormations: boolean;
   getContentByModule(id_module: number): Promise<void>;
   moduleContent: ContentByModule | null;
   getQuizByModule(id_module: number): Promise<void>;
@@ -39,6 +40,7 @@ const MainContext = createContext<MainContextType | null>(null);
 
 const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [formations, setFormations] = useState<Formation[]>([]);
+  const [isLoadingFormations, setIsLoadingFormations] = useState<boolean>(true);
   const [contentsByFormation, setContentsByFormation] = useState<ContentsByFormation | null>(null);
   const [moduleContent, setModuleContent] = useState<ContentByModule | null>(null);
   const [moduleQuiz, setModuleQuiz] = useState<QuizByModule | null>(null);
@@ -70,6 +72,7 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       });
       const data = await response.json();
       setFormations(data);
+      setIsLoadingFormations(false);
     } catch (error) {
       console.log(error);
     }
@@ -289,6 +292,7 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     <MainContext.Provider
       value={{
         formations,
+        isLoadingFormations,
         getContentByModule,
         moduleContent,
         getQuizByModule,
