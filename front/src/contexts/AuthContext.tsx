@@ -4,6 +4,7 @@ interface AuthContextType {
   user: user | null;
   login(email: string, password: string): Promise<boolean>;
   logout(): Promise<void>;
+  register(firstname: string, lastname: string, email: string, password: string): Promise<boolean>;
 }
 
 interface user {
@@ -54,7 +55,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     }
   }
 
-  async function getCurrentUser() {
+  async function getCurrentUser(): Promise<void> {
     const response = await fetch(`${import.meta.env.VITE_API_URL}/me`, {
       method: "POST",
       credentials: "include",
@@ -87,7 +88,53 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     }
   }
 
-  return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>;
+  async function register(
+    firstname: string,
+    lastname: string,
+    email: string,
+    password: string
+  ): Promise<boolean> {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/register`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          firstname,
+          lastname,
+          email,
+          password,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUser({
+          id: data.user.id,
+          firstname: data.user.firstname,
+          lastname: data.user.lastname,
+          email: data.user.email,
+          role: data.user.role,
+          authenticated: data.authenticated,
+        });
+        return true;
+      } else {
+        setUser(null);
+        return false;
+      }
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+
+  return (
+    <AuthContext.Provider value={{ user, login, logout, register }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export { AuthProvider, AuthContext };

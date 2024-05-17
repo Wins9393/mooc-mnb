@@ -48,11 +48,11 @@ export function FormationPage() {
     totalUserAnswersByFormation,
     getQuestionsByFormation,
     totalQuestionsByFormation,
-  } = mainContext;
+  } = mainContext ?? {};
 
   const authContext = useContext(AuthContext);
   if (!authContext) return;
-  const { user } = authContext;
+  const { user } = authContext ?? {};
 
   const [idFormation, setIdFormation] = useState<number | null>(null);
   const [currentFormation, setCurrentFormation] = useState<Formation | null>(null);
@@ -76,59 +76,7 @@ export function FormationPage() {
   const [isVideoEnded, setIsVideoEnded] = useState<boolean>(false);
 
   // Debug
-  // useEffect(() => {
-  //   console.log("currentFormation: ", currentFormation);
-  //   console.log("currentModule: ", currentModule);
-  //   console.log("currentModuleItem: ", currentModuleItem);
-  // }, [currentModule, currentModuleItem, currentFormation]);
 
-  // useEffect(() => {
-  //   console.log("progressionPercentage: ", parseFloat(progressionPercentage.toFixed(1)));
-  // }, [progressionPercentage]);
-
-  // useEffect(() => {
-  //   console.log("scoreByQuiz: ", scoreByQuiz);
-  // }, [scoreByQuiz]);
-
-  // useEffect(() => {
-  //   console.log("moduleContent: ", moduleContent);
-  // }, [moduleContent]);
-
-  // useEffect(() => {
-  //   console.log("formations: ", formations);
-  // }, [formations]);
-
-  // useEffect(() => {
-  //   console.log("modules: ", modules);
-  // }, [modules]);
-
-  // useEffect(() => {
-  //   console.log("currentModuleItem: ", currentModuleItem);
-  // }, [currentModuleItem]);
-
-  // useEffect(() => {
-  //   console.log("selectedUserAnswers: ", selectedUserAnswers);
-  // }, [selectedUserAnswers]);
-
-  // useEffect(() => {
-  //   console.log("oldUserAnswers: ", oldUserAnswers);
-  // }, [oldUserAnswers]);
-
-  // useEffect(() => {
-  //   console.log("contentsByFormation: ", contentsByFormation);
-  // }, [contentsByFormation]);
-
-  // useEffect(() => {
-  //   console.log("Total Questions: ", totalQuestionsByFormation);
-  // }, [totalQuestionsByFormation]);
-
-  // useEffect(() => {
-  //   console.log("Total UA: ", totalUserAnswersByFormation);
-  // }, [totalUserAnswersByFormation]);
-
-  // useEffect(() => {
-  //   console.log("isVideoEnded: ", isVideoEnded);
-  // }, [isVideoEnded]);
   // Fin Debug
 
   useEffect(() => {
