@@ -162,8 +162,8 @@ export interface FullAnswerOption {
 
 export interface IsCorrectAnswer {
   isCorrectAnswerSelected: boolean;
-  idAnswerOptionSelected: number;
-  correctAnswer: FullAnswerOption;
+  idAnswerOptionSelected: number | number[];
+  correctAnswer: FullAnswerOption | FullAnswerOption[];
 }
 
 export interface QuizQuestionsAndAnswersContent {

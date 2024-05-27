@@ -8,18 +8,42 @@ import {
 } from "../types/types";
 
 function structureAnswerByQuestion(
+  isMultipleChoice: boolean,
   answerOptions: AnswerOptionFromDB[],
-  id_answer_option_selected: number
+  id_answer_option_selected: number[] | number
 ) {
-  const correctAnswer = answerOptions.find((answer) => answer.correct);
-  if (correctAnswer) {
-    const isCorrectAnswerSelected = correctAnswer.id === id_answer_option_selected;
+  // Ajouter param multiple_choice puis check ce param
+  if (isMultipleChoice) {
+    const correctAnswers = answerOptions.filter((answer) => answer.correct);
 
+    if (Array.isArray(id_answer_option_selected)) {
+      const allSelectedAreCorrect = id_answer_option_selected.every((id) =>
+        correctAnswers.some((answer) => answer.id === id)
+      );
+      const sameLength = id_answer_option_selected.length === correctAnswers.length;
+
+      return {
+        isCorrectAnswerSelected: allSelectedAreCorrect && sameLength,
+        idAnswerOptionSelected: id_answer_option_selected,
+        correctAnswer: correctAnswers,
+      };
+    }
     return {
-      isCorrectAnswerSelected,
+      isCorrectAnswerSelected: false,
       idAnswerOptionSelected: id_answer_option_selected,
-      correctAnswer,
+      correctAnswer: correctAnswers,
     };
+  } else {
+    const correctAnswer = answerOptions.find((answer) => answer.correct);
+    if (correctAnswer) {
+      const isCorrectAnswerSelected = correctAnswer.id === id_answer_option_selected;
+
+      return {
+        isCorrectAnswerSelected,
+        idAnswerOptionSelected: id_answer_option_selected,
+        correctAnswer,
+      };
+    }
   }
 }
 
@@ -29,12 +53,22 @@ export async function getCorrectAnswerByQuestion(
 ) {
   try {
     const { id_question, id_answer_option_selected } = req.body;
-    const query =
-      "SELECT id, id_question, answer_text, correct FROM answers_options WHERE id_question=$1";
-    const value = [id_question];
-    const results = await fastify.pg.query(query, value);
 
-    const correctAnswer = structureAnswerByQuestion(results.rows, id_answer_option_selected);
+    const question = await fastify.pg.query(
+      "SELECT id, id_quiz, question_text, explanation, is_multiple_choice FROM questions WHERE id=$1;",
+      [id_question]
+    );
+    const answerOption = await fastify.pg.query(
+      "SELECT id, id_question, answer_text, correct FROM answers_options WHERE id_question=$1",
+      [id_question]
+    );
+
+    const correctAnswer = structureAnswerByQuestion(
+      question.rows[0].is_multiple_choice,
+      answerOption.rows,
+      id_answer_option_selected
+    );
+
     res.send(correctAnswer);
   } catch (error: unknown) {
     if (error instanceof Error) {

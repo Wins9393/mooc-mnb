@@ -1,4 +1,4 @@
-import { ChangeEvent, useContext, useEffect, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useRef, useState } from "react";
 import { MainContext } from "../../contexts/MainContext";
 import { useParams } from "react-router-dom";
 import {
@@ -12,6 +12,7 @@ import {
   UserAnswerWithoutCorrect,
   UserProgression,
   QuestionFromDB,
+  FullAnswerOption,
 } from "../../types/types";
 import { Col, Row, Collapse, CollapseProps, Divider, Button, message } from "antd";
 import {
@@ -26,7 +27,6 @@ import { AuthContext } from "../../contexts/AuthContext";
 
 export function FormationPage() {
   let { id_formation } = useParams();
-  console.log("id_formation: ", id_formation);
 
   const mainContext = useContext(MainContext);
   if (!mainContext) return;
@@ -77,8 +77,12 @@ export function FormationPage() {
 
   const [isVideoEnded, setIsVideoEnded] = useState<boolean>(false);
 
-  // Debug
+  const questionRefs = useRef<Map<number, HTMLInputElement[]>>(new Map());
 
+  // Debug
+  useEffect(() => {
+    console.log("selectedUserAnswers: ", selectedUserAnswers);
+  }, [selectedUserAnswers]);
   // Fin Debug
 
   useEffect(() => {
@@ -116,6 +120,7 @@ export function FormationPage() {
 
   useEffect(() => {
     getScoreByQuiz(oldUserAnswers);
+    console.log("oldUserAnswers: ", oldUserAnswers);
   }, [isQuizAnswered, oldUserAnswers]);
 
   useEffect(() => {
@@ -230,61 +235,128 @@ export function FormationPage() {
     e: ChangeEvent<HTMLInputElement>,
     id_question: number,
     id_answer: number,
-    id_quiz: number
+    id_quiz: number,
+    is_multiple_choice: boolean
   ) {
-    const inputsAnswersOptions = document.querySelectorAll<HTMLInputElement>(
-      `input[name='answer_option-question-${id_question}']`
-    );
-    // Si une seule réponse possible => enlever le check des autres inputs
-    // if(question.multiple_choice === false){
-    inputsAnswersOptions.forEach((inputAO) => {
-      const input = inputAO as HTMLInputElement;
-      if (input !== e.target) {
-        input.checked = false;
-      }
-    });
+    const inputs = questionRefs.current.get(id_question) || [];
 
-    setSelectedUserAnswers((prevAnswers) => {
-      const updatedAnswers = prevAnswers ? [...prevAnswers] : [];
-
-      const existingAnswerIndex = updatedAnswers.findIndex(
-        (answer) => answer.id_question === id_question
-      );
-
-      if (user) {
-        const newAnswer = {
-          id_user: user?.id,
-          id_question,
-          id_answer_option: id_answer,
-          id_quiz,
-          date_answer: new Date().toISOString(),
-        };
-
-        if (existingAnswerIndex > -1) {
-          updatedAnswers[existingAnswerIndex] = newAnswer;
-        } else {
-          updatedAnswers.push(newAnswer);
+    if (!is_multiple_choice) {
+      inputs.forEach((input) => {
+        if (input !== e.target) {
+          input.checked = false;
         }
-      }
+      });
 
-      return updatedAnswers;
-    });
-    // }else{
-    // Permettre plusieurs choix de réponse
-    // }
+      setSelectedUserAnswers((prevAnswers) => {
+        let updatedAnswers = prevAnswers ? [...prevAnswers] : [];
+
+        const existingQuestionIndex = updatedAnswers.findIndex(
+          (answer) => answer.id_question === id_question
+        );
+
+        const existingAnswerIndex = updatedAnswers.findIndex(
+          (answer) => answer.id_answer_option === id_answer
+        );
+
+        if (user) {
+          if (existingAnswerIndex > -1 && !e.target.checked) {
+            updatedAnswers = updatedAnswers.filter(
+              (answer) => answer.id_answer_option !== id_answer
+            );
+          } else {
+            const newAnswer = {
+              id_user: user?.id,
+              id_question,
+              id_answer_option: id_answer,
+              id_quiz,
+              date_answer: new Date().toISOString(),
+            };
+
+            if (existingQuestionIndex > -1) {
+              updatedAnswers[existingQuestionIndex] = newAnswer;
+              return updatedAnswers;
+            }
+            updatedAnswers.push(newAnswer);
+          }
+        }
+        return updatedAnswers;
+      });
+    } else {
+      setSelectedUserAnswers((prevAnswers) => {
+        const updatedAnswers = prevAnswers ? [...prevAnswers] : [];
+
+        const existingAnswerIndex = updatedAnswers.findIndex(
+          (answer) => answer.id_answer_option === id_answer
+        );
+
+        if (user) {
+          const newAnswer = {
+            id_user: user?.id,
+            id_question,
+            id_answer_option: id_answer,
+            id_quiz,
+            date_answer: new Date().toISOString(),
+          };
+
+          if (existingAnswerIndex > -1) {
+            const filteredAnswers = updatedAnswers.filter((answer) => {
+              return answer.id_answer_option !== newAnswer.id_answer_option;
+            });
+            return filteredAnswers;
+          } else {
+            updatedAnswers.push(newAnswer);
+          }
+        }
+
+        return updatedAnswers;
+      });
+    }
   }
 
   async function getScoreByQuiz(userAnswers: UserAnswer[] | undefined) {
-    const questionsNumber = userAnswers?.length;
     let goodAnswers = 0;
 
-    userAnswers?.forEach((answer) => {
-      if (answer.correct) goodAnswers++;
-    });
+    const groupOldAnswersByQuestion = userAnswers?.reduce(
+      (acc: { [key: number]: UserAnswer[] }, answer: UserAnswer) => {
+        if (!acc[answer.id_question]) {
+          acc[answer.id_question] = [];
+        }
+        acc[answer.id_question].push(answer);
+        return acc;
+      },
+      {}
+    );
 
-    if (questionsNumber) {
-      const average = (goodAnswers / questionsNumber) * 100;
-      setScoreByQuiz(average);
+    if (groupOldAnswersByQuestion) {
+      const questionsNumber = Object.keys(groupOldAnswersByQuestion).length;
+
+      for (const [key, answers] of Object.entries(groupOldAnswersByQuestion)) {
+        if (answers.length > 1) {
+          const answersOptionsIds: number[] = answers.map((answer) => answer?.id_answer_option);
+          const correctAnswers = await getCorrectAnswer(parseInt(key), answersOptionsIds);
+
+          const multipleCorrectAnswer = correctAnswers.correctAnswer as FullAnswerOption[];
+          const correctAnswersNumber = multipleCorrectAnswer.length;
+          const userAnswersNumber = answers.length;
+          const userCorrectAnswersNumber = answers.filter((answer) => answer.correct).length;
+
+          if (
+            correctAnswersNumber === userAnswersNumber &&
+            correctAnswersNumber === userCorrectAnswersNumber
+          ) {
+            goodAnswers++;
+          }
+        } else {
+          if (answers[0].correct) {
+            goodAnswers++;
+          }
+        }
+      }
+
+      if (questionsNumber) {
+        const average = (goodAnswers / questionsNumber) * 100;
+        setScoreByQuiz(average);
+      }
     }
   }
 
@@ -313,38 +385,105 @@ export function FormationPage() {
     userAnswers: UserAnswer[],
     questions: QuestionFromDB[]
   ): Promise<void> {
-    const correctAnswersCount = userAnswers.filter((ua) => ua.correct).length;
+    setScorePercentage(0);
+    let goodAnswers = 0;
 
-    const scorePercentage = parseFloat(((correctAnswersCount / questions.length) * 100).toFixed(1));
+    const groupTotalUserAnswersByFormation = userAnswers?.reduce(
+      (acc: { [key: number]: UserAnswer[] }, answer: UserAnswer) => {
+        if (!acc[answer.id_question]) {
+          acc[answer.id_question] = [];
+        }
+        acc[answer.id_question].push(answer);
+        return acc;
+      },
+      {}
+    );
 
-    setScorePercentage(scorePercentage);
+    if (groupTotalUserAnswersByFormation) {
+      const questionsNumber = Object.keys(groupTotalUserAnswersByFormation).length;
+
+      for (const [key, answers] of Object.entries(groupTotalUserAnswersByFormation)) {
+        if (answers.length > 1) {
+          const answersOptionsIds: number[] = answers.map((answer) => answer?.id_answer_option);
+          const correctAnswers = await getCorrectAnswer(parseInt(key), answersOptionsIds);
+
+          const multipleCorrectAnswer = correctAnswers.correctAnswer as FullAnswerOption[];
+          const correctAnswersNumber = multipleCorrectAnswer.length;
+          const userAnswersNumber = answers.length;
+          const userCorrectAnswersNumber = answers.filter((answer) => answer.correct).length;
+
+          if (
+            correctAnswersNumber === userAnswersNumber &&
+            correctAnswersNumber === userCorrectAnswersNumber
+          ) {
+            goodAnswers++;
+          }
+        } else {
+          if (answers[0].correct) {
+            goodAnswers++;
+          }
+        }
+      }
+
+      if (questionsNumber) {
+        const scorePercentage = parseFloat(((goodAnswers / questions.length) * 100).toFixed(1));
+        setScorePercentage(scorePercentage);
+      }
+    }
   }
 
   async function onValidateQuiz(userAnswers: UserAnswer[], quizItem: Quiz) {
-    if (userAnswers.length < quizItem.questions.length) {
+    const groupAnswersByQuestion = userAnswers.reduce(
+      (acc: { [key: number]: UserAnswer[] }, answer: UserAnswer) => {
+        if (!acc[answer.id_question]) {
+          acc[answer.id_question] = [];
+        }
+        acc[answer.id_question].push(answer);
+        return acc;
+      },
+      {}
+    );
+
+    if (Object.keys(groupAnswersByQuestion).length < quizItem.questions.length) {
       message.error("Veuillez choisir une réponse pour chaque question !");
       return;
     }
 
-    const promises = userAnswers.map((userAnswer) => {
-      return getCorrectAnswer(userAnswer.id_question, userAnswer.id_answer_option);
-    });
+    for (const [key, answers] of Object.entries(groupAnswersByQuestion)) {
+      if (answers.length > 1) {
+        const answersOptionsIds: number[] = answers.map((answer) => answer?.id_answer_option);
 
-    const promisesResolved = await Promise.all(promises);
+        const correctAnswers = await getCorrectAnswer(parseInt(key), answersOptionsIds);
 
-    const validatedAnswer = userAnswers.flatMap((answer) =>
-      promisesResolved
-        .map((correctAnswers) => {
-          if (answer.id_answer_option === correctAnswers.idAnswerOptionSelected) {
-            return { ...answer, correct: correctAnswers.isCorrectAnswerSelected };
-          }
-        })
-        .filter((answer) => answer !== undefined)
-    );
+        const multipleCorrectAnswer = correctAnswers.correctAnswer as FullAnswerOption[];
 
-    validatedAnswer.forEach((answer) => {
-      if (answer !== undefined) saveUserStats(answer);
-    });
+        const userAnswersStat = answers.map((userAnswer) => {
+          const isCorrect = multipleCorrectAnswer.some(
+            (correctAnswer) => correctAnswer.id === userAnswer.id_answer_option
+          );
+          return {
+            ...userAnswer,
+            correct: isCorrect,
+          };
+        });
+
+        userAnswersStat.forEach((userAnswer) => saveUserStats(userAnswer));
+      } else {
+        const correctAnswer = await getCorrectAnswer(
+          answers[0].id_question,
+          answers[0].id_answer_option
+        );
+
+        const oneCorrectAnswer = correctAnswer.correctAnswer as FullAnswerOption;
+
+        const userAnswerStat = {
+          ...answers[0],
+          correct: oneCorrectAnswer.id === answers[0].id_answer_option,
+        };
+
+        saveUserStats(userAnswerStat);
+      }
+    }
 
     if (
       user &&
@@ -524,57 +663,82 @@ export function FormationPage() {
               ? displayQuizResult(oldUserAnswers?.[0].date_answer, quizItem.id)
               : ""}
             {quizItem?.questions.map((question) => {
-              const userAnswer = oldUserAnswers?.find((a) => a.id_question === question.id);
+              const userAnswer = oldUserAnswers?.filter((a) => a.id_question === question.id);
+              const questionRef = questionRefs.current.get(question.id) || [];
               return (
                 <div
                   key={`question-${question.id}`}
                   className="formationPage__questions-answers-bloc">
                   <div className="formationPage__question-bloc">
-                    <h3>{question.question_text}</h3>
+                    <h3>
+                      {question.question_text}{" "}
+                      {question.is_multiple_choice ? (
+                        <span style={{ fontSize: ".8rem", fontWeight: "light" }}>
+                          (plusieurs réponses possibles)
+                        </span>
+                      ) : (
+                        ""
+                      )}
+                    </h3>
                   </div>
                   <Divider style={{ margin: "16px" }} />
                   <div>
-                    {question.answer_options.map((answer) => (
-                      <div style={{ display: "flex" }} key={`answer-${answer.id}`}>
-                        {oldUserAnswers?.map((item) =>
-                          item.id_answer_option === answer.id ? (
-                            item.correct ? (
-                              <CheckCircleTwoTone
-                                key={`answer-${answer.id}`}
-                                twoToneColor="#52c41a"
+                    {question.answer_options.map((answer) => {
+                      return (
+                        <div style={{ display: "flex" }} key={`answer-${answer.id}`}>
+                          {oldUserAnswers?.map((item) =>
+                            item.id_answer_option === answer.id ? (
+                              item.correct ? (
+                                <CheckCircleTwoTone
+                                  key={`answer-${answer.id}`}
+                                  twoToneColor="#52c41a"
+                                />
+                              ) : (
+                                <CloseCircleTwoTone
+                                  key={`answer-${answer.id}`}
+                                  twoToneColor="#A30015"
+                                />
+                              )
+                            ) : (
+                              ""
+                            )
+                          )}
+                          <div className="formationPage__answer-bloc" key={answer.id}>
+                            <p>{answer.text}</p>{" "}
+                            {isQuizAnswered ? (
+                              <input
+                                checked={userAnswer?.some(
+                                  (uAnswer) => uAnswer.id_answer_option === answer.id
+                                )}
+                                disabled={true}
+                                name={`answer_option-question-${question.id}`}
+                                type="checkbox"
                               />
                             ) : (
-                              <CloseCircleTwoTone
-                                key={`answer-${answer.id}`}
-                                twoToneColor="#A30015"
+                              <input
+                                disabled={false}
+                                name={`answer_option-question-${question.id}`}
+                                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                                  onUserAnswerChange(
+                                    e,
+                                    question.id,
+                                    answer.id,
+                                    quizItem.id,
+                                    question.is_multiple_choice
+                                  )
+                                }
+                                ref={(el) => {
+                                  if (el && !questionRef.includes(el)) {
+                                    questionRefs.current.set(question.id, [...questionRef, el]);
+                                  }
+                                }}
+                                type="checkbox"
                               />
-                            )
-                          ) : (
-                            ""
-                          )
-                        )}
-                        <div className="formationPage__answer-bloc" key={answer.id}>
-                          <p>{answer.text}</p>{" "}
-                          {isQuizAnswered ? (
-                            <input
-                              checked={userAnswer?.id_answer_option === answer.id}
-                              disabled={true}
-                              name={`answer_option-question-${question.id}`}
-                              type="checkbox"
-                            />
-                          ) : (
-                            <input
-                              disabled={false}
-                              name={`answer_option-question-${question.id}`}
-                              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                                onUserAnswerChange(e, question.id, answer.id, quizItem.id)
-                              }
-                              type="checkbox"
-                            />
-                          )}
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               );

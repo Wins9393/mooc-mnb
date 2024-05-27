@@ -20,7 +20,7 @@ interface MainContextType {
   moduleQuiz: QuizByModule | null;
   getCorrectAnswer(
     id_question: number,
-    id_answer_option_selected: number
+    id_answer_option_selected: number[] | number
   ): Promise<IsCorrectAnswer>;
   saveUserStats(userAnswer: UserAnswer): Promise<void>;
   getUserAnswerByQuizId(id_user: number, id_quiz: number): Promise<UserAnswer[] | undefined>;
@@ -127,7 +127,7 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
   async function getCorrectAnswer(
     id_question: number,
-    id_answer_option_selected: number
+    id_answer_option_selected: number[] | number
   ): Promise<IsCorrectAnswer> {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/answer/question`, {

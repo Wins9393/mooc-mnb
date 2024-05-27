@@ -92,7 +92,7 @@ export interface StructuredVideo {
 // Questions Controller
 export interface BodyGetCorrectAnswer {
   id_question: number;
-  id_answer_option_selected: number;
+  id_answer_option_selected: number[] | number;
 }
 
 export interface AnswerOptionFromDB {
