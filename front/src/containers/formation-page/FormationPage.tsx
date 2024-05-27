@@ -1,4 +1,4 @@
-import { ChangeEvent, useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { MainContext } from "../../contexts/MainContext";
 import { useParams } from "react-router-dom";
 import {
@@ -7,23 +7,16 @@ import {
   ModuleCollapseItem,
   Quiz,
   UserAnswer,
-  Video,
-  Text,
   UserAnswerWithoutCorrect,
   UserProgression,
-  QuestionFromDB,
   FullAnswerOption,
 } from "../../types/types";
-import { Col, Row, Collapse, CollapseProps, Divider, Button, message } from "antd";
-import {
-  CloseCircleTwoTone,
-  CheckCircleTwoTone,
-  PlayCircleOutlined,
-  FileTextOutlined,
-  QuestionCircleOutlined,
-} from "@ant-design/icons";
+import { Col, Row } from "antd";
 import "./formation-page.css";
 import { AuthContext } from "../../contexts/AuthContext";
+import { CollapseModule } from "../../components/formationPage-components/CollapseModule";
+import { ContentModule } from "../../components/formationPage-components/ContentModule";
+import { Statistics } from "../../components/formationPage-components/Statistics";
 
 export function FormationPage() {
   let { id_formation } = useParams();
@@ -33,23 +26,13 @@ export function FormationPage() {
   const {
     formations,
     isLoadingFormations,
-    getContentByModule,
-    moduleContent,
-    getQuizByModule,
-    moduleQuiz,
     getCorrectAnswer,
-    saveUserStats,
     getUserAnswerByQuizId,
     resetQuizById,
-    saveUserProgression,
     getUserProgressionByUser,
-    userProgression,
     getContentsByFormationId,
-    contentsByFormation,
     getUserAnswersByFormationByUserId,
-    totalUserAnswersByFormation,
     getQuestionsByFormation,
-    totalQuestionsByFormation,
   } = mainContext ?? {};
 
   const authContext = useContext(AuthContext);
@@ -72,18 +55,7 @@ export function FormationPage() {
   const [fadeClass, setFadeClass] = useState("content--fade-in");
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
 
-  const [scorePercentage, setScorePercentage] = useState<number>(0);
-  const [progressionPercentage, setProgressionPercentage] = useState<number>(0);
-
   const [isVideoEnded, setIsVideoEnded] = useState<boolean>(false);
-
-  const questionRefs = useRef<Map<number, HTMLInputElement[]>>(new Map());
-
-  // Debug
-  useEffect(() => {
-    console.log("selectedUserAnswers: ", selectedUserAnswers);
-  }, [selectedUserAnswers]);
-  // Fin Debug
 
   useEffect(() => {
     if (id_formation) {
@@ -107,20 +79,7 @@ export function FormationPage() {
   }, [idFormation, oldUserAnswers]);
 
   useEffect(() => {
-    if (userProgression) {
-      getProgressionPercentageByFormation(userProgression);
-    }
-  }, [userProgression, contentsByFormation]);
-
-  useEffect(() => {
-    if (totalUserAnswersByFormation && totalQuestionsByFormation) {
-      getScorePercentageByFormation(totalUserAnswersByFormation, totalQuestionsByFormation);
-    }
-  }, [totalQuestionsByFormation, totalUserAnswersByFormation]);
-
-  useEffect(() => {
     getScoreByQuiz(oldUserAnswers);
-    console.log("oldUserAnswers: ", oldUserAnswers);
   }, [isQuizAnswered, oldUserAnswers]);
 
   useEffect(() => {
@@ -140,26 +99,6 @@ export function FormationPage() {
     if (user) getUserProgressionByUser(user.id);
   }, [currentModuleItem, oldUserAnswers, isVideoEnded]);
 
-  function onVideoEnded(video: Video) {
-    if (
-      user &&
-      currentModule &&
-      !isProgressionSavedByType(userProgression, video.id_video, "video")
-    ) {
-      console.log("video: ", video);
-      saveUserProgression({
-        id_user: user?.id,
-        id_formation: currentModule?.id_formation,
-        id_module: currentModule.id,
-        id_video: video.id_video,
-        complete: true,
-      });
-      setTimeout(() => {
-        setIsVideoEnded(true);
-      }, 200);
-    }
-  }
-
   function getCurrentFormation(id_formation: number) {
     const formation: Formation | undefined = formations.find(
       (formation) => formation.id === id_formation
@@ -171,6 +110,11 @@ export function FormationPage() {
     const modules: Module[] | null =
       formations.find((f) => f.id === id_formation)?.modules.sort((a, b) => a.id - b.id) ?? null;
     setModules(modules);
+  }
+
+  async function getOldUserAnswers(id_user: number, id_quiz: number): Promise<void> {
+    const oldUserAnswers = await getUserAnswerByQuizId(id_user, id_quiz);
+    setOldUserAnswers(oldUserAnswers);
   }
 
   function isProgressionSavedByType(
@@ -191,126 +135,6 @@ export function FormationPage() {
     }
 
     return false;
-  }
-
-  function onItemModuleClick(moduleItem: ModuleCollapseItem) {
-    if (moduleItem.id !== currentModuleItem?.id) {
-      setFadeClass("content--fade-out");
-      setSelectedItemId(moduleItem.id);
-      setIsVideoEnded(false);
-
-      if (
-        user &&
-        currentModule &&
-        moduleItem.type === "text" &&
-        !isProgressionSavedByType(userProgression, (moduleItem.item as Text).id_text, "text")
-      ) {
-        saveUserProgression({
-          id_user: user?.id,
-          id_formation: currentModule?.id_formation,
-          id_module: currentModule.id,
-          id_text: (moduleItem.item as Text).id_text,
-          complete: true,
-        });
-      }
-
-      setTimeout(() => {
-        setCurrentModuleItem(moduleItem);
-        setFadeClass("content--fade-in");
-      }, 400);
-    }
-
-    if (moduleItem && moduleItem.type === "quiz" && user) {
-      getOldUserAnswers(user.id, (moduleItem.item as Quiz).id);
-    }
-    window.scrollTo(0, 0);
-  }
-
-  async function getOldUserAnswers(id_user: number, id_quiz: number) {
-    const oldUserAnswers = await getUserAnswerByQuizId(id_user, id_quiz);
-    setOldUserAnswers(oldUserAnswers);
-  }
-
-  function onUserAnswerChange(
-    e: ChangeEvent<HTMLInputElement>,
-    id_question: number,
-    id_answer: number,
-    id_quiz: number,
-    is_multiple_choice: boolean
-  ) {
-    const inputs = questionRefs.current.get(id_question) || [];
-
-    if (!is_multiple_choice) {
-      inputs.forEach((input) => {
-        if (input !== e.target) {
-          input.checked = false;
-        }
-      });
-
-      setSelectedUserAnswers((prevAnswers) => {
-        let updatedAnswers = prevAnswers ? [...prevAnswers] : [];
-
-        const existingQuestionIndex = updatedAnswers.findIndex(
-          (answer) => answer.id_question === id_question
-        );
-
-        const existingAnswerIndex = updatedAnswers.findIndex(
-          (answer) => answer.id_answer_option === id_answer
-        );
-
-        if (user) {
-          if (existingAnswerIndex > -1 && !e.target.checked) {
-            updatedAnswers = updatedAnswers.filter(
-              (answer) => answer.id_answer_option !== id_answer
-            );
-          } else {
-            const newAnswer = {
-              id_user: user?.id,
-              id_question,
-              id_answer_option: id_answer,
-              id_quiz,
-              date_answer: new Date().toISOString(),
-            };
-
-            if (existingQuestionIndex > -1) {
-              updatedAnswers[existingQuestionIndex] = newAnswer;
-              return updatedAnswers;
-            }
-            updatedAnswers.push(newAnswer);
-          }
-        }
-        return updatedAnswers;
-      });
-    } else {
-      setSelectedUserAnswers((prevAnswers) => {
-        const updatedAnswers = prevAnswers ? [...prevAnswers] : [];
-
-        const existingAnswerIndex = updatedAnswers.findIndex(
-          (answer) => answer.id_answer_option === id_answer
-        );
-
-        if (user) {
-          const newAnswer = {
-            id_user: user?.id,
-            id_question,
-            id_answer_option: id_answer,
-            id_quiz,
-            date_answer: new Date().toISOString(),
-          };
-
-          if (existingAnswerIndex > -1) {
-            const filteredAnswers = updatedAnswers.filter((answer) => {
-              return answer.id_answer_option !== newAnswer.id_answer_option;
-            });
-            return filteredAnswers;
-          } else {
-            updatedAnswers.push(newAnswer);
-          }
-        }
-
-        return updatedAnswers;
-      });
-    }
   }
 
   async function getScoreByQuiz(userAnswers: UserAnswer[] | undefined) {
@@ -360,401 +184,11 @@ export function FormationPage() {
     }
   }
 
-  async function getProgressionPercentageByFormation(
-    userProgression: UserProgression[]
-  ): Promise<void> {
-    const progressionByFormationTab = userProgression.filter(
-      (progress) => progress.id_formation === idFormation
-    );
-
-    if (contentsByFormation) {
-      const contentsCount =
-        contentsByFormation.video_count +
-        contentsByFormation.text_count +
-        contentsByFormation.quiz_count;
-
-      let progressPercentage = parseFloat(
-        ((progressionByFormationTab.length / contentsCount) * 100).toFixed(1)
-      );
-
-      setProgressionPercentage(progressPercentage);
-    }
-  }
-
-  async function getScorePercentageByFormation(
-    userAnswers: UserAnswer[],
-    questions: QuestionFromDB[]
-  ): Promise<void> {
-    setScorePercentage(0);
-    let goodAnswers = 0;
-
-    const groupTotalUserAnswersByFormation = userAnswers?.reduce(
-      (acc: { [key: number]: UserAnswer[] }, answer: UserAnswer) => {
-        if (!acc[answer.id_question]) {
-          acc[answer.id_question] = [];
-        }
-        acc[answer.id_question].push(answer);
-        return acc;
-      },
-      {}
-    );
-
-    if (groupTotalUserAnswersByFormation) {
-      const questionsNumber = Object.keys(groupTotalUserAnswersByFormation).length;
-
-      for (const [key, answers] of Object.entries(groupTotalUserAnswersByFormation)) {
-        if (answers.length > 1) {
-          const answersOptionsIds: number[] = answers.map((answer) => answer?.id_answer_option);
-          const correctAnswers = await getCorrectAnswer(parseInt(key), answersOptionsIds);
-
-          const multipleCorrectAnswer = correctAnswers.correctAnswer as FullAnswerOption[];
-          const correctAnswersNumber = multipleCorrectAnswer.length;
-          const userAnswersNumber = answers.length;
-          const userCorrectAnswersNumber = answers.filter((answer) => answer.correct).length;
-
-          if (
-            correctAnswersNumber === userAnswersNumber &&
-            correctAnswersNumber === userCorrectAnswersNumber
-          ) {
-            goodAnswers++;
-          }
-        } else {
-          if (answers[0].correct) {
-            goodAnswers++;
-          }
-        }
-      }
-
-      if (questionsNumber) {
-        const scorePercentage = parseFloat(((goodAnswers / questions.length) * 100).toFixed(1));
-        setScorePercentage(scorePercentage);
-      }
-    }
-  }
-
-  async function onValidateQuiz(userAnswers: UserAnswer[], quizItem: Quiz) {
-    const groupAnswersByQuestion = userAnswers.reduce(
-      (acc: { [key: number]: UserAnswer[] }, answer: UserAnswer) => {
-        if (!acc[answer.id_question]) {
-          acc[answer.id_question] = [];
-        }
-        acc[answer.id_question].push(answer);
-        return acc;
-      },
-      {}
-    );
-
-    if (Object.keys(groupAnswersByQuestion).length < quizItem.questions.length) {
-      message.error("Veuillez choisir une réponse pour chaque question !");
-      return;
-    }
-
-    for (const [key, answers] of Object.entries(groupAnswersByQuestion)) {
-      if (answers.length > 1) {
-        const answersOptionsIds: number[] = answers.map((answer) => answer?.id_answer_option);
-
-        const correctAnswers = await getCorrectAnswer(parseInt(key), answersOptionsIds);
-
-        const multipleCorrectAnswer = correctAnswers.correctAnswer as FullAnswerOption[];
-
-        const userAnswersStat = answers.map((userAnswer) => {
-          const isCorrect = multipleCorrectAnswer.some(
-            (correctAnswer) => correctAnswer.id === userAnswer.id_answer_option
-          );
-          return {
-            ...userAnswer,
-            correct: isCorrect,
-          };
-        });
-
-        userAnswersStat.forEach((userAnswer) => saveUserStats(userAnswer));
-      } else {
-        const correctAnswer = await getCorrectAnswer(
-          answers[0].id_question,
-          answers[0].id_answer_option
-        );
-
-        const oneCorrectAnswer = correctAnswer.correctAnswer as FullAnswerOption;
-
-        const userAnswerStat = {
-          ...answers[0],
-          correct: oneCorrectAnswer.id === answers[0].id_answer_option,
-        };
-
-        saveUserStats(userAnswerStat);
-      }
-    }
-
-    if (
-      user &&
-      currentModule &&
-      quizItem &&
-      !isProgressionSavedByType(userProgression, quizItem.id, "quiz")
-    ) {
-      saveUserProgression({
-        id_user: user?.id,
-        id_formation: currentModule?.id_formation,
-        id_module: currentModule.id,
-        id_quiz: quizItem.id,
-        complete: true,
-      });
-    }
-
-    if (user) {
-      setTimeout(() => {
-        getOldUserAnswers(user?.id, quizItem.id);
-      }, 400);
-    }
-    window.scrollTo(0, 0);
-  }
-
   async function handleResetQuiz(user_id: number, quiz_id: number) {
     if (user_id && quiz_id) {
       await resetQuizById(user_id, quiz_id);
       await getOldUserAnswers(user_id, quiz_id);
       setSelectedUserAnswers([]);
-    }
-  }
-
-  function changeCollapseBGColor(userProgression: UserProgression[], content: ModuleCollapseItem) {
-    const result = userProgression?.some((progress) => {
-      if (content.type === "video") {
-        return (content?.item as Video).id_video === progress.id_video;
-      }
-      if (content.type === "text") {
-        return (content?.item as Text).id_text === progress.id_text;
-      }
-      if (content.type === "quiz") {
-        return (content?.item as Quiz).id === progress.id_quiz;
-      }
-    });
-
-    if (result) {
-      return { backgroundColor: "#dad2d8" };
-    }
-    return {};
-  }
-
-  // Boucle sur les modules présents dans la formation pour remplir le tableau d'Items pour le Collapse
-  function getCollapseItems(modules: Module[]) {
-    let items: CollapseProps["items"] = [];
-
-    if (!modules) {
-      return;
-    }
-
-    modules.forEach((module) => {
-      const combinedContent = [
-        ...(moduleContent?.videos?.map((video) => ({
-          type: "video",
-          id: `video-${video.id_video}`,
-          title: video.title_video,
-          item: video,
-        })) || []),
-        ...(moduleContent?.texts?.map((text) => ({
-          type: "text",
-          id: `text-${text.id_text}`,
-          title: text.title_text,
-          item: text,
-        })) || []),
-        moduleQuiz
-          ? { type: "quiz", id: `quiz-${moduleQuiz.id}`, title: moduleQuiz.title, item: moduleQuiz }
-          : { type: "quiz", id: "", title: "", item: null },
-      ];
-
-      const contentItems = combinedContent.map((content) => (
-        <div
-          className="formationPage__collapse-item-box"
-          style={
-            userProgression && content.item ? changeCollapseBGColor(userProgression, content) : {}
-          }
-          key={content.id}
-          onClick={() => onItemModuleClick(content)}>
-          <span className={content.id === selectedItemId ? "selected-item" : ""}></span>
-          <p className="formationPage__collapse-item">{content.title}</p>
-          {content.type === "video" && <PlayCircleOutlined />}
-          {content.type === "text" && <FileTextOutlined />}
-          {content.type === "quiz" && <QuestionCircleOutlined />}
-        </div>
-      ));
-
-      items?.push({
-        key: module.id,
-        label: module.title,
-        children: contentItems,
-        onClick: () => {
-          if (currentModule?.id !== module.id) {
-            setCurrentModule(module);
-            getContentByModule(module.id);
-            getQuizByModule(module.id);
-          }
-        },
-      });
-    });
-
-    return items;
-  }
-
-  function displayQuizResult(dateString: string, id_quiz: number) {
-    const dateValidation = new Date(dateString);
-    return (
-      (
-        <div>
-          <div
-            className={`formationPage__quiz-valide--container ${
-              scoreByQuiz < 70 ? "quiz-echec" : "quiz-reussi"
-            }`}>
-            <p>{`Quiz soumis le ${dateValidation.getDate()}/${(dateValidation.getMonth() + 1)
-              .toString()
-              .padStart(
-                2,
-                "0"
-              )}/${dateValidation.getFullYear()} à ${dateValidation.getHours()}H${dateValidation.getMinutes()}`}</p>
-            {scoreByQuiz < 70 ? (
-              <p>
-                <span style={{ fontWeight: "bold" }}>Echec </span>
-                avec un score de: <span style={{ fontWeight: "bold" }}>{scoreByQuiz}%</span>
-              </p>
-            ) : (
-              <p>
-                <span style={{ fontWeight: "bold" }}>Réussite </span>
-                avec un score de: <span style={{ fontWeight: "bold" }}>{scoreByQuiz}%</span>
-              </p>
-            )}
-          </div>
-          {scoreByQuiz < 70 ? (
-            <Button
-              style={{ marginTop: "8px" }}
-              onClick={() => (user ? handleResetQuiz(user?.id, id_quiz) : "")}>
-              Rééssayer
-            </Button>
-          ) : (
-            ""
-          )}
-        </div>
-      ) || undefined
-    );
-  }
-
-  function renderModuleItem(item: Video | Text | Quiz | null, itemType: string) {
-    if (!item) {
-      return null;
-    }
-
-    switch (itemType) {
-      case "video":
-        const videoItem = item as Video;
-        return (
-          <video
-            onEnded={() => onVideoEnded(videoItem)}
-            controls
-            className={`formationPage__video ${fadeClass}`}
-            src={`${import.meta.env.VITE_API_URL}/public/${videoItem.path_video}`}></video>
-        );
-      case "text":
-        const textItem = item as Text;
-        return <p className={`${fadeClass}`}>{textItem.content_text}</p>;
-      case "quiz":
-        const quizItem = item as Quiz;
-
-        return (
-          <div className={`formationPage__quiz-wrapper ${fadeClass}`}>
-            {isQuizAnswered && oldUserAnswers?.length
-              ? displayQuizResult(oldUserAnswers?.[0].date_answer, quizItem.id)
-              : ""}
-            {quizItem?.questions.map((question) => {
-              const userAnswer = oldUserAnswers?.filter((a) => a.id_question === question.id);
-              const questionRef = questionRefs.current.get(question.id) || [];
-              return (
-                <div
-                  key={`question-${question.id}`}
-                  className="formationPage__questions-answers-bloc">
-                  <div className="formationPage__question-bloc">
-                    <h3>
-                      {question.question_text}{" "}
-                      {question.is_multiple_choice ? (
-                        <span style={{ fontSize: ".8rem", fontWeight: "light" }}>
-                          (plusieurs réponses possibles)
-                        </span>
-                      ) : (
-                        ""
-                      )}
-                    </h3>
-                  </div>
-                  <Divider style={{ margin: "16px" }} />
-                  <div>
-                    {question.answer_options.map((answer) => {
-                      return (
-                        <div style={{ display: "flex" }} key={`answer-${answer.id}`}>
-                          {oldUserAnswers?.map((item) =>
-                            item.id_answer_option === answer.id ? (
-                              item.correct ? (
-                                <CheckCircleTwoTone
-                                  key={`answer-${answer.id}`}
-                                  twoToneColor="#52c41a"
-                                />
-                              ) : (
-                                <CloseCircleTwoTone
-                                  key={`answer-${answer.id}`}
-                                  twoToneColor="#A30015"
-                                />
-                              )
-                            ) : (
-                              ""
-                            )
-                          )}
-                          <div className="formationPage__answer-bloc" key={answer.id}>
-                            <p>{answer.text}</p>{" "}
-                            {isQuizAnswered ? (
-                              <input
-                                checked={userAnswer?.some(
-                                  (uAnswer) => uAnswer.id_answer_option === answer.id
-                                )}
-                                disabled={true}
-                                name={`answer_option-question-${question.id}`}
-                                type="checkbox"
-                              />
-                            ) : (
-                              <input
-                                disabled={false}
-                                name={`answer_option-question-${question.id}`}
-                                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                                  onUserAnswerChange(
-                                    e,
-                                    question.id,
-                                    answer.id,
-                                    quizItem.id,
-                                    question.is_multiple_choice
-                                  )
-                                }
-                                ref={(el) => {
-                                  if (el && !questionRef.includes(el)) {
-                                    questionRefs.current.set(question.id, [...questionRef, el]);
-                                  }
-                                }}
-                                type="checkbox"
-                              />
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
-            {isQuizAnswered ? (
-              ""
-            ) : (
-              <Button onClick={() => onValidateQuiz(selectedUserAnswers as UserAnswer[], quizItem)}>
-                Valider
-              </Button>
-            )}
-          </div>
-        );
-
-      default:
-        return null;
     }
   }
 
@@ -768,65 +202,40 @@ export function FormationPage() {
           lg={6}
           xl={6}
           className="formationPage__questions-collapse-container">
-          <div className="formationPage__title">
-            <h2 className="title-h2">Les modules</h2>
-          </div>
-          <Collapse
-            className="formationPage__accordion"
-            accordion
-            size="large"
-            items={modules ? getCollapseItems(modules) : []}></Collapse>
+          <CollapseModule
+            modules={modules}
+            currentModule={currentModule}
+            setCurrentModule={setCurrentModule}
+            currentModuleItem={currentModuleItem}
+            setCurrentModuleItem={setCurrentModuleItem}
+            setFadeClass={setFadeClass}
+            setSelectedItemId={setSelectedItemId}
+            selectedItemId={selectedItemId}
+            setIsVideoEnded={setIsVideoEnded}
+            isProgressionSavedByType={isProgressionSavedByType}
+            getOldUserAnswers={getOldUserAnswers}
+          />
         </Col>
-        <Col xs={24} sm={24} md={24} lg={12} xl={12} className="formationPage__content-container">
-          {currentModuleItem && currentModuleItem.item !== null ? (
-            <div className="formationPage__title">
-              <h2 className="title-h2">{currentModule?.title}</h2>
-              <h5 className="title-h5">{currentModuleItem?.title}</h5>
-            </div>
-          ) : currentModule ? (
-            <>
-              <div className="formationPage__title">
-                <h2 className="title-h2">{currentModule?.title}</h2>
-              </div>
-              <p>{currentModule.description}</p>
-            </>
-          ) : currentFormation ? (
-            <>
-              <div className="formationPage__title">
-                <h2 className="title-h2">{currentFormation?.title}</h2>
-              </div>
-              <p>{currentFormation.description}</p>
-            </>
-          ) : (
-            ""
-          )}
 
-          <div className="formationPage__content-wrapper">
-            {currentModuleItem &&
-            currentModuleItem?.item !== null &&
-            currentModuleItem.type !== null
-              ? renderModuleItem(currentModuleItem.item, currentModuleItem.type)
-              : ""}
-          </div>
+        <Col xs={24} sm={24} md={24} lg={12} xl={12} className="formationPage__content-container">
+          <ContentModule
+            currentFormation={currentFormation}
+            currentModule={currentModule}
+            currentModuleItem={currentModuleItem}
+            fadeClass={fadeClass}
+            isQuizAnswered={isQuizAnswered}
+            oldUserAnswers={oldUserAnswers}
+            scoreByQuiz={scoreByQuiz}
+            selectedUserAnswers={selectedUserAnswers}
+            setSelectedUserAnswers={setSelectedUserAnswers}
+            setIsVideoEnded={setIsVideoEnded}
+            handleResetQuiz={handleResetQuiz}
+            isProgressionSavedByType={isProgressionSavedByType}
+            getOldUserAnswers={getOldUserAnswers}
+          />
         </Col>
         <Col xs={24} sm={24} md={24} lg={6} xl={6} className="formationPage__scores-container">
-          <div className="formationPage__title">
-            <h2 className="title-h2">Statistiques</h2>
-          </div>
-          <div className="formationPage__score-wrapper">
-            <div className="score-wrapper__progression-container">
-              <p>Progression:</p>
-              <div className="score-wrapper__progress-bar-progression">
-                <p style={{ width: `${progressionPercentage}%` }}>{progressionPercentage}%</p>
-              </div>
-            </div>
-            <div className="score-wrapper__score-container">
-              <p>Score:</p>
-              <div className="score-wrapper__progress-bar-score">
-                <p style={{ width: `${scorePercentage}%` }}>{scorePercentage}%</p>
-              </div>
-            </div>
-          </div>
+          <Statistics idFormation={idFormation} />
         </Col>
       </Row>
     </div>
