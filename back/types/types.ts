@@ -124,6 +124,7 @@ export interface FormationWithModule {
   title: string;
   description: string;
   cover_path: string;
+  published: boolean;
   modules: Module[];
 }
 
@@ -136,6 +137,7 @@ export interface FormationToDB {
   title: string;
   description?: string;
   cover_path: string;
+  published: boolean;
 }
 
 export interface ModuleToDB {

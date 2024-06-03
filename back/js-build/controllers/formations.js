@@ -35,6 +35,7 @@ function groupModulesByFormation(results) {
                 title: row.title_formation,
                 description: row.desc_formation,
                 cover_path: row.cover_path_formation,
+                published: row.published_formation,
                 modules: [],
             };
         }
@@ -50,7 +51,7 @@ function groupModulesByFormation(results) {
 function getFormationsWithModules(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const query = "SELECT f.id AS id_formation, f.title AS title_formation, f.description AS desc_formation, f.cover_path AS cover_path_formation, m.id AS id_module, m.id_formation AS id_formation_module, m.title AS title_module, m.description AS description_module FROM formations f INNER JOIN modules m ON m.id_formation=f.id;";
+            const query = "SELECT f.id AS id_formation, f.title AS title_formation, f.description AS desc_formation, f.cover_path AS cover_path_formation, f.published AS published_formation, m.id AS id_module, m.id_formation AS id_formation_module, m.title AS title_module, m.description AS description_module FROM formations f INNER JOIN modules m ON m.id_formation=f.id;";
             const response = yield server_1.fastify.pg.query(query);
             const groupedModulesByFormation = groupModulesByFormation(response.rows);
             res.code(200).send(groupedModulesByFormation);
@@ -58,14 +59,14 @@ function getFormationsWithModules(req, res) {
         catch (error) {
             if (error instanceof Error) {
                 res.code(500).send({
-                    error: "Erreur lors de la récupération des formations et vidéos",
+                    error: "Erreur lors de la récupération des formations et modules",
                     details: error.message,
                 });
             }
             else {
                 // Gestion d'autres types d'erreurs si nécessaire
                 res.code(500).send({
-                    error: "Erreur inconnue lors de la récupération des formations et vidéos",
+                    error: "Erreur inconnue lors de la récupération des formations et modules",
                 });
             }
         }
@@ -100,9 +101,9 @@ function createFormation(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             console.log("NEW FORMATION: ", req.body);
-            const { title, description, cover_path } = req.body;
-            const query = "INSERT INTO formations (title, description, cover_path) VALUES ($1, $2, $3) RETURNING id";
-            const values = [title, description, cover_path];
+            const { title, description, cover_path, published } = req.body;
+            const query = "INSERT INTO formations (title, description, cover_path, published) VALUES ($1, $2, $3, $4) RETURNING id";
+            const values = [title, description, cover_path, published];
             const result = yield server_1.fastify.pg.query(query, values);
             res.code(200).send(result.rows[0].id);
         }
@@ -157,7 +158,12 @@ function createCompleteFormation(req, res) {
                 const { formation, modules, videos, texts, quizQuestionsAndAnswers } = fields;
                 // Insert formation
                 const parsedFormation = JSON.parse(formation);
-                const formationResult = yield client.query("INSERT INTO formations (title, description, cover_path) VALUES ($1, $2, $3) RETURNING id", [parsedFormation.title, parsedFormation.description, parsedFormation.cover_path]);
+                const formationResult = yield client.query("INSERT INTO formations (title, description, cover_path, published) VALUES ($1, $2, $3, $4) RETURNING id", [
+                    parsedFormation.title,
+                    parsedFormation.description,
+                    parsedFormation.cover_path,
+                    parsedFormation.published,
+                ]);
                 const formationId = formationResult.rows[0].id;
                 if (!formationId) {
                     throw new Error("Erreur lors de l'insertion de la formation !");
@@ -218,50 +224,6 @@ function createCompleteFormation(req, res) {
                         }
                     }
                 }
-                //
-                // const promisesQuiz = quizzesKeys.map(async (key) => {
-                //   try {
-                //     const moduleIndex = parseInt(key?.split("-")[1]);
-                //     if (!modulesIds[moduleIndex]) {
-                //       throw new Error(`Index du module introuvable`);
-                //     }
-                //     const resultQuiz = await client.query(
-                //       "INSERT INTO quiz (id_module, title) VALUES ($1, $2) RETURNING id",
-                //       [modulesIds[moduleIndex], parsedQuizQuestionsAndAnswers[key][0].quiz_title]
-                //     );
-                //     const idQuiz = resultQuiz.rows[0].id;
-                //     if (!idQuiz) {
-                //       throw new Error(`Erreur lors de l'insertion d'un quiz !`);
-                //     }
-                //     const questionPromises = parsedQuizQuestionsAndAnswers[key][0].questions.map(
-                //       async (q: QuestionFromFront) => {
-                //         try {
-                //           const resultQuestion = await client.query(
-                //             "INSERT INTO questions (id_quiz, question_text, explanation, is_multiple_choice) VALUES ($1, $2, $3, $4) RETURNING id",
-                //             [idQuiz, q.question_text, q.explanation, q.is_multiple_choice]
-                //           );
-                //           const idQuestion = resultQuestion.rows[0].id;
-                //           if (!idQuestion) {
-                //             throw new Error(`Erreur lors de l'insertion d'une question !`);
-                //           }
-                //           const answerOptionsPromises = q.answer_options.map(async (ao) => {
-                //             await client.query(
-                //               "INSERT INTO answers_options (id_question, answer_text, correct) VALUES ($1, $2, $3) RETURNING id",
-                //               [idQuestion, ao.answer_text, ao.correct]
-                //             );
-                //           });
-                //           await Promise.all(answerOptionsPromises);
-                //         } catch (error) {
-                //           throw new Error(`${error}`);
-                //         }
-                //       }
-                //     );
-                //     await Promise.all(questionPromises);
-                //   } catch (error) {
-                //     throw new Error(`${error}`);
-                //   }
-                // });
-                // await Promise.all(promisesQuiz);
                 res.send({ message: "Formation créée avec succès" });
             }));
         }

@@ -71,7 +71,8 @@ CREATE TABLE public.formations (
     id integer NOT NULL,
     title character varying(255) NOT NULL,
     description text,
-    cover_path character varying(255)
+    cover_path character varying(255),
+    published boolean NOT NULL
 );
 
 
@@ -682,7 +683,7 @@ ALTER TABLE ONLY public.texts
 --
 
 ALTER TABLE ONLY public.user_answers
-    ADD CONSTRAINT user_answers_id_answer_option_foreign FOREIGN KEY (id_answer_option) REFERENCES public.answers_options(id);
+    ADD CONSTRAINT user_answers_id_answer_option_foreign FOREIGN KEY (id_answer_option) REFERENCES public.answers_options(id) ON DELETE CASCADE;
 
 
 --
@@ -691,7 +692,7 @@ ALTER TABLE ONLY public.user_answers
 --
 
 ALTER TABLE ONLY public.user_answers
-    ADD CONSTRAINT user_answers_id_question_foreign FOREIGN KEY (id_question) REFERENCES public.questions(id);
+    ADD CONSTRAINT user_answers_id_question_foreign FOREIGN KEY (id_question) REFERENCES public.questions(id) ON DELETE CASCADE;
 
 
 --
@@ -700,7 +701,7 @@ ALTER TABLE ONLY public.user_answers
 --
 
 ALTER TABLE ONLY public.user_answers
-    ADD CONSTRAINT user_answers_id_quiz_foreign FOREIGN KEY (id_quiz) REFERENCES public.quiz(id);
+    ADD CONSTRAINT user_answers_id_quiz_foreign FOREIGN KEY (id_quiz) REFERENCES public.quiz(id) ON DELETE CASCADE;
 
 
 --
@@ -709,7 +710,7 @@ ALTER TABLE ONLY public.user_answers
 --
 
 ALTER TABLE ONLY public.user_answers
-    ADD CONSTRAINT user_answers_id_user_foreign FOREIGN KEY (id_user) REFERENCES public.users(id);
+    ADD CONSTRAINT user_answers_id_user_foreign FOREIGN KEY (id_user) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --
@@ -718,7 +719,7 @@ ALTER TABLE ONLY public.user_answers
 --
 
 ALTER TABLE ONLY public.user_progression
-    ADD CONSTRAINT user_progression_id_formation_foreign FOREIGN KEY (id_formation) REFERENCES public.formations(id);
+    ADD CONSTRAINT user_progression_id_formation_foreign FOREIGN KEY (id_formation) REFERENCES public.formations(id) ON DELETE CASCADE;
 
 
 --
@@ -727,7 +728,7 @@ ALTER TABLE ONLY public.user_progression
 --
 
 ALTER TABLE ONLY public.user_progression
-    ADD CONSTRAINT user_progression_id_module_foreign FOREIGN KEY (id_module) REFERENCES public.modules(id);
+    ADD CONSTRAINT user_progression_id_module_foreign FOREIGN KEY (id_module) REFERENCES public.modules(id) ON DELETE CASCADE;
 
 
 --
@@ -736,7 +737,7 @@ ALTER TABLE ONLY public.user_progression
 --
 
 ALTER TABLE ONLY public.user_progression
-    ADD CONSTRAINT user_progression_id_quiz_foreign FOREIGN KEY (id_quiz) REFERENCES public.quiz(id);
+    ADD CONSTRAINT user_progression_id_quiz_foreign FOREIGN KEY (id_quiz) REFERENCES public.quiz(id) ON DELETE CASCADE;
 
 
 --
@@ -745,7 +746,7 @@ ALTER TABLE ONLY public.user_progression
 --
 
 ALTER TABLE ONLY public.user_progression
-    ADD CONSTRAINT user_progression_id_text_foreign FOREIGN KEY (id_text) REFERENCES public.texts(id);
+    ADD CONSTRAINT user_progression_id_text_foreign FOREIGN KEY (id_text) REFERENCES public.texts(id) ON DELETE CASCADE;
 
 
 --
@@ -754,7 +755,7 @@ ALTER TABLE ONLY public.user_progression
 --
 
 ALTER TABLE ONLY public.user_progression
-    ADD CONSTRAINT user_progression_id_user_foreign FOREIGN KEY (id_user) REFERENCES public.users(id);
+    ADD CONSTRAINT user_progression_id_user_foreign FOREIGN KEY (id_user) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --
@@ -763,7 +764,7 @@ ALTER TABLE ONLY public.user_progression
 --
 
 ALTER TABLE ONLY public.user_progression
-    ADD CONSTRAINT user_progression_id_video_foreign FOREIGN KEY (id_video) REFERENCES public.videos(id);
+    ADD CONSTRAINT user_progression_id_video_foreign FOREIGN KEY (id_video) REFERENCES public.videos(id) ON DELETE CASCADE;
 
 
 --

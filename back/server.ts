@@ -64,7 +64,7 @@ export const fastify = Fastify({
 });
 
 fastify.register(fastifyPostgres, {
-  connectionString: `postgres://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@${process.env.DATABASE_HOST}/moocmnbwithmodules`,
+  connectionString: `postgres://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@${process.env.DATABASE_HOST}/moocmnb`,
 });
 
 fastify.register(cors, {

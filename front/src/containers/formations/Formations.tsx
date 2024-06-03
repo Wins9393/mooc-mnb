@@ -12,9 +12,11 @@ export function Formations() {
   return (
     <div className="formations__container">
       {formations
-        ? formations.map((formation: Formation) => (
-            <FormationItem key={formation.id} formation={formation} />
-          ))
+        ? formations.map((formation: Formation) => {
+            if (formation.published) {
+              return <FormationItem key={formation.id} formation={formation} />;
+            }
+          })
         : "Pas de formations"}
     </div>
   );

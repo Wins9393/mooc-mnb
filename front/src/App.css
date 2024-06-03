@@ -14,6 +14,7 @@
   --light-blue: #3c91e6;
   --pastel-blue: #457eac;
   --accent-violet: #995d81;
+  --disabled: #aaa;
 }
 
 * {
@@ -50,6 +51,14 @@ button:has(.anticon) span {
 
 button:not(:has(.anticon)):hover {
   border: solid 1px var(--accent-violet) !important;
+}
+
+button[role="switch"][aria-checked="true"] {
+  background-color: var(--accent-violet) !important;
+}
+
+button[role="switch"][aria-checked="false"] {
+  background-color: var(--disabled) !important;
 }
 
 .App {

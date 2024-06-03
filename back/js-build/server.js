@@ -53,7 +53,7 @@ exports.fastify = (0, fastify_1.default)({
     logger: true,
 });
 exports.fastify.register(postgres_1.default, {
-    connectionString: `postgres://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@${process.env.DATABASE_HOST}/moocmnbwithmodules`,
+    connectionString: `postgres://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@${process.env.DATABASE_HOST}/moocmnb`,
 });
 exports.fastify.register(cors_1.default, {
     // ajouter des options plus tard

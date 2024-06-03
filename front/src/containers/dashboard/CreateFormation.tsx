@@ -21,6 +21,7 @@ export function CreateFormation() {
     title: "",
     description: undefined,
     cover_path: "",
+    published: false,
   });
   const [selectedFile, setSelectedFile] = useState<UploadFile | null>(null);
   const [newModules, setNewModules] = useState<ModuleToDB[]>([]);
@@ -33,8 +34,8 @@ export function CreateFormation() {
     useState<QuizQuestionsAndAnswersContent>({});
 
   useEffect(() => {
-    console.log("selectedFile: ", selectedFile);
-  }, [selectedFile]);
+    console.log("newFormation: ", newFormation);
+  }, [newFormation]);
 
   const steps = [
     {
@@ -180,6 +181,7 @@ export function CreateFormation() {
         title: "",
         description: undefined,
         cover_path: "",
+        published: false,
       });
       setNewModules([]);
       setSelectedFile(null);

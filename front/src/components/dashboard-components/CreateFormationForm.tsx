@@ -1,4 +1,4 @@
-import { Card, Form, Input, Upload, UploadFile, UploadProps, message } from "antd";
+import { Card, Form, Input, Upload, UploadFile, UploadProps, message, Switch } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { FormationToDB } from "../../types/types";
 
@@ -83,6 +83,10 @@ export function CreateFormationForm({
     }));
   }
 
+  function handlePublishedChange(checked: boolean): void {
+    setNewFormation((prevFormation: FormationToDB) => ({ ...prevFormation, published: checked }));
+  }
+
   return (
     <>
       <h2 className="dashboardPage__main-content--h2">Commencez par créer une formation</h2>
@@ -107,6 +111,9 @@ export function CreateFormationForm({
                 <div style={{ marginTop: 8 }}>Upload</div>
               </button>
             </Upload>
+          </Form.Item>
+          <Form.Item label={"Publier ?"}>
+            <Switch onChange={handlePublishedChange} />
           </Form.Item>
         </Card>
       </Form>
