@@ -7,6 +7,7 @@ import fastifyMultipart from "@fastify/multipart";
 import * as dotenv from "dotenv";
 import cors from "@fastify/cors";
 import path from "node:path";
+import { authenticate } from "./authenticate";
 
 import { getUsers } from "./controllers/users";
 import { getCurrentUser, login, logout, register } from "./controllers/auth";
@@ -38,6 +39,23 @@ import { createText } from "./controllers/texts";
 import { createQuiz, resetQuizById } from "./controllers/quiz";
 import { createAnswerOption } from "./controllers/answers-options";
 import { uploadFile } from "./controllers/upload";
+import {
+  AnswerOptionToDB,
+  BodyGetCorrectAnswer,
+  BodyGetUserAnswer,
+  BodyResetQuizById,
+  BodySaveUserAnswer,
+  FormationToDB,
+  IdParams,
+  ModuleToDB,
+  QuestionToDB,
+  QuestionsByFormationBody,
+  QuizToDB,
+  TextToDB,
+  UserAnswersByFormationByUser,
+  UserProgression,
+  VideoToDB,
+} from "./types/types";
 
 dotenv.config({ path: "./.env.local" });
 
@@ -84,48 +102,84 @@ fastify.post("/logout", logout);
 fastify.post("/me", getCurrentUser);
 
 /** Users */
-fastify.get("/users", getUsers);
+fastify.get("/users", { preHandler: authenticate }, getUsers);
 
 /** Formations with Modules */
-fastify.get("/formations", getFormationsWithModules);
-fastify.get("/formations/:id/contents", getContentsNumberByFormation);
-fastify.post("/formations/create", createFormation);
+fastify.get("/formations", { preHandler: authenticate }, getFormationsWithModules);
+fastify.get(
+  "/formations/:id/contents",
+  { preHandler: authenticate<IdParams> },
+  getContentsNumberByFormation
+);
+fastify.post("/formations/create", { preHandler: authenticate<FormationToDB> }, createFormation);
 
 /** Modules */
-fastify.get("/module/:id/content", getModulesWithContentsByModuleId);
-fastify.get("/module/:id/quiz", getQuizByModuleId);
-fastify.post("/module/create", createModule);
+fastify.get(
+  "/module/:id/content",
+  { preHandler: authenticate<IdParams> },
+  getModulesWithContentsByModuleId
+);
+fastify.get("/module/:id/quiz", { preHandler: authenticate<IdParams> }, getQuizByModuleId);
+fastify.post("/module/create", { preHandler: authenticate<ModuleToDB> }, createModule);
 
 /** Videos */
-fastify.post("/video/create", createVideo);
+fastify.post("/video/create", { preHandler: authenticate<VideoToDB> }, createVideo);
 
 /** Texts */
-fastify.post("/text/create", createText);
+fastify.post("/text/create", { preHandler: authenticate<TextToDB> }, createText);
 
 /** Quiz */
-fastify.post("/quiz/create", createQuiz);
+fastify.post("/quiz/create", { preHandler: authenticate<QuizToDB> }, createQuiz);
 
 /** Questions */
-fastify.post("/answer/question", getCorrectAnswerByQuestion);
-fastify.post("/questions/formation", getQuestionsByFormation);
-fastify.post("/question/create", createQuestion);
+fastify.post(
+  "/answer/question",
+  { preHandler: authenticate<BodyGetCorrectAnswer> },
+  getCorrectAnswerByQuestion
+);
+fastify.post(
+  "/questions/formation",
+  { preHandler: authenticate<QuestionsByFormationBody> },
+  getQuestionsByFormation
+);
+fastify.post("/question/create", { preHandler: authenticate<QuestionToDB> }, createQuestion);
 
 /** User Stats */
-fastify.post("/stats/save", saveUserAnswer);
-fastify.post("/stats/useranswers", getUserAnswersByQuizId);
-fastify.post("/stats/useranswers/user/formation", getUserAnswersByFormationByUser);
-fastify.post("/stats/useranswers/delete", resetQuizById);
-fastify.post("/progression/user", getUserProgressionByUser);
-fastify.post("/progression/save", saveUserProgression);
+fastify.post("/stats/save", { preHandler: authenticate<BodySaveUserAnswer> }, saveUserAnswer);
+fastify.post(
+  "/stats/useranswers",
+  { preHandler: authenticate<BodyGetUserAnswer> },
+  getUserAnswersByQuizId
+);
+fastify.post(
+  "/stats/useranswers/user/formation",
+  { preHandler: authenticate<UserAnswersByFormationByUser> },
+  getUserAnswersByFormationByUser
+);
+fastify.post(
+  "/stats/useranswers/delete",
+  { preHandler: authenticate<BodyResetQuizById> },
+  resetQuizById
+);
+fastify.post("/progression/user", { preHandler: authenticate<IdParams> }, getUserProgressionByUser);
+fastify.post(
+  "/progression/save",
+  { preHandler: authenticate<UserProgression> },
+  saveUserProgression
+);
 
 /** Answers Options */
-fastify.post("/answersoptions/create", createAnswerOption);
+fastify.post(
+  "/answersoptions/create",
+  { preHandler: authenticate<AnswerOptionToDB> },
+  createAnswerOption
+);
 
 /** Image */
-fastify.post("/upload/file", uploadFile);
+fastify.post("/upload/file", { preHandler: authenticate }, uploadFile);
 
 /** Complete Formation */
-fastify.post("/complete-formation/create", createCompleteFormation);
+fastify.post("/complete-formation/create", { preHandler: authenticate }, createCompleteFormation);
 
 fastify.listen({ port: 4000 }, (error: unknown) => {
   const address = fastify.server.address();
