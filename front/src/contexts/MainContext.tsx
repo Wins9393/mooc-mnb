@@ -58,8 +58,8 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const { user } = authContext;
 
   useEffect(() => {
-    getFormationsWithModules();
     if (user) {
+      getFormationsWithModules();
       getUserProgressionByUser(user.id);
     }
   }, [user]);

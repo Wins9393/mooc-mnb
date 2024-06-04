@@ -16,6 +16,7 @@ function authenticate(request, reply) {
         try {
             if (!request.session.user || !request.session.authenticated) {
                 reply.code(401).send("Erreur d'authentification !");
+                return;
             }
         }
         catch (error) {

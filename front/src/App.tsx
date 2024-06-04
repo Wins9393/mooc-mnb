@@ -13,7 +13,7 @@ function App() {
   }, [location]);
   return (
     <div className="App">
-      <Header currentLocation={currentLocation} />
+      <Header />
       {currentLocation === "/" ? (
         <Outlet />
       ) : (

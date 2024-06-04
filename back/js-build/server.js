@@ -36,18 +36,6 @@ const multipart_1 = __importDefault(require("@fastify/multipart"));
 const dotenv = __importStar(require("dotenv"));
 const cors_1 = __importDefault(require("@fastify/cors"));
 const node_path_1 = __importDefault(require("node:path"));
-const authenticate_1 = require("./authenticate");
-const users_1 = require("./controllers/users");
-const auth_1 = require("./controllers/auth");
-const formations_1 = require("./controllers/formations");
-const questions_1 = require("./controllers/questions");
-const user_stats_1 = require("./controllers/user-stats");
-const modules_1 = require("./controllers/modules");
-const videos_1 = require("./controllers/videos");
-const texts_1 = require("./controllers/texts");
-const quiz_1 = require("./controllers/quiz");
-const answers_options_1 = require("./controllers/answers-options");
-const upload_1 = require("./controllers/upload");
 dotenv.config({ path: "./.env.local" });
 exports.fastify = (0, fastify_1.default)({
     logger: true,
@@ -80,44 +68,7 @@ exports.fastify.register(multipart_1.default, {
         fileSize: 1e8,
     },
 });
-/** Auth */
-exports.fastify.post("/login", auth_1.login);
-exports.fastify.post("/register", auth_1.register);
-exports.fastify.post("/logout", auth_1.logout);
-exports.fastify.post("/me", auth_1.getCurrentUser);
-/** Users */
-exports.fastify.get("/users", { preHandler: authenticate_1.authenticate }, users_1.getUsers);
-/** Formations with Modules */
-exports.fastify.get("/formations", { preHandler: authenticate_1.authenticate }, formations_1.getFormationsWithModules);
-exports.fastify.get("/formations/:id/contents", { preHandler: (authenticate_1.authenticate) }, formations_1.getContentsNumberByFormation);
-exports.fastify.post("/formations/create", { preHandler: (authenticate_1.authenticate) }, formations_1.createFormation);
-/** Modules */
-exports.fastify.get("/module/:id/content", { preHandler: (authenticate_1.authenticate) }, modules_1.getModulesWithContentsByModuleId);
-exports.fastify.get("/module/:id/quiz", { preHandler: (authenticate_1.authenticate) }, modules_1.getQuizByModuleId);
-exports.fastify.post("/module/create", { preHandler: (authenticate_1.authenticate) }, modules_1.createModule);
-/** Videos */
-exports.fastify.post("/video/create", { preHandler: (authenticate_1.authenticate) }, videos_1.createVideo);
-/** Texts */
-exports.fastify.post("/text/create", { preHandler: (authenticate_1.authenticate) }, texts_1.createText);
-/** Quiz */
-exports.fastify.post("/quiz/create", { preHandler: (authenticate_1.authenticate) }, quiz_1.createQuiz);
-/** Questions */
-exports.fastify.post("/answer/question", { preHandler: (authenticate_1.authenticate) }, questions_1.getCorrectAnswerByQuestion);
-exports.fastify.post("/questions/formation", { preHandler: (authenticate_1.authenticate) }, questions_1.getQuestionsByFormation);
-exports.fastify.post("/question/create", { preHandler: (authenticate_1.authenticate) }, questions_1.createQuestion);
-/** User Stats */
-exports.fastify.post("/stats/save", { preHandler: (authenticate_1.authenticate) }, user_stats_1.saveUserAnswer);
-exports.fastify.post("/stats/useranswers", { preHandler: (authenticate_1.authenticate) }, user_stats_1.getUserAnswersByQuizId);
-exports.fastify.post("/stats/useranswers/user/formation", { preHandler: (authenticate_1.authenticate) }, user_stats_1.getUserAnswersByFormationByUser);
-exports.fastify.post("/stats/useranswers/delete", { preHandler: (authenticate_1.authenticate) }, quiz_1.resetQuizById);
-exports.fastify.post("/progression/user", { preHandler: (authenticate_1.authenticate) }, user_stats_1.getUserProgressionByUser);
-exports.fastify.post("/progression/save", { preHandler: (authenticate_1.authenticate) }, user_stats_1.saveUserProgression);
-/** Answers Options */
-exports.fastify.post("/answersoptions/create", { preHandler: (authenticate_1.authenticate) }, answers_options_1.createAnswerOption);
-/** Image */
-exports.fastify.post("/upload/file", { preHandler: authenticate_1.authenticate }, upload_1.uploadFile);
-/** Complete Formation */
-exports.fastify.post("/complete-formation/create", { preHandler: authenticate_1.authenticate }, formations_1.createCompleteFormation);
+require("./routes/index");
 exports.fastify.listen({ port: 4000 }, (error) => {
     const address = exports.fastify.server.address();
     if (error) {

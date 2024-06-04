@@ -3,11 +3,7 @@ import "./header.css";
 import { useContext } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
 
-interface HeaderProps {
-  currentLocation: string;
-}
-
-export function Header(props: HeaderProps) {
+export function Header() {
   const authContext = useContext(AuthContext);
 
   if (!authContext) return;
@@ -79,32 +75,6 @@ export function Header(props: HeaderProps) {
           )}
         </div>
       </header>
-      {props.currentLocation.startsWith("/dashboard") ? (
-        <div className="second-header">
-          <div className="header__second-container">
-            <nav className="header__second-nav">
-              <ul className="header__second-nav--list">
-                <li>
-                  <NavLink
-                    to={"/dashboard/create-formation"}
-                    className={({ isActive }) => (isActive ? "active" : "")}>
-                    Create Formation
-                  </NavLink>
-                </li>
-                {/* <li>
-                  <NavLink
-                    to={"/dashboard/update-formation"}
-                    className={({ isActive }) => (isActive ? "active" : "")}>
-                    Update Formation
-                  </NavLink>
-                </li> */}
-              </ul>
-            </nav>
-          </div>
-        </div>
-      ) : (
-        ""
-      )}
     </>
   );
 }

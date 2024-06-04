@@ -9,33 +9,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUsers = void 0;
-const server_1 = require("../server");
-function getUsers(request, reply) {
-    var _a;
+exports.checkPermissions = void 0;
+function checkPermissions(request, reply) {
+    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const currentUserId = (_a = request.session.user) === null || _a === void 0 ? void 0 : _a.id;
-            if (currentUserId) {
-                const query = "SELECT id, firstname, lastname, email, role FROM public.users WHERE id != $1";
-                const response = yield server_1.fastify.pg.query(query, [currentUserId]);
-                reply.code(200).send(response.rows);
+            if (((_a = request.session.user) === null || _a === void 0 ? void 0 : _a.role) !== "sadmin" && ((_b = request.session.user) === null || _b === void 0 ? void 0 : _b.role) !== "admin") {
+                reply.code(401).send("Erreur de permissions");
             }
         }
         catch (error) {
             if (error instanceof Error) {
-                reply.code(500).send({
-                    error: "Erreur lors de la récupération des users",
-                    details: error.message,
-                });
+                reply.code(401).send({ message: "Erreur de permissions !", error: error });
             }
             else {
-                // Gestion d'autres types d'erreurs si nécessaire
-                reply.code(500).send({
-                    error: "Erreur inconnue lors de la récupération des users",
-                });
+                reply.code(401).send({ message: "Erreur de permissions inconnue !", error: error });
             }
         }
     });
 }
-exports.getUsers = getUsers;
+exports.checkPermissions = checkPermissions;

@@ -1,6 +1,6 @@
 import { Button, Steps, message } from "antd";
 import { CreateFormationForm } from "../../components/dashboard-components/CreateFormationForm";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   FormationToDB,
   ModuleToDB,
@@ -32,10 +32,6 @@ export function CreateFormation() {
   }>({});
   const [quizQuestionsAndAnswers, setQuizQuestionsAndAnswers] =
     useState<QuizQuestionsAndAnswersContent>({});
-
-  useEffect(() => {
-    console.log("newFormation: ", newFormation);
-  }, [newFormation]);
 
   const steps = [
     {
