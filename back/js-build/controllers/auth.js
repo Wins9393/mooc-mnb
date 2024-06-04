@@ -19,7 +19,7 @@ function login(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const { email, password } = req.body;
-            const query = "SELECT id, firstname, lastname, email, password, role FROM public.users WHERE email=$1";
+            const query = "SELECT id, firstname, lastname, shop, email, password, role, created_at FROM public.users WHERE email=$1";
             const values = [email];
             const response = yield server_js_1.fastify.pg.query(query, values);
             console.log("LOGIN RESPONSE: ", response.rows);
@@ -32,8 +32,10 @@ function login(req, res) {
                     id: response.rows[0].id,
                     firstname: response.rows[0].firstname,
                     lastname: response.rows[0].lastname,
+                    shop: response.rows[0].shop,
                     email: response.rows[0].email,
                     role: response.rows[0].role,
+                    createdAt: response.rows[0].created_at,
                 };
                 res.code(200).send(req.session);
             }
@@ -61,10 +63,11 @@ exports.login = login;
 function register(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const { firstname, lastname, email, password } = req.body;
+            const { firstname, lastname, shop, email, password } = req.body;
             const hash_password = yield argon2_1.default.hash(password);
-            const query = "INSERT INTO public.users(firstname, lastname, email, password, role, created_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id";
-            const values = [firstname, lastname, email, hash_password, "user", new Date().toISOString()];
+            const dateNow = new Date().toISOString();
+            const query = "INSERT INTO public.users(firstname, lastname, shop, email, password, role, created_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id";
+            const values = [firstname, lastname, shop, email, hash_password, "user", dateNow];
             const result = yield server_js_1.fastify.pg.query(query, values);
             if (result.rowCount === 1) {
                 req.session.authenticated = true;
@@ -72,8 +75,10 @@ function register(req, res) {
                     id: result.rows[0].id,
                     firstname,
                     lastname,
+                    shop,
                     email,
                     role: "user",
+                    createdAt: dateNow,
                 };
                 res.code(200).send(req.session);
             }

@@ -14,6 +14,7 @@ import { FormationPage } from "./containers/formation-page/FormationPage.tsx";
 import { Dashboard } from "./containers/dashboard/Dashboard.tsx";
 import { CreateFormation } from "./containers/dashboard/CreateFormation.tsx";
 import { AllUsers } from "./components/dashboard-components/AllUsers.tsx";
+import { DashboardProvider } from "./contexts/DashboardContext.tsx";
 
 const router = createBrowserRouter([
   {
@@ -64,9 +65,11 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <AuthProvider>
-      <MainProvider>
-        <RouterProvider router={router} />
-      </MainProvider>
+      <DashboardProvider>
+        <MainProvider>
+          <RouterProvider router={router} />
+        </MainProvider>
+      </DashboardProvider>
     </AuthProvider>
   </React.StrictMode>
 );

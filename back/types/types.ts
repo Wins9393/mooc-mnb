@@ -250,3 +250,13 @@ export interface UserProgression {
   id_quiz?: number;
   complete: boolean;
 }
+
+export interface UserSession {
+  id: number;
+  firstname: string;
+  lastname: string;
+  shop: string;
+  email: string;
+  role: string;
+  createdAt: string;
+}

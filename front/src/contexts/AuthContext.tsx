@@ -1,17 +1,24 @@
 import React, { createContext, useEffect, useState } from "react";
 
 interface AuthContextType {
-  user: user | null;
+  user: User | null;
   loading: boolean;
   login(email: string, password: string): Promise<boolean>;
   logout(): Promise<void>;
-  register(firstname: string, lastname: string, email: string, password: string): Promise<boolean>;
+  register(
+    firstname: string,
+    lastname: string,
+    shop: string,
+    email: string,
+    password: string
+  ): Promise<boolean>;
 }
 
-interface user {
+interface User {
   id: number;
   firstname: string;
   lastname: string;
+  shop: string;
   email: string;
   role: string;
   authenticated: boolean;
@@ -20,7 +27,7 @@ interface user {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<user | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -46,6 +53,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         id: data.user.id,
         firstname: data.user.firstname,
         lastname: data.user.lastname,
+        shop: data.user.shop,
         email: data.user.email,
         role: data.user.role,
         authenticated: data.authenticated,
@@ -70,6 +78,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           id: data.user.id,
           firstname: data.user.firstname,
           lastname: data.user.lastname,
+          shop: data.user.shop,
           email: data.user.email,
           role: data.user.role,
           authenticated: data.authenticated,
@@ -95,6 +104,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   async function register(
     firstname: string,
     lastname: string,
+    shop: string,
     email: string,
     password: string
   ): Promise<boolean> {
@@ -108,6 +118,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         body: JSON.stringify({
           firstname,
           lastname,
+          shop,
           email,
           password,
         }),
@@ -119,6 +130,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           id: data.user.id,
           firstname: data.user.firstname,
           lastname: data.user.lastname,
+          shop: data.user.shop,
           email: data.user.email,
           role: data.user.role,
           authenticated: data.authenticated,

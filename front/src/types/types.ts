@@ -195,3 +195,13 @@ export interface ContentsByFormation {
   text_count: number;
   quiz_count: number;
 }
+
+export interface User {
+  id: number;
+  firstname: string;
+  lastname: string;
+  shop: string;
+  email: string;
+  role: string;
+  createdAt: string;
+}

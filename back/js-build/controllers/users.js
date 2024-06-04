@@ -17,7 +17,7 @@ function getUsers(request, reply) {
         try {
             const currentUserId = (_a = request.session.user) === null || _a === void 0 ? void 0 : _a.id;
             if (currentUserId) {
-                const query = "SELECT id, firstname, lastname, email, role FROM public.users WHERE id != $1";
+                const query = "SELECT id, firstname, lastname, shop, email, role, created_at FROM public.users WHERE id != $1";
                 const response = yield server_1.fastify.pg.query(query, [currentUserId]);
                 reply.code(200).send(response.rows);
             }

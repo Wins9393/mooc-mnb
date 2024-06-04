@@ -359,6 +359,7 @@ CREATE TABLE public.users (
     id integer NOT NULL,
     firstname character varying(255) NOT NULL,
     lastname character varying(255) NOT NULL,
+    shop character varying(255),
     email character varying(255) NOT NULL,
     password character varying(255) NOT NULL,
     role character varying(255) NOT NULL,

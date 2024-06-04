@@ -1,6 +1,7 @@
 import argon2 from "argon2";
 import { fastify } from "../server.js";
 import { FastifyReply, FastifyRequest } from "fastify";
+import { UserSession } from "../types/types.js";
 
 interface LoginBody {
   email: string;
@@ -11,16 +12,9 @@ interface RegisterBody {
   id: number;
   firstname: string;
   lastname: string;
+  shop: string;
   email: string;
   password: string;
-}
-
-interface UserSession {
-  id: number;
-  firstname: string;
-  lastname: string;
-  email: string;
-  role: string;
 }
 
 declare module "fastify" {
@@ -35,7 +29,7 @@ export async function login(req: FastifyRequest<{ Body: LoginBody }>, res: Fasti
     const { email, password } = req.body;
 
     const query =
-      "SELECT id, firstname, lastname, email, password, role FROM public.users WHERE email=$1";
+      "SELECT id, firstname, lastname, shop, email, password, role, created_at FROM public.users WHERE email=$1";
     const values = [email];
 
     const response = await fastify.pg.query(query, values);
@@ -51,8 +45,10 @@ export async function login(req: FastifyRequest<{ Body: LoginBody }>, res: Fasti
         id: response.rows[0].id,
         firstname: response.rows[0].firstname,
         lastname: response.rows[0].lastname,
+        shop: response.rows[0].shop,
         email: response.rows[0].email,
         role: response.rows[0].role,
+        createdAt: response.rows[0].created_at,
       };
       res.code(200).send(req.session);
     } else {
@@ -75,14 +71,15 @@ export async function login(req: FastifyRequest<{ Body: LoginBody }>, res: Fasti
 
 export async function register(req: FastifyRequest<{ Body: RegisterBody }>, res: FastifyReply) {
   try {
-    const { firstname, lastname, email, password } = req.body;
+    const { firstname, lastname, shop, email, password } = req.body;
 
     const hash_password = await argon2.hash(password);
+    const dateNow = new Date().toISOString();
 
     const query =
-      "INSERT INTO public.users(firstname, lastname, email, password, role, created_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id";
+      "INSERT INTO public.users(firstname, lastname, shop, email, password, role, created_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id";
 
-    const values = [firstname, lastname, email, hash_password, "user", new Date().toISOString()];
+    const values = [firstname, lastname, shop, email, hash_password, "user", dateNow];
 
     const result = await fastify.pg.query(query, values);
 
@@ -92,8 +89,10 @@ export async function register(req: FastifyRequest<{ Body: RegisterBody }>, res:
         id: result.rows[0].id,
         firstname,
         lastname,
+        shop,
         email,
         role: "user",
+        createdAt: dateNow,
       };
       res.code(200).send(req.session);
     } else {

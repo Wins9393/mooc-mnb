@@ -23,12 +23,6 @@ server_1.fastify.route({
     preHandler: [authenticate_1.authenticate],
     handler: formations_1.getContentsNumberByFormation,
 });
-server_1.fastify.route({
-    method: "POST",
-    url: "/formations/create",
-    preHandler: [authenticate_1.authenticate, checkPermissions_1.checkPermissions],
-    handler: formations_1.createFormation,
-});
 /** Modules */
 server_1.fastify.route({
     method: "GET",
@@ -41,33 +35,6 @@ server_1.fastify.route({
     url: "/module/:id/quiz",
     preHandler: [authenticate_1.authenticate],
     handler: modules_1.getQuizByModuleId,
-});
-server_1.fastify.route({
-    method: "POST",
-    url: "/module/create",
-    preHandler: [authenticate_1.authenticate, checkPermissions_1.checkPermissions],
-    handler: modules_1.createModule,
-});
-/** Videos */
-server_1.fastify.route({
-    method: "POST",
-    url: "/video/create",
-    preHandler: [authenticate_1.authenticate, checkPermissions_1.checkPermissions],
-    handler: videos_1.createVideo,
-});
-/** Texts */
-server_1.fastify.route({
-    method: "POST",
-    url: "/text/create",
-    preHandler: [authenticate_1.authenticate, checkPermissions_1.checkPermissions],
-    handler: texts_1.createText,
-});
-/** Quiz */
-server_1.fastify.route({
-    method: "POST",
-    url: "/quiz/create",
-    preHandler: [authenticate_1.authenticate, checkPermissions_1.checkPermissions],
-    handler: quiz_1.createQuiz,
 });
 /** Questions */
 server_1.fastify.route({
@@ -82,12 +49,14 @@ server_1.fastify.route({
     preHandler: [authenticate_1.authenticate],
     handler: questions_1.getQuestionsByFormation,
 });
+/** Complete Formation */
 server_1.fastify.route({
     method: "POST",
-    url: "/question/create",
+    url: "/complete-formation/create",
     preHandler: [authenticate_1.authenticate, checkPermissions_1.checkPermissions],
-    handler: questions_1.createQuestion,
+    handler: formations_1.createCompleteFormation,
 });
+/** Create Inutilisés */
 /** Answers Options */
 server_1.fastify.route({
     method: "POST",
@@ -95,10 +64,45 @@ server_1.fastify.route({
     preHandler: [authenticate_1.authenticate, checkPermissions_1.checkPermissions],
     handler: answers_options_1.createAnswerOption,
 });
-/** Complete Formation */
+/** Questions */
 server_1.fastify.route({
     method: "POST",
-    url: "/complete-formation/create",
+    url: "/question/create",
     preHandler: [authenticate_1.authenticate, checkPermissions_1.checkPermissions],
-    handler: formations_1.createCompleteFormation,
+    handler: questions_1.createQuestion,
+});
+/** Quiz */
+server_1.fastify.route({
+    method: "POST",
+    url: "/quiz/create",
+    preHandler: [authenticate_1.authenticate, checkPermissions_1.checkPermissions],
+    handler: quiz_1.createQuiz,
+});
+/** Texts */
+server_1.fastify.route({
+    method: "POST",
+    url: "/text/create",
+    preHandler: [authenticate_1.authenticate, checkPermissions_1.checkPermissions],
+    handler: texts_1.createText,
+});
+/** Videos */
+server_1.fastify.route({
+    method: "POST",
+    url: "/video/create",
+    preHandler: [authenticate_1.authenticate, checkPermissions_1.checkPermissions],
+    handler: videos_1.createVideo,
+});
+/** Modules */
+server_1.fastify.route({
+    method: "POST",
+    url: "/module/create",
+    preHandler: [authenticate_1.authenticate, checkPermissions_1.checkPermissions],
+    handler: modules_1.createModule,
+});
+/** Formations */
+server_1.fastify.route({
+    method: "POST",
+    url: "/formations/create",
+    preHandler: [authenticate_1.authenticate, checkPermissions_1.checkPermissions],
+    handler: formations_1.createFormation,
 });
