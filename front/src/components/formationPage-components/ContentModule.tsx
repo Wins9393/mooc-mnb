@@ -364,6 +364,7 @@ export function ContentModule({
                             ) : (
                               <input
                                 disabled={false}
+                                key={answer.id}
                                 name={`answer_option-question-${question.id}`}
                                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                                   onUserAnswerChange(

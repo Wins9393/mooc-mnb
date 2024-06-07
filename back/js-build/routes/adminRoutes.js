@@ -10,3 +10,9 @@ server_1.fastify.route({
     preHandler: [authenticate_1.authenticate, checkPermissions_1.checkPermissions],
     handler: users_1.getUsers,
 });
+server_1.fastify.route({
+    method: "GET",
+    url: "/user/:id",
+    preHandler: [authenticate_1.authenticate, checkPermissions_1.checkPermissions],
+    handler: users_1.getOneUser,
+});

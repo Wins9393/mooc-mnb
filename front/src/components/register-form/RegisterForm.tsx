@@ -1,11 +1,12 @@
 import { useContext } from "react";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
 
 type FieldType = {
   firstname?: string;
   lastname?: string;
+  shop?: string;
   email?: string;
   password?: string;
 };
@@ -19,10 +20,11 @@ export function RegisterForm() {
   const navigate = useNavigate();
 
   const onFinish = async (values: any) => {
-    if (values.firstname && values.lastname && values.email && values.password) {
+    if (values.firstname && values.lastname && values.shop && values.email && values.password) {
       const isRegistered = await register(
         values.firstname,
         values.lastname,
+        values.shop,
         values.email,
         values.password
       );
@@ -31,6 +33,7 @@ export function RegisterForm() {
         navigate("/formations");
       } else {
         console.log("Erreur !");
+        message.error("Une erreur s'est produite");
       }
     }
   };
@@ -74,6 +77,13 @@ export function RegisterForm() {
             label="Nom"
             name="lastname"
             rules={[{ required: true, message: "Veuillez renseigner votre nom !" }]}>
+            <Input />
+          </Form.Item>
+
+          <Form.Item<FieldType>
+            label="Magasin"
+            name="shop"
+            rules={[{ required: true, message: "Veuillez renseigner votre magasin !" }]}>
             <Input />
           </Form.Item>
 

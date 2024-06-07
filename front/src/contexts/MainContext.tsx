@@ -26,13 +26,16 @@ interface MainContextType {
   getUserAnswerByQuizId(id_user: number, id_quiz: number): Promise<UserAnswer[] | undefined>;
   resetQuizById(id_user: number, id_quiz: number): Promise<void>;
   saveUserProgression(userProgression: UserProgression): Promise<void>;
-  getUserProgressionByUser(id_user: number): Promise<void>;
+  getUserProgressionByUser(id_user: number): Promise<UserProgression[] | undefined>;
   userProgression: UserProgression[] | null;
-  getContentsByFormationId(id: number): Promise<void>;
+  getContentsByFormationId(id: number): Promise<ContentsByFormation | undefined>;
   contentsByFormation: ContentsByFormation | null;
-  getUserAnswersByFormationByUserId(id_user: number, id_formation: number): Promise<void>;
+  getUserAnswersByFormationByUserId(
+    id_user: number,
+    id_formation: number
+  ): Promise<UserAnswer[] | undefined>;
   totalUserAnswersByFormation: UserAnswer[] | null;
-  getQuestionsByFormation(id_formation: number): Promise<void>;
+  getQuestionsByFormation(id_formation: number): Promise<QuestionFromDB[] | undefined>;
   totalQuestionsByFormation: QuestionFromDB[] | null;
 }
 
@@ -78,15 +81,17 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     }
   }
 
-  async function getContentsByFormationId(id: number): Promise<void> {
+  async function getContentsByFormationId(id: number): Promise<ContentsByFormation | undefined> {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/formations/${id}/contents`, {
         method: "GET",
         credentials: "include",
       });
 
-      const data = await response.json();
-      setContentsByFormation(data);
+      const contentsByFormation = await response.json();
+      setContentsByFormation(contentsByFormation);
+
+      return contentsByFormation;
     } catch (error) {
       console.log(error);
     }
@@ -172,7 +177,7 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   async function getUserAnswersByFormationByUserId(
     id_user: number,
     id_formation: number
-  ): Promise<void> {
+  ): Promise<UserAnswer[] | undefined> {
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/stats/useranswers/user/formation`,
@@ -185,15 +190,18 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           body: JSON.stringify({ id_user, id_formation }),
         }
       );
-      const data = await response.json();
-      // console.log("data UA MAIN: ", data);
-      setTotalUserAnswersByFormation(data);
+      const userAnswers = await response.json();
+      setTotalUserAnswersByFormation(userAnswers);
+
+      return userAnswers;
     } catch (error) {
       console.log(error);
     }
   }
 
-  async function getQuestionsByFormation(id_formation: number): Promise<void> {
+  async function getQuestionsByFormation(
+    id_formation: number
+  ): Promise<QuestionFromDB[] | undefined> {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/questions/formation`, {
         method: "POST",
@@ -203,9 +211,11 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         },
         body: JSON.stringify({ id_formation }),
       });
-      const data = await response.json();
+      const questions = await response.json();
       // console.log("data question main: ", data);
-      setTotalQuestionsByFormation(data);
+      setTotalQuestionsByFormation(questions);
+
+      return questions;
     } catch (error) {
       console.log(error);
     }
@@ -253,7 +263,7 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     }
   }
 
-  async function getUserProgressionByUser(id: number): Promise<void> {
+  async function getUserProgressionByUser(id: number): Promise<UserProgression[] | undefined> {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/progression/user`, {
         method: "POST",
@@ -268,6 +278,8 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
       const userProgressionResult = await response.json();
       setUserProgression(userProgressionResult);
+
+      return userProgressionResult;
     } catch (error) {
       console.log(error);
     }

@@ -1,108 +1,52 @@
 import { useContext, useEffect, useState } from "react";
 import { MainContext } from "../../contexts/MainContext";
-import { FullAnswerOption, QuestionFromDB, UserAnswer, UserProgression } from "../../types/types";
+import { StatisticsContext } from "../../contexts/StatisticsContext";
 
 interface StatisticsInterface {
   idFormation: number | null;
 }
 
 export function Statistics({ idFormation }: StatisticsInterface) {
-  const [scorePercentage, setScorePercentage] = useState<number>(0);
-  const [progressionPercentage, setProgressionPercentage] = useState<number>(0);
-
   const mainContext = useContext(MainContext);
   if (!mainContext) return;
   const {
-    getCorrectAnswer,
     userProgression,
     contentsByFormation,
     totalUserAnswersByFormation,
     totalQuestionsByFormation,
   } = mainContext ?? {};
 
+  const statiscticsContext = useContext(StatisticsContext);
+  if (!statiscticsContext) return;
+  const {
+    getProgressionPercentageByFormation,
+    getScorePercentageByFormation,
+    // progressionPercentage,
+    // scorePercentage,
+  } = statiscticsContext;
+
+  const [progressionPercentage, setProgressionPercentage] = useState<number>(0);
+  const [scorePercentage, setScorePercentage] = useState<number>(0);
+
   useEffect(() => {
-    if (userProgression) {
-      getProgressionPercentageByFormation(userProgression);
+    if (userProgression && contentsByFormation && idFormation) {
+      getProgressionPercentageByFormation(userProgression, contentsByFormation, idFormation).then(
+        (progressPercentageTmp) => {
+          setProgressionPercentage(progressPercentageTmp);
+        }
+      );
     }
-  }, [userProgression, contentsByFormation]);
+  }, [userProgression, contentsByFormation, idFormation]);
 
   useEffect(() => {
     if (totalUserAnswersByFormation && totalQuestionsByFormation) {
-      getScorePercentageByFormation(totalUserAnswersByFormation, totalQuestionsByFormation);
-    }
-  }, [totalQuestionsByFormation, totalUserAnswersByFormation]);
-
-  async function getProgressionPercentageByFormation(
-    userProgression: UserProgression[]
-  ): Promise<void> {
-    const progressionByFormationTab = userProgression.filter(
-      (progress) => progress.id_formation === idFormation
-    );
-
-    if (contentsByFormation) {
-      const contentsCount =
-        contentsByFormation.video_count +
-        contentsByFormation.text_count +
-        contentsByFormation.quiz_count;
-
-      let progressPercentage = parseFloat(
-        ((progressionByFormationTab.length / contentsCount) * 100).toFixed(1)
+      getScorePercentageByFormation(totalUserAnswersByFormation, totalQuestionsByFormation).then(
+        (scorePercentageTmp) => {
+          setScorePercentage(scorePercentageTmp);
+        }
       );
-
-      setProgressionPercentage(progressPercentage);
     }
-  }
-
-  async function getScorePercentageByFormation(
-    userAnswers: UserAnswer[],
-    questions: QuestionFromDB[]
-  ): Promise<void> {
-    setScorePercentage(0);
-    let goodAnswers = 0;
-
-    const groupTotalUserAnswersByFormation = userAnswers?.reduce(
-      (acc: { [key: number]: UserAnswer[] }, answer: UserAnswer) => {
-        if (!acc[answer.id_question]) {
-          acc[answer.id_question] = [];
-        }
-        acc[answer.id_question].push(answer);
-        return acc;
-      },
-      {}
-    );
-
-    if (groupTotalUserAnswersByFormation) {
-      const questionsNumber = Object.keys(groupTotalUserAnswersByFormation).length;
-
-      for (const [key, answers] of Object.entries(groupTotalUserAnswersByFormation)) {
-        if (answers.length > 1) {
-          const answersOptionsIds: number[] = answers.map((answer) => answer?.id_answer_option);
-          const correctAnswers = await getCorrectAnswer(parseInt(key), answersOptionsIds);
-
-          const multipleCorrectAnswer = correctAnswers.correctAnswer as FullAnswerOption[];
-          const correctAnswersNumber = multipleCorrectAnswer.length;
-          const userAnswersNumber = answers.length;
-          const userCorrectAnswersNumber = answers.filter((answer) => answer.correct).length;
-
-          if (
-            correctAnswersNumber === userAnswersNumber &&
-            correctAnswersNumber === userCorrectAnswersNumber
-          ) {
-            goodAnswers++;
-          }
-        } else {
-          if (answers[0].correct) {
-            goodAnswers++;
-          }
-        }
-      }
-
-      if (questionsNumber) {
-        const scorePercentage = parseFloat(((goodAnswers / questions.length) * 100).toFixed(1));
-        setScorePercentage(scorePercentage);
-      }
-    }
-  }
+  }, [totalQuestionsByFormation, totalUserAnswersByFormation, idFormation]);
 
   return (
     <>

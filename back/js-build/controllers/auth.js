@@ -60,18 +60,22 @@ function login(req, res) {
     });
 }
 exports.login = login;
-function register(req, res) {
+function register(request, reply) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const { firstname, lastname, shop, email, password } = req.body;
+            const { firstname, lastname, shop, email, password } = request.body;
             const hash_password = yield argon2_1.default.hash(password);
             const dateNow = new Date().toISOString();
-            const query = "INSERT INTO public.users(firstname, lastname, shop, email, password, role, created_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id";
+            const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
+            if (!emailRegex.test(email)) {
+                return reply.code(400).send("Email invalide");
+            }
+            const query = "INSERT INTO public.users(firstname, lastname, shop, email, password, role, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id";
             const values = [firstname, lastname, shop, email, hash_password, "user", dateNow];
             const result = yield server_js_1.fastify.pg.query(query, values);
             if (result.rowCount === 1) {
-                req.session.authenticated = true;
-                req.session.user = {
+                request.session.authenticated = true;
+                request.session.user = {
                     id: result.rows[0].id,
                     firstname,
                     lastname,
@@ -80,21 +84,23 @@ function register(req, res) {
                     role: "user",
                     createdAt: dateNow,
                 };
-                res.code(200).send(req.session);
+                return reply.code(200).send(request.session);
             }
             else {
-                res.code(500).send("Une erreur est survenue lors de l'enregistrement de l'utilisateur");
+                return reply
+                    .code(500)
+                    .send("Une erreur est survenue lors de l'enregistrement de l'utilisateur");
             }
         }
         catch (error) {
             if (error instanceof Error) {
-                res.code(500).send({
+                reply.code(500).send({
                     error: "Erreur lors de l'enregistrement de l'utilisateur",
                     details: error.message,
                 });
             }
             else {
-                res.code(500).send({
+                reply.code(500).send({
                     error: "Erreur inconnu lors de l'enregistrement de l'utilisateur",
                 });
             }

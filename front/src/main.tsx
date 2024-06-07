@@ -13,8 +13,11 @@ import "./index.css";
 import { FormationPage } from "./containers/formation-page/FormationPage.tsx";
 import { Dashboard } from "./containers/dashboard/Dashboard.tsx";
 import { CreateFormation } from "./containers/dashboard/CreateFormation.tsx";
-import { AllUsers } from "./components/dashboard-components/AllUsers.tsx";
+import { AllUsers } from "./containers/dashboard/AllUsers.tsx";
 import { DashboardProvider } from "./contexts/DashboardContext.tsx";
+import { OneUserStats } from "./containers/dashboard/OneUserStats.tsx";
+import { PageNotFound } from "./components/page-not-found/PageNotFound.tsx";
+import { StatisticsProvider } from "./contexts/StatisticsContext.tsx";
 
 const router = createBrowserRouter([
   {
@@ -58,6 +61,15 @@ const router = createBrowserRouter([
         element: <AuthGuard />,
         children: [{ index: true, element: <AllUsers /> }],
       },
+      {
+        path: "/dashboard/user/:id",
+        element: <AuthGuard />,
+        children: [{ index: true, element: <OneUserStats /> }],
+      },
+      {
+        path: "/*",
+        element: <PageNotFound />,
+      },
     ],
   },
 ]);
@@ -65,11 +77,13 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <AuthProvider>
-      <DashboardProvider>
-        <MainProvider>
-          <RouterProvider router={router} />
-        </MainProvider>
-      </DashboardProvider>
+      <MainProvider>
+        <StatisticsProvider>
+          <DashboardProvider>
+            <RouterProvider router={router} />
+          </DashboardProvider>
+        </StatisticsProvider>
+      </MainProvider>
     </AuthProvider>
   </React.StrictMode>
 );

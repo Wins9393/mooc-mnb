@@ -24,10 +24,6 @@ export function AllUsers() {
     getUsers();
   }, []);
 
-  useEffect(() => {
-    console.log("USERS: ", users);
-  }, [users]);
-
   const handleSearch = (
     selectedKeys: string[],
     confirm: FilterDropdownProps["confirm"],

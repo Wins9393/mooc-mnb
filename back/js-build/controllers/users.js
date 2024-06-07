@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUsers = void 0;
+exports.getOneUser = exports.getUsers = void 0;
 const server_1 = require("../server");
 function getUsers(request, reply) {
     var _a;
@@ -39,3 +39,29 @@ function getUsers(request, reply) {
     });
 }
 exports.getUsers = getUsers;
+function getOneUser(request, reply) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const { id } = request.params;
+            const query = "SELECT id, firstname, lastname, shop, email, role, created_at FROM public.users WHERE id = $1";
+            const values = [id];
+            const response = yield server_1.fastify.pg.query(query, values);
+            reply.code(200).send(response.rows[0]);
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                reply.code(500).send({
+                    error: "Erreur lors de la récupération de l'utilisateur",
+                    details: error.message,
+                });
+            }
+            else {
+                // Gestion d'autres types d'erreurs si nécessaire
+                reply.code(500).send({
+                    error: "Erreur inconnue lors de la récupération de l'utilisateur",
+                });
+            }
+        }
+    });
+}
+exports.getOneUser = getOneUser;
