@@ -23,19 +23,21 @@ export function Dashboard() {
           </Link>
         </Col>
         <Col xs={24} sm={12} md={12} lg={8} xl={8} xxl={8}>
-          <Card
-            hoverable
-            styles={{
-              body: {
-                maxHeight: "148px",
-                height: "148px",
-                display: "flex",
-                justifyContent: "flex-end",
-                alignItems: "flex-end",
-              },
-            }}>
-            <h2>Toutes les formations</h2>
-          </Card>
+          <Link to="/dashboard/formations">
+            <Card
+              hoverable
+              styles={{
+                body: {
+                  maxHeight: "148px",
+                  height: "148px",
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  alignItems: "flex-end",
+                },
+              }}>
+              <h2>Toutes les formations</h2>
+            </Card>
+          </Link>
         </Col>
         <Col xs={24} sm={12} md={12} lg={8} xl={8} xxl={8}>
           <Link to="/dashboard/create-formation">

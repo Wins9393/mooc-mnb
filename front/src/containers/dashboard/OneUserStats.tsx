@@ -19,6 +19,7 @@ export function OneUserStats() {
   useEffect(() => {
     if (id) {
       getOneUser(parseInt(id));
+      console.log("ONE USER: ", oneUser);
     }
   }, [id]);
 

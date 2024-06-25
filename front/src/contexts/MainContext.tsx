@@ -14,9 +14,9 @@ import {
 interface MainContextType {
   formations: Formation[];
   isLoadingFormations: boolean;
-  getContentByModule(id_module: number): Promise<void>;
+  getContentByModule(id_module: number): Promise<ContentByModule | null>;
   moduleContent: ContentByModule | null;
-  getQuizByModule(id_module: number): Promise<void>;
+  getQuizByModule(id_module: number): Promise<QuizByModule | null>;
   moduleQuiz: QuizByModule | null;
   getCorrectAnswer(
     id_question: number,
@@ -97,7 +97,7 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     }
   }
 
-  async function getContentByModule(id_module: number): Promise<void> {
+  async function getContentByModule(id_module: number): Promise<ContentByModule | null> {
     try {
       if (!isNaN(id_module)) {
         const response = await fetch(
@@ -109,13 +109,16 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         );
         const data = await response.json();
         setModuleContent(data);
+        return data;
       }
+      return null;
     } catch (error) {
       console.log(error);
+      return null;
     }
   }
 
-  async function getQuizByModule(id_module: number): Promise<void> {
+  async function getQuizByModule(id_module: number): Promise<QuizByModule | null> {
     try {
       if (!isNaN(id_module)) {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/module/${id_module}/quiz`, {
@@ -124,9 +127,12 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         });
         const data = await response.json();
         setModuleQuiz(data);
+        return data;
       }
+      return null;
     } catch (error) {
       console.log(error);
+      return null;
     }
   }
 

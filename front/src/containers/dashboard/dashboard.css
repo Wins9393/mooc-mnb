@@ -19,3 +19,7 @@
     }
   }
 }
+
+.ant-menu-submenu-title {
+  height: auto !important;
+}

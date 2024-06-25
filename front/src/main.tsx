@@ -18,6 +18,7 @@ import { DashboardProvider } from "./contexts/DashboardContext.tsx";
 import { OneUserStats } from "./containers/dashboard/OneUserStats.tsx";
 import { PageNotFound } from "./components/page-not-found/PageNotFound.tsx";
 import { StatisticsProvider } from "./contexts/StatisticsContext.tsx";
+import { AllFormations } from "./containers/dashboard/AllFormations.tsx";
 
 const router = createBrowserRouter([
   {
@@ -65,6 +66,11 @@ const router = createBrowserRouter([
         path: "/dashboard/user/:id",
         element: <AuthGuard />,
         children: [{ index: true, element: <OneUserStats /> }],
+      },
+      {
+        path: "/dashboard/formations",
+        element: <AuthGuard />,
+        children: [{ index: true, element: <AllFormations /> }],
       },
       {
         path: "/*",

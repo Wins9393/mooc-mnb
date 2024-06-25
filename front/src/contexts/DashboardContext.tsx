@@ -48,6 +48,10 @@ const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     }
   }
 
+  // async function getVideosTextsAndQuizByModule(idModule: number){
+
+  // }
+
   return (
     <DashboardContext.Provider value={{ users, getUsers, oneUser, getOneUser }}>
       {children}
