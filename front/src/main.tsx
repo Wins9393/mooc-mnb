@@ -12,13 +12,13 @@ import { Formations } from "./containers/formations/Formations.tsx";
 import "./index.css";
 import { FormationPage } from "./containers/formation-page/FormationPage.tsx";
 import { Dashboard } from "./containers/dashboard/Dashboard.tsx";
-import { CreateFormation } from "./containers/dashboard/CreateFormation.tsx";
-import { AllUsers } from "./containers/dashboard/AllUsers.tsx";
+import { CreateFormation } from "./containers/dashboard/create-formation/CreateFormation.tsx";
+import { AllUsers } from "./containers/dashboard/all-users/AllUsers.tsx";
 import { DashboardProvider } from "./contexts/DashboardContext.tsx";
-import { OneUserStats } from "./containers/dashboard/OneUserStats.tsx";
+import { OneUserStats } from "./containers/dashboard/one-user-stats/OneUserStats.tsx";
 import { PageNotFound } from "./components/page-not-found/PageNotFound.tsx";
 import { StatisticsProvider } from "./contexts/StatisticsContext.tsx";
-import { AllFormations } from "./containers/dashboard/AllFormations.tsx";
+import { AllFormations } from "./containers/dashboard/all-formations/AllFormations.tsx";
 
 const router = createBrowserRouter([
   {

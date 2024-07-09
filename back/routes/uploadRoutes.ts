@@ -3,4 +3,11 @@ import { authenticate } from "../authenticate";
 import { uploadFile } from "../controllers/upload";
 
 /** Image */
-fastify.post("/upload/file", { preHandler: authenticate }, uploadFile);
+// fastify.post("/upload/file", { preHandler: authenticate }, uploadFile);
+
+fastify.route<{ Params: {}; Body: {} }>({
+  method: "POST",
+  url: "/upload/file",
+  preHandler: [authenticate],
+  handler: uploadFile,
+});

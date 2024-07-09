@@ -46,7 +46,7 @@ exports.fastify.register(postgres_1.default, {
 exports.fastify.register(cors_1.default, {
     // ajouter des options plus tard
     origin: [`${process.env.FRONT_URL}`],
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "X-Requested-With"],
     allowedHeaders: ["Content-Type", "Authorization"],
     preflightContinue: true,
     credentials: true,

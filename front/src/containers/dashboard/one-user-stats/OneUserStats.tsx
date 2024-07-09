@@ -1,9 +1,9 @@
 import { useContext, useEffect } from "react";
-import { DashboardContext } from "../../contexts/DashboardContext";
+import { DashboardContext } from "../../../contexts/DashboardContext";
 import { useParams } from "react-router-dom";
-import { MainContext } from "../../contexts/MainContext";
+import { MainContext } from "../../../contexts/MainContext";
 import { Card, Col, Row } from "antd";
-import { StatsByFormationByUser } from "../../components/dashboard-components/StatsByFormationByUser";
+import { StatsByFormationByUser } from "../../../components/dashboard-components/StatsByFormationByUser";
 
 export function OneUserStats() {
   const dashboardContext = useContext(DashboardContext);

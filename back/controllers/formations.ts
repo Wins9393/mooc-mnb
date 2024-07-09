@@ -1,6 +1,6 @@
-import { FastifyReply, FastifyRequest } from "fastify";
+import { FastifyReply, FastifyRequest, FastifyRequestContext } from "fastify";
 import { fastify } from "../server";
-import { FormationToDB, FormationWithModule, IdParams } from "../types/types";
+import { Formation, FormationToDB, FormationWithModule, IdParams } from "../types/types";
 import path from "node:path";
 import util from "node:util";
 import fs from "node:fs";
@@ -105,6 +105,34 @@ export async function createFormation(
       // Gestion d'autres types d'erreurs si nécessaire
       res.code(500).send({
         error: "Erreur inconnue lors de la création de la formation",
+      });
+    }
+  }
+}
+
+export async function updateFormation(
+  request: FastifyRequest<{ Body: Formation }>,
+  reply: FastifyReply
+) {
+  try {
+    console.log("BODY: ", request.body);
+    const { id, title, description, cover_path, published } = request.body;
+    const result = await fastify.pg.query(
+      "UPDATE formations SET id=$1, title=$2, description=$3, cover_path=$4, published=$5 WHERE id=$1 RETURNING id",
+      [id, title, description, cover_path, published]
+    );
+
+    reply.code(200).send(result.rows[0].id);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      reply.code(500).send({
+        error: "Erreur lors de la modification de la formation",
+        details: error.message,
+      });
+    } else {
+      // Gestion d'autres types d'erreurs si nécessaire
+      reply.code(500).send({
+        error: "Erreur inconnue lors de la modification de la formation",
       });
     }
   }

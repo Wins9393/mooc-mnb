@@ -1,25 +1,3 @@
-.dashboardPage__main-container {
-  /* display: flex; */
-
-  .dashboardPage__main-content {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: var(--dark);
-    background-color: color-mix(in hsl shorter hue, var(--white-rose), white);
-    border-radius: 8px;
-    border: 1px dashed var(--white-rose);
-    margin-top: 16px;
-    padding: 24px;
-    width: 100%;
-
-    .dashboardPage__main-content--h2 {
-      margin-bottom: 32px;
-    }
-  }
-}
-
 .ant-menu-submenu-title {
   height: auto !important;
 }

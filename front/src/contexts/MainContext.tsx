@@ -6,18 +6,20 @@ import {
   Formation,
   IsCorrectAnswer,
   QuestionFromDB,
-  QuizByModule,
+  Quiz,
   UserAnswer,
   UserProgression,
 } from "../types/types";
 
 interface MainContextType {
+  getFormationsWithModules(): Promise<void>;
+  updateFormation(newFormation: Formation | null): Promise<number | undefined>;
   formations: Formation[];
   isLoadingFormations: boolean;
   getContentByModule(id_module: number): Promise<ContentByModule | null>;
   moduleContent: ContentByModule | null;
-  getQuizByModule(id_module: number): Promise<QuizByModule | null>;
-  moduleQuiz: QuizByModule | null;
+  getQuizByModule(id_module: number): Promise<Quiz | null>;
+  moduleQuiz: Quiz | null;
   getCorrectAnswer(
     id_question: number,
     id_answer_option_selected: number[] | number
@@ -35,7 +37,7 @@ interface MainContextType {
     id_formation: number
   ): Promise<UserAnswer[] | undefined>;
   totalUserAnswersByFormation: UserAnswer[] | null;
-  getQuestionsByFormation(id_formation: number): Promise<QuestionFromDB[] | undefined>;
+  getQuestionsByFormation(id_formation: number): Promise<QuestionFromDB[] | null>;
   totalQuestionsByFormation: QuestionFromDB[] | null;
 }
 
@@ -46,7 +48,7 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const [isLoadingFormations, setIsLoadingFormations] = useState<boolean>(true);
   const [contentsByFormation, setContentsByFormation] = useState<ContentsByFormation | null>(null);
   const [moduleContent, setModuleContent] = useState<ContentByModule | null>(null);
-  const [moduleQuiz, setModuleQuiz] = useState<QuizByModule | null>(null);
+  const [moduleQuiz, setModuleQuiz] = useState<Quiz | null>(null);
   const [userProgression, setUserProgression] = useState<UserProgression[] | null>(null);
   const [totalUserAnswersByFormation, setTotalUserAnswersByFormation] = useState<
     UserAnswer[] | null
@@ -76,6 +78,26 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       const data = await response.json();
       setFormations(data);
       setIsLoadingFormations(false);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function updateFormation(newFormation: Formation | null): Promise<number | undefined> {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/formation/update`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newFormation),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      }
     } catch (error) {
       console.log(error);
     }
@@ -118,7 +140,7 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     }
   }
 
-  async function getQuizByModule(id_module: number): Promise<QuizByModule | null> {
+  async function getQuizByModule(id_module: number): Promise<Quiz | null> {
     try {
       if (!isNaN(id_module)) {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/module/${id_module}/quiz`, {
@@ -205,9 +227,7 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     }
   }
 
-  async function getQuestionsByFormation(
-    id_formation: number
-  ): Promise<QuestionFromDB[] | undefined> {
+  async function getQuestionsByFormation(id_formation: number): Promise<QuestionFromDB[] | null> {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/questions/formation`, {
         method: "POST",
@@ -218,12 +238,15 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         body: JSON.stringify({ id_formation }),
       });
       const questions = await response.json();
-      // console.log("data question main: ", data);
-      setTotalQuestionsByFormation(questions);
 
-      return questions;
+      if (questions) {
+        setTotalQuestionsByFormation(questions);
+        return questions;
+      }
+      return null;
     } catch (error) {
       console.log(error);
+      return null;
     }
   }
 
@@ -309,6 +332,8 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   return (
     <MainContext.Provider
       value={{
+        getFormationsWithModules,
+        updateFormation,
         formations,
         isLoadingFormations,
         getContentByModule,

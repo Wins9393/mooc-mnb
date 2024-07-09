@@ -1,0 +1,40 @@
+.allFormations__cascader {
+  width: 100%;
+
+  .allFormations__cascaderItem--main {
+    min-width: 200px;
+    border: solid 1px var(--separator-grey);
+    border-radius: 8px;
+    padding: 4px 16px;
+    min-height: 128px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    .allFormations__cascaderItem--buttons_group {
+      .allFormations__cascaderItem--button {
+        padding: 2px 8px;
+        font-size: 12px;
+        height: auto;
+        border-radius: 0;
+      }
+
+      .delete {
+        background-color: var(--danger) !important;
+      }
+    }
+  }
+}
+
+.modal {
+  .validate {
+    background-color: var(--validate) !important;
+  }
+
+  .modal__body {
+    .modal__body--formation {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+}

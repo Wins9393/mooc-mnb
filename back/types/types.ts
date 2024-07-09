@@ -119,6 +119,14 @@ export interface Module {
   description: string;
 }
 
+export interface Formation {
+  id: number;
+  title: string;
+  description: string;
+  cover_path: string;
+  published: boolean;
+}
+
 export interface FormationWithModule {
   id: number;
   title: string;

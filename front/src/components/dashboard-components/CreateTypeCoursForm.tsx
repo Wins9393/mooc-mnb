@@ -110,7 +110,7 @@ export function CreateTypeCoursForm({
 
   return (
     <>
-      <h2 className="dashboardPage__main-content--h2">
+      <h2 className="createFormationPage__main-content--h2">
         Choisissez un type de contenu pour chaque module
       </h2>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, width: "100%" }}>

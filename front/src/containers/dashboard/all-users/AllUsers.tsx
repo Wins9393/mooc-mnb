@@ -1,11 +1,11 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { DashboardContext } from "../../contexts/DashboardContext";
+import { DashboardContext } from "../../../contexts/DashboardContext";
 import { Button, Input, InputRef, Space, Table, TableColumnType, TableColumnsType } from "antd";
 import { useNavigate } from "react-router-dom";
 import { FilterDropdownProps } from "antd/es/table/interface";
 import { SearchOutlined } from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
-import { User } from "../../types/types";
+import { User } from "../../../types/types";
 
 export function AllUsers() {
   const dashboardContext = useContext(DashboardContext);

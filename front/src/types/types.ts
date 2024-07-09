@@ -1,5 +1,7 @@
 import { UploadFile } from "antd";
 
+export type ContentType = Formation | Module | Video | Text | Quiz | QuestionFromDB | AnswerOption;
+
 export interface Formation {
   id: number;
   title: string;
@@ -128,11 +130,11 @@ export interface ContentByModule {
   texts: Text[];
 }
 
-export interface QuizByModule {
-  id: number;
-  title: string;
-  questions: Question[];
-}
+// export interface QuizByModule {
+//   id: number;
+//   title: string;
+//   questions: Question[];
+// }
 
 export interface FormationItemProps {
   formation: Formation;

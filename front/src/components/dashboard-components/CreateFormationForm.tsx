@@ -1,6 +1,7 @@
 import { Card, Form, Input, Upload, UploadFile, UploadProps, message, Switch } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { FormationToDB } from "../../types/types";
+import { returnFileSizeFormated } from "../../utils/utils";
 
 const { TextArea } = Input;
 
@@ -23,16 +24,6 @@ export function CreateFormationForm({
   setSelectedFile,
 }: FormationFormProps) {
   const maxSize = 500000;
-
-  function returnFileSizeFormated(number: number) {
-    if (number < 1024) {
-      return `${number} bytes`;
-    } else if (number >= 1024 && number < 1048576) {
-      return `${(number / 1024).toFixed(1)} KB`;
-    } else if (number >= 1048576) {
-      return `${(number / 1048576).toFixed(1)} MB`;
-    }
-  }
 
   const uploadProps: UploadProps = {
     beforeUpload: (file) => {
@@ -89,7 +80,7 @@ export function CreateFormationForm({
 
   return (
     <>
-      <h2 className="dashboardPage__main-content--h2">Commencez par créer une formation</h2>
+      <h2 className="createFormationPage__main-content--h2">Commencez par créer une formation</h2>
       <Form layout="vertical" className="dashboardPage__formation-form">
         <Card>
           <Form.Item required label="Titre de la formation">

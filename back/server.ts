@@ -21,7 +21,7 @@ fastify.register(fastifyPostgres, {
 fastify.register(cors, {
   // ajouter des options plus tard
   origin: [`${process.env.FRONT_URL}`],
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "X-Requested-With"],
   allowedHeaders: ["Content-Type", "Authorization"],
   preflightContinue: true,
   credentials: true,

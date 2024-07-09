@@ -4,9 +4,7 @@
   font-weight: normal;
   font-style: normal;
 }
-#root {
-  min-height: 100vh;
-  width: 100vw;
+:root {
   --header-height: 5vh;
   --white-rose: #dad2d8;
   --white: #f7f0f0;
@@ -15,6 +13,14 @@
   --pastel-blue: #457eac;
   --accent-violet: #995d81;
   --disabled: #aaa;
+  --separator-grey: #e9e2e2;
+  --danger: #e84118;
+  --validate: #27ae60;
+}
+
+#root {
+  min-height: 100vh;
+  width: 100vw;
 }
 
 * {

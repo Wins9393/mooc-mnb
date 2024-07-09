@@ -36,7 +36,7 @@ export function CreateModuleForm({ newModules, setNewModules }: ModuleFormProps)
 
   return (
     <>
-      <h2 className="dashboardPage__main-content--h2">
+      <h2 className="createFormationPage__main-content--h2">
         Créez, ici, tous les modules de la formation
       </h2>
       <Form name="dynamic_module_form" form={form} layout="vertical" style={{ width: "100%" }}>

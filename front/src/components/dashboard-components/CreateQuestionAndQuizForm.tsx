@@ -38,7 +38,7 @@ export function CreateQuestionAndQuizForm({
 
   return (
     <>
-      <h2 className="dashboardPage__main-content--h2">
+      <h2 className="createFormationPage__main-content--h2">
         Créez un Quiz et ajoutez autant de Questions que vous le souhaitez
       </h2>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, width: "100%" }}>

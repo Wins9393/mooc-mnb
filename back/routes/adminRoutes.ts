@@ -1,8 +1,9 @@
 import { authenticate } from "../authenticate";
 import { checkPermissions } from "../checkPermissions";
+import { updateFormation } from "../controllers/formations";
 import { getOneUser, getUsers } from "../controllers/users";
 import { fastify } from "../server";
-import { IdParams } from "../types/types";
+import { Formation, IdParams } from "../types/types";
 
 fastify.route<{ Params: {}; Body: {} }>({
   method: "GET",
@@ -16,4 +17,11 @@ fastify.route<{ Params: IdParams; Body: {} }>({
   url: "/user/:id",
   preHandler: [authenticate, checkPermissions],
   handler: getOneUser,
+});
+
+fastify.route<{ Params: {}; Body: Formation }>({
+  method: "POST",
+  url: "/formation/update",
+  preHandler: [authenticate, checkPermissions],
+  handler: updateFormation,
 });

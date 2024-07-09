@@ -1,5 +1,5 @@
 import { Button, Steps, message } from "antd";
-import { CreateFormationForm } from "../../components/dashboard-components/CreateFormationForm";
+import { CreateFormationForm } from "../../../components/dashboard-components/CreateFormationForm";
 import { useState } from "react";
 import {
   FormationToDB,
@@ -7,12 +7,13 @@ import {
   QuizQuestionsAndAnswersContent,
   TextToDB,
   VideoToDB,
-} from "../../types/types";
+} from "../../../types/types";
 import type { UploadFile } from "antd";
-import "./dashboard.css";
-import { CreateModuleForm } from "../../components/dashboard-components/CreateModuleForm";
-import { CreateQuestionAndQuizForm } from "../../components/dashboard-components/CreateQuestionAndQuizForm";
-import { CreateTypeCoursForm } from "../../components/dashboard-components/CreateTypeCoursForm";
+import "./create-formation.css";
+import "../dashboard.css";
+import { CreateModuleForm } from "../../../components/dashboard-components/CreateModuleForm";
+import { CreateQuestionAndQuizForm } from "../../../components/dashboard-components/CreateQuestionAndQuizForm";
+import { CreateTypeCoursForm } from "../../../components/dashboard-components/CreateTypeCoursForm";
 
 export function CreateFormation() {
   const [current, setCurrent] = useState<number>(0);
@@ -239,9 +240,9 @@ export function CreateFormation() {
   const items = steps.map((item) => ({ key: item.title, title: item.title }));
 
   return (
-    <div className="dashboardPage__main-container">
+    <div className="createFormationPage__main-container">
       <Steps current={current} items={items} />
-      <div className="dashboardPage__main-content">{steps[current].content}</div>
+      <div className="createFormationPage__main-content">{steps[current].content}</div>
       <div style={{ marginTop: 24, textAlign: "center" }}>
         {current > 0 && (
           <Button style={{ margin: "0 8px" }} onClick={() => prev()}>

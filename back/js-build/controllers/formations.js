@@ -19,7 +19,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createCompleteFormation = exports.createFormation = exports.getContentsNumberByFormation = exports.getFormationsWithModules = void 0;
+exports.createCompleteFormation = exports.updateFormation = exports.createFormation = exports.getContentsNumberByFormation = exports.getFormationsWithModules = void 0;
 const server_1 = require("../server");
 const node_path_1 = __importDefault(require("node:path"));
 const node_util_1 = __importDefault(require("node:util"));
@@ -124,6 +124,31 @@ function createFormation(req, res) {
     });
 }
 exports.createFormation = createFormation;
+function updateFormation(request, reply) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            console.log("BODY: ", request.body);
+            const { id, title, description, cover_path, published } = request.body;
+            const result = yield server_1.fastify.pg.query("UPDATE formations SET id=$1, title=$2, description=$3, cover_path=$4, published=$5 WHERE id=$1 RETURNING id", [id, title, description, cover_path, published]);
+            reply.code(200).send(result.rows[0].id);
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                reply.code(500).send({
+                    error: "Erreur lors de la modification de la formation",
+                    details: error.message,
+                });
+            }
+            else {
+                // Gestion d'autres types d'erreurs si nécessaire
+                reply.code(500).send({
+                    error: "Erreur inconnue lors de la modification de la formation",
+                });
+            }
+        }
+    });
+}
+exports.updateFormation = updateFormation;
 function createCompleteFormation(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
