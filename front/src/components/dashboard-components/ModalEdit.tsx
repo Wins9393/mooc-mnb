@@ -10,9 +10,9 @@ import {
   Quiz,
   Text,
   Video,
-} from "../../../types/types";
-import { returnFileSizeFormated } from "../../../utils/utils";
-import { MainContext } from "../../../contexts/MainContext";
+} from "../../types/types";
+import { returnFileSizeFormated } from "../../utils/utils";
+import { MainContext } from "../../contexts/MainContext";
 
 const { TextArea } = Input;
 

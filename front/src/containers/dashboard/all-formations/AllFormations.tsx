@@ -2,7 +2,7 @@ import { MouseEvent, useContext, useEffect, useState } from "react";
 import { MainContext } from "../../../contexts/MainContext";
 import { Button, Cascader, CascaderProps } from "antd";
 import { ContentByModule, ContentType, Quiz } from "../../../types/types";
-import { ModalEdit } from "./ModalEdit";
+import { ModalEdit } from "../../../components/dashboard-components/ModalEdit";
 import "./all-formations.css";
 
 interface Option {
