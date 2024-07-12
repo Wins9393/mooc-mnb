@@ -1,9 +1,10 @@
 import { Button, Steps, message } from "antd";
 import { CreateFormationForm } from "../../../components/dashboard-components/CreateFormationForm";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FormationToDB,
   ModuleToDB,
+  PhotoTextToDB,
   QuizQuestionsAndAnswersContent,
   TextToDB,
   VideoToDB,
@@ -28,11 +29,20 @@ export function CreateFormation() {
   const [newModules, setNewModules] = useState<ModuleToDB[]>([]);
   const [newVideos, setNewVideos] = useState<VideoToDB[]>([]);
   const [newTexts, setNewTexts] = useState<TextToDB[]>([]);
+  const [newPhotosTexts, setNewPhotosTexts] = useState<PhotoTextToDB[]>([]);
   const [allValuesTypeForm, setAllValuesTypeForm] = useState<{
-    [key: string]: (VideoToDB | TextToDB)[];
+    [key: string]: (VideoToDB | TextToDB | PhotoTextToDB)[];
   }>({});
   const [quizQuestionsAndAnswers, setQuizQuestionsAndAnswers] =
     useState<QuizQuestionsAndAnswersContent>({});
+
+  useEffect(() => {
+    console.log("newPhotosTexts: ", newPhotosTexts);
+  }, [newPhotosTexts]);
+
+  useEffect(() => {
+    console.log("newVideos: ", newVideos);
+  }, [newVideos]);
 
   const steps = [
     {
@@ -56,6 +66,7 @@ export function CreateFormation() {
           newModules={newModules}
           setNewVideos={setNewVideos}
           setNewTexts={setNewTexts}
+          setNewPhotosTexts={setNewPhotosTexts}
           allValuesTypeForm={allValuesTypeForm}
           setAllValuesTypeForm={setAllValuesTypeForm}
         />
@@ -79,6 +90,7 @@ export function CreateFormation() {
     modules: ModuleToDB[],
     videos: VideoToDB[],
     texts: TextToDB[],
+    photosTexts: PhotoTextToDB[],
     quizQuestionsAndAnswers: QuizQuestionsAndAnswersContent
   ) {
     try {
@@ -160,7 +172,20 @@ export function CreateFormation() {
           );
         }
       });
+
       formData.append("videos", JSON.stringify(videos));
+
+      photosTexts.map((photo, index) => {
+        if (photo.photo && photo.photo.length > 0 && photo.photo[0].originFileObj instanceof File) {
+          formData.append(
+            `photoFile${index}`,
+            photo.photo[0].originFileObj,
+            photo.photo[0].originFileObj.name
+          );
+        }
+      });
+
+      formData.append("photosTexts", JSON.stringify(photosTexts));
       formData.append("texts", JSON.stringify(texts));
       formData.append("quizQuestionsAndAnswers", JSON.stringify(quizQuestionsAndAnswers));
 
@@ -185,6 +210,7 @@ export function CreateFormation() {
       setAllValuesTypeForm({});
       setNewVideos([]);
       setNewTexts([]);
+      setNewPhotosTexts([]);
       setQuizQuestionsAndAnswers({});
       setCurrent(0);
       console.log("completeFormationResult: ", completeFormationResults);
@@ -218,12 +244,19 @@ export function CreateFormation() {
             return content.title && content.video.length !== 0;
           } else if (content?.type === "text") {
             return content.title && content.content;
+          } else if (content?.type === "photo_text") {
+            console.log("content: ", content);
+            return content.title && content.text_content && content.photo.length !== 0;
           }
           return false;
         });
       });
+      console.log("isAllModuleFilled", isAllModuleFilled);
 
-      if (isAllModuleFilled && newVideos.length + newTexts.length >= newModules.length)
+      if (
+        isAllModuleFilled &&
+        newVideos.length + newTexts.length + newPhotosTexts.length >= newModules.length
+      )
         setCurrent(current + 1);
       else message.error("Il faut au moins un contenu par module !");
     }
@@ -265,6 +298,7 @@ export function CreateFormation() {
                     newModules,
                     newVideos,
                     newTexts,
+                    newPhotosTexts,
                     quizQuestionsAndAnswers
                   )
                 : ""

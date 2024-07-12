@@ -1,22 +1,22 @@
-import { Button, Card, Form, Input, Select, Upload, UploadProps, message } from "antd";
+import { Button, Card, Form, Input, Select, Typography, Upload, UploadProps, message } from "antd";
 import { PlusOutlined, CloseOutlined } from "@ant-design/icons";
-import { ModuleToDB, TextToDB, VideoToDB } from "../../types/types";
+import { ModuleToDB, PhotoTextToDB, TextToDB, VideoToDB } from "../../types/types";
 import { useEffect } from "react";
+import { returnFileSizeFormated } from "../../utils/utils";
 
 interface TypeCoursFormProps {
   newModules: ModuleToDB[];
-  // newVideos: VideoToDB[];
   setNewVideos: React.Dispatch<React.SetStateAction<VideoToDB[]>>;
-  // newTexts: TextToDB[];
   setNewTexts: React.Dispatch<React.SetStateAction<TextToDB[]>>;
-  allValuesTypeForm: { [key: string]: (VideoToDB | TextToDB)[] };
+  setNewPhotosTexts: React.Dispatch<React.SetStateAction<PhotoTextToDB[]>>;
+  allValuesTypeForm: { [key: string]: (VideoToDB | TextToDB | PhotoTextToDB)[] };
   setAllValuesTypeForm: React.Dispatch<
-    React.SetStateAction<{ [key: string]: (VideoToDB | TextToDB)[] }>
+    React.SetStateAction<{ [key: string]: (VideoToDB | TextToDB | PhotoTextToDB)[] }>
   >;
 }
 
 interface ModuleContents {
-  [key: string]: (VideoToDB | TextToDB)[];
+  [key: string]: (VideoToDB | TextToDB | PhotoTextToDB)[];
 }
 
 const normFile = (e: any) => {
@@ -30,27 +30,19 @@ export function CreateTypeCoursForm({
   newModules,
   setNewVideos,
   setNewTexts,
+  setNewPhotosTexts,
   allValuesTypeForm,
   setAllValuesTypeForm,
 }: TypeCoursFormProps) {
   const [form] = Form.useForm();
-  const maxSize = 1e7;
+  const maxVideoSize = 1e7;
+  const maxPhotoSize = 500000;
 
   useEffect(() => {
     form.setFieldsValue(allValuesTypeForm);
   }, [form]);
 
-  function returnFileSizeFormated(number: number) {
-    if (number < 1024) {
-      return `${number} bytes`;
-    } else if (number >= 1024 && number < 1048576) {
-      return `${(number / 1024).toFixed(1)} KB`;
-    } else if (number >= 1048576) {
-      return `${(number / 1048576).toFixed(1)} MB`;
-    }
-  }
-
-  const uploadProps: UploadProps = {
+  const uploadVideoProps: UploadProps = {
     beforeUpload: (file) => {
       const isMP4 = file.type === "video/mp4";
 
@@ -59,9 +51,9 @@ export function CreateTypeCoursForm({
         return Upload.LIST_IGNORE;
       }
 
-      if (file.size > maxSize) {
+      if (file.size > maxVideoSize) {
         message.error(
-          `La taille maximum d'une vidéo ne peut excéder ${returnFileSizeFormated(maxSize)}. ${
+          `La taille maximum d'une vidéo ne peut excéder ${returnFileSizeFormated(maxVideoSize)}. ${
             file.name
           } pèse ${returnFileSizeFormated(file.size)} `
         );
@@ -69,9 +61,45 @@ export function CreateTypeCoursForm({
       }
       return false;
     },
-    onChange: (info) => {
-      console.log(info);
+    // onChange: (info) => {
+    //   console.log(info);
+    // },
+    maxCount: 1,
+    listType: "picture-card",
+  };
+
+  const uploadPhotosProps: UploadProps = {
+    beforeUpload: (file) => {
+      const isJPG = file.type === "image/jpeg";
+
+      if (!isJPG) {
+        message.error(`${file.name} n'est pas un fichier .jpg`);
+        return Upload.LIST_IGNORE;
+      }
+
+      if (file.size > maxPhotoSize) {
+        message.error(
+          `La taille maximum d'une photos ne peut excéder ${returnFileSizeFormated(
+            maxPhotoSize
+          )}. ${file.name} pèse ${returnFileSizeFormated(file.size)} `
+        );
+        return Upload.LIST_IGNORE;
+      }
+
+      return false;
     },
+    // onChange: (info) => {
+    //   console.log(info);
+    // if (info.file.status === "removed") {
+    //   setSelectedFile(null);
+    // } else {
+    //   setSelectedFile(info.file);
+    //   setNewFormation((prevFormation: FormationToDB) => ({
+    //     ...prevFormation,
+    //     cover_path: info.file.name,
+    //   }));
+    // }
+    // },
     maxCount: 1,
     listType: "picture-card",
   };
@@ -104,8 +132,23 @@ export function CreateTypeCoursForm({
         });
     });
 
+    const updatedPhotosTexts = allValuesKeys.flatMap((key: string) => {
+      return allValues[key]
+        ?.filter((content) => content?.type === "photo_text" && content.title && content.photo)
+        .map((content) => {
+          const photoTextContent = content as PhotoTextToDB;
+          return {
+            ...photoTextContent,
+            id_module: null,
+            key: key,
+            photo_path: photoTextContent.photo?.[0]?.name,
+          };
+        });
+    });
+
     setNewVideos(updatedVideos);
     setNewTexts(updatedTexts);
+    setNewPhotosTexts(updatedPhotosTexts);
   }
 
   return (
@@ -147,7 +190,8 @@ export function CreateTypeCoursForm({
                           <Select
                             options={[
                               { value: "video", label: <span>Video</span> },
-                              { value: "text", label: <span>Text</span> },
+                              { value: "text", label: <span>Texte</span> },
+                              { value: "photo_text", label: <span>Photo + Texte</span> },
                             ]}
                           />
                         </Form.Item>
@@ -189,12 +233,12 @@ export function CreateTypeCoursForm({
                                 <Form.Item
                                   required
                                   label={`Fichier vidéo (.mp4 requis | taille max: ${returnFileSizeFormated(
-                                    maxSize
+                                    maxVideoSize
                                   )})`}
                                   name={[field.name, "video"]}
                                   valuePropName="fileList"
                                   getValueFromEvent={normFile}>
-                                  <Upload {...uploadProps}>
+                                  <Upload {...uploadVideoProps}>
                                     <button style={{ border: 0, background: "none" }} type="button">
                                       <PlusOutlined />
                                       <div style={{ marginTop: 8 }}>Upload</div>
@@ -229,6 +273,57 @@ export function CreateTypeCoursForm({
                                 <Form.Item
                                   label="Contenu du cours texte"
                                   name={[field.name, "content"]}
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: "Le contenu du cours texte est requis",
+                                    },
+                                  ]}>
+                                  <Input.TextArea />
+                                </Form.Item>
+                              </div>
+                            ) : form.getFieldValue([
+                                `module-${moduleIndex}`,
+                                field.name,
+                                "type",
+                              ]) === "photo_text" ? (
+                              <div
+                                style={{
+                                  borderRadius: 8,
+                                  border: "solid 1px var(--white-rose)",
+                                  padding: "16px",
+                                  marginBottom: 8,
+                                }}>
+                                <h3 style={{ marginBottom: 8 }}>Nouveau Photo + Texte</h3>
+                                <Form.Item
+                                  label="Titre du cours photos + texte"
+                                  name={[field.name, "title"]}
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: "Le titre du cours photos + texte est requis",
+                                    },
+                                  ]}>
+                                  <Input />
+                                </Form.Item>
+                                <Form.Item
+                                  required
+                                  label={`Fichier .jpg (taille max: ${returnFileSizeFormated(
+                                    maxPhotoSize
+                                  )})`}
+                                  name={[field.name, "photo"]}
+                                  valuePropName="fileList"
+                                  getValueFromEvent={normFile}>
+                                  <Upload {...uploadPhotosProps}>
+                                    <button style={{ border: 0, background: "none" }} type="button">
+                                      <PlusOutlined />
+                                      <div style={{ marginTop: 8 }}>Upload</div>
+                                    </button>
+                                  </Upload>
+                                </Form.Item>
+                                <Form.Item
+                                  label="Contenu texte"
+                                  name={[field.name, "text_content"]}
                                   rules={[
                                     {
                                       required: true,

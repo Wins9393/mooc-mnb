@@ -77,7 +77,7 @@ function getContentsNumberByFormation(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const { id } = req.params;
-            const response = yield server_1.fastify.pg.query("SELECT f.id AS formation_id, f.title AS formation_title, CAST (COUNT(DISTINCT v.id) AS INTEGER) AS video_count, CAST (COUNT(DISTINCT t.id) AS INTEGER) AS text_count, CAST (COUNT(DISTINCT q.id) AS INTEGER) AS quiz_count FROM  formations f LEFT JOIN  modules m ON f.id = m.id_formation LEFT JOIN  videos v ON m.id = v.id_module LEFT JOIN texts t ON m.id = t.id_module LEFT JOIN quiz q ON m.id = q.id_module WHERE f.id=$1 GROUP BY f.id, f.title;", [id]);
+            const response = yield server_1.fastify.pg.query("SELECT f.id AS formation_id, f.title AS formation_title, CAST (COUNT(DISTINCT v.id) AS INTEGER) AS video_count, CAST (COUNT(DISTINCT t.id) AS INTEGER) AS text_count, CAST (COUNT(DISTINCT pt.id) AS INTEGER) AS photo_text_count, CAST (COUNT(DISTINCT q.id) AS INTEGER) AS quiz_count FROM  formations f LEFT JOIN  modules m ON f.id = m.id_formation LEFT JOIN  videos v ON m.id = v.id_module LEFT JOIN texts t ON m.id = t.id_module LEFT JOIN photo_text pt on m.id =pt.id_module LEFT JOIN quiz q ON m.id = q.id_module WHERE f.id=$1 GROUP BY f.id, f.title;", [id]);
             res.code(200).send(response.rows[0]);
         }
         catch (error) {
@@ -180,7 +180,7 @@ function createCompleteFormation(req, res) {
                     }
                     finally { if (e_1) throw e_1.error; }
                 }
-                const { formation, modules, videos, texts, quizQuestionsAndAnswers } = fields;
+                const { formation, modules, videos, texts, photosTexts, quizQuestionsAndAnswers } = fields;
                 // Insert formation
                 const parsedFormation = JSON.parse(formation);
                 const formationResult = yield client.query("INSERT INTO formations (title, description, cover_path, published) VALUES ($1, $2, $3, $4) RETURNING id", [
@@ -222,6 +222,23 @@ function createCompleteFormation(req, res) {
                         const resultTexts = yield client.query("INSERT INTO texts (id_module, title, content) VALUES ($1, $2, $3) RETURNING id", [modulesIds[moduleIndex], text.title, text.content]);
                         if (!resultTexts.rows[0].id) {
                             throw new Error("Erreur lors de l'insertion d'un texte !");
+                        }
+                    }
+                }
+                // Insert photosTexts
+                const parsedPhotosTexts = JSON.parse(photosTexts);
+                if (parsedPhotosTexts.length > 0) {
+                    for (const photoText of parsedPhotosTexts) {
+                        const moduleIndex = photoText.key ? parseInt(photoText.key.split("-")[1]) : -1;
+                        const resultPhotoText = yield client.query("INSERT INTO photo_text (id_module, title, description, photo_path, text_content) VALUES ($1, $2, $3, $4, $5) RETURNING id", [
+                            modulesIds[moduleIndex],
+                            photoText.title,
+                            photoText.description,
+                            photoText.photo_path,
+                            photoText.text_content,
+                        ]);
+                        if (!resultPhotoText.rows[0].id) {
+                            throw new Error("Erreur lors de l'insertion d'un photo texte !");
                         }
                     }
                 }

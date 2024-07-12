@@ -66,6 +66,25 @@ export interface TextToDB {
   content: string;
 }
 
+export interface PhotoText {
+  id_photo_text: number;
+  title_photo_text: string;
+  description_photo_text: string;
+  text_content_photo_text: string;
+  photo_path_photo_text: string;
+}
+
+export interface PhotoTextToDB {
+  type: "photo_text";
+  key: string | null;
+  id_module: number | null;
+  title: string;
+  description?: string;
+  text_content: string;
+  photo_path: string;
+  photo: UploadFile[];
+}
+
 export interface Quiz {
   id: number;
   title: string;
@@ -82,7 +101,7 @@ export interface ModuleCollapseItem {
   id: string;
   title: string;
   type: string;
-  item: Video | Text | Quiz | null;
+  item: Video | Text | Quiz | PhotoText | null;
 }
 
 export interface Question {
@@ -128,6 +147,7 @@ export interface ContentByModule {
   id: number;
   videos: Video[];
   texts: Text[];
+  photos_texts: PhotoText[];
 }
 
 // export interface QuizByModule {
@@ -186,6 +206,7 @@ export interface UserProgression {
   id_module: number;
   id_video?: number;
   id_text?: number;
+  id_photo_text?: number;
   id_quiz?: number;
   complete: boolean;
 }
@@ -195,6 +216,7 @@ export interface ContentsByFormation {
   formation_title: string;
   video_count: number;
   text_count: number;
+  photo_text_count: number;
   quiz_count: number;
 }
 

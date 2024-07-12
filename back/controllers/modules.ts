@@ -72,18 +72,22 @@ export async function getModulesWithContentsByModuleId(
   try {
     const { id } = req.params;
     const videosQuery =
-      "SELECT v.id AS id_video, v.path AS path_video, v.title AS title_video, v.description AS description_video, v.cover_path AS cover_path_video FROM videos v WHERE v.id_module = $1";
+      "SELECT v.id AS id_video, v.path AS path_video, v.title AS title_video, v.description AS description_video, v.cover_path AS cover_path_video FROM videos v WHERE v.id_module=$1";
     const textsQuery =
-      "SELECT t.id AS id_text, t.title AS title_text, t.content AS content_text FROM texts t WHERE t.id_module = $1";
+      "SELECT t.id AS id_text, t.title AS title_text, t.content AS content_text FROM texts t WHERE t.id_module=$1";
     const value = [id];
+    const photosTextsQuery =
+      "SELECT pt.id AS id_photo_text, pt.title AS title_photo_text, pt.description AS description_photo_text, pt.photo_path AS photo_path_photo_text, pt.text_content AS text_content_photo_text FROM photo_text pt WHERE id_module=$1";
 
     const videosResponse = await fastify.pg.query(videosQuery, value);
     const textsResponse = await fastify.pg.query(textsQuery, value);
+    const photosTextsResponse = await fastify.pg.query(photosTextsQuery, value);
 
     const result = {
       id: Number(id),
       videos: videosResponse.rows,
       texts: textsResponse.rows,
+      photos_texts: photosTextsResponse.rows,
     };
 
     res.code(200).send(result);

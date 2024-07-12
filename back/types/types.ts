@@ -255,6 +255,7 @@ export interface UserProgression {
   id_module: number;
   id_video?: number;
   id_text?: number;
+  id_photo_text?: number;
   id_quiz?: number;
   complete: boolean;
 }

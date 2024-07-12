@@ -129,6 +129,9 @@ export function FormationPage() {
       if (type === "text") {
         return userProgression.some((progress) => progress.id_text === id_content);
       }
+      if (type === "photo_text") {
+        return userProgression.some((progress) => progress.id_photo_text === id_content);
+      }
       if (type === "quiz") {
         return userProgression.some((progress) => progress.id_quiz === id_content);
       }

@@ -4,6 +4,7 @@ import {
   FullAnswerOption,
   Module,
   ModuleCollapseItem,
+  PhotoText,
   Quiz,
   Text,
   UserAnswer,
@@ -283,7 +284,7 @@ export function ContentModule({
     );
   }
 
-  function renderModuleItem(item: Video | Text | Quiz | null, itemType: string) {
+  function renderModuleItem(item: Video | Text | PhotoText | Quiz | null, itemType: string) {
     if (!item) {
       return null;
     }
@@ -297,6 +298,19 @@ export function ContentModule({
             controls
             className={`formationPage__video ${fadeClass}`}
             src={`${import.meta.env.VITE_API_URL}/public/${videoItem.path_video}`}></video>
+        );
+      case "photo_text":
+        const photoTextItem = item as PhotoText;
+        console.log("item: ", item);
+        return (
+          <div className="formationPage__photo-text-container">
+            <img
+              className={`formationPage__photo-text-photo ${fadeClass}`}
+              src={`${import.meta.env.VITE_API_URL}/public/${
+                photoTextItem.photo_path_photo_text
+              }`}></img>
+            <p>{photoTextItem.text_content_photo_text}</p>
+          </div>
         );
       case "text":
         const textItem = item as Text;

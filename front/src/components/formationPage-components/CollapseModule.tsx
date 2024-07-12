@@ -1,9 +1,22 @@
 import { Collapse, CollapseProps } from "antd";
-import { Module, ModuleCollapseItem, Quiz, Text, UserProgression, Video } from "../../types/types";
-import { Dispatch, SetStateAction, useContext } from "react";
+import {
+  Module,
+  ModuleCollapseItem,
+  PhotoText,
+  Quiz,
+  Text,
+  UserProgression,
+  Video,
+} from "../../types/types";
+import { Dispatch, SetStateAction, useContext, useEffect } from "react";
 import { MainContext } from "../../contexts/MainContext";
 import { AuthContext } from "../../contexts/AuthContext";
-import { PlayCircleOutlined, FileTextOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import {
+  PlayCircleOutlined,
+  FileTextOutlined,
+  FileImageOutlined,
+  QuestionCircleOutlined,
+} from "@ant-design/icons";
 
 interface CollapseModuleInterface {
   modules: Module[] | null;
@@ -53,6 +66,14 @@ export function CollapseModule({
     saveUserProgression,
   } = mainContext ?? {};
 
+  useEffect(() => {
+    console.log("moduleContent: ", moduleContent);
+  }, [moduleContent]);
+
+  useEffect(() => {
+    console.log("userProgression: ", userProgression);
+  }, [userProgression]);
+
   function changeCollapseBGColor(userProgression: UserProgression[], content: ModuleCollapseItem) {
     const result = userProgression?.some((progress) => {
       if (content.type === "video") {
@@ -60,6 +81,9 @@ export function CollapseModule({
       }
       if (content.type === "text") {
         return (content?.item as Text).id_text === progress.id_text;
+      }
+      if (content.type === "photo_text") {
+        return (content?.item as PhotoText).id_photo_text === progress.id_photo_text;
       }
       if (content.type === "quiz") {
         return (content?.item as Quiz).id === progress.id_quiz;
@@ -93,6 +117,25 @@ export function CollapseModule({
         });
       }
 
+      if (
+        user &&
+        currentModule &&
+        moduleItem.type === "photo_text" &&
+        !isProgressionSavedByType(
+          userProgression,
+          (moduleItem.item as PhotoText).id_photo_text,
+          "photo_text"
+        )
+      ) {
+        saveUserProgression({
+          id_user: user?.id,
+          id_formation: currentModule?.id_formation,
+          id_module: currentModule.id,
+          id_photo_text: (moduleItem.item as PhotoText).id_photo_text,
+          complete: true,
+        });
+      }
+
       setTimeout(() => {
         setCurrentModuleItem(moduleItem);
         setFadeClass("content--fade-in");
@@ -107,6 +150,7 @@ export function CollapseModule({
 
   // Boucle sur les modules présents dans la formation pour remplir le tableau d'Items pour le Collapse
   function getCollapseItems(modules: Module[]) {
+    console.log("modules:", modules);
     let items: CollapseProps["items"] = [];
 
     if (!modules) {
@@ -127,6 +171,12 @@ export function CollapseModule({
           title: text.title_text,
           item: text,
         })) || []),
+        ...(moduleContent?.photos_texts?.map((pt) => ({
+          type: "photo_text",
+          id: `photo_text-${pt.id_photo_text}`,
+          title: pt.title_photo_text,
+          item: pt,
+        })) || []),
         moduleQuiz
           ? { type: "quiz", id: `quiz-${moduleQuiz.id}`, title: moduleQuiz.title, item: moduleQuiz }
           : { type: "quiz", id: "", title: "", item: null },
@@ -144,6 +194,7 @@ export function CollapseModule({
           <p className="formationPage__collapse-item">{content.title}</p>
           {content.type === "video" && <PlayCircleOutlined />}
           {content.type === "text" && <FileTextOutlined />}
+          {content.type === "photo_text" && <FileImageOutlined />}
           {content.type === "quiz" && <QuestionCircleOutlined />}
         </div>
       ));

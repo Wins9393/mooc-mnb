@@ -42,9 +42,11 @@ const StatisticsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
 
     if (contentsByFormation) {
+      console.log("contentsByFormation", contentsByFormation);
       const contentsCount =
         contentsByFormation.video_count +
         contentsByFormation.text_count +
+        contentsByFormation.photo_text_count +
         contentsByFormation.quiz_count;
 
       let progressPercentage = parseFloat(

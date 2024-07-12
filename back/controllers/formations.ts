@@ -63,7 +63,7 @@ export async function getContentsNumberByFormation(
   try {
     const { id } = req.params;
     const response = await fastify.pg.query(
-      "SELECT f.id AS formation_id, f.title AS formation_title, CAST (COUNT(DISTINCT v.id) AS INTEGER) AS video_count, CAST (COUNT(DISTINCT t.id) AS INTEGER) AS text_count, CAST (COUNT(DISTINCT q.id) AS INTEGER) AS quiz_count FROM  formations f LEFT JOIN  modules m ON f.id = m.id_formation LEFT JOIN  videos v ON m.id = v.id_module LEFT JOIN texts t ON m.id = t.id_module LEFT JOIN quiz q ON m.id = q.id_module WHERE f.id=$1 GROUP BY f.id, f.title;",
+      "SELECT f.id AS formation_id, f.title AS formation_title, CAST (COUNT(DISTINCT v.id) AS INTEGER) AS video_count, CAST (COUNT(DISTINCT t.id) AS INTEGER) AS text_count, CAST (COUNT(DISTINCT pt.id) AS INTEGER) AS photo_text_count, CAST (COUNT(DISTINCT q.id) AS INTEGER) AS quiz_count FROM  formations f LEFT JOIN  modules m ON f.id = m.id_formation LEFT JOIN  videos v ON m.id = v.id_module LEFT JOIN texts t ON m.id = t.id_module LEFT JOIN photo_text pt on m.id =pt.id_module LEFT JOIN quiz q ON m.id = q.id_module WHERE f.id=$1 GROUP BY f.id, f.title;",
       [id]
     );
     res.code(200).send(response.rows[0]);
@@ -158,7 +158,7 @@ export async function createCompleteFormation(req: FastifyRequest, res: FastifyR
           fields[part.fieldname] = (await part.value) as string;
         }
       }
-      const { formation, modules, videos, texts, quizQuestionsAndAnswers } = fields;
+      const { formation, modules, videos, texts, photosTexts, quizQuestionsAndAnswers } = fields;
 
       // Insert formation
       const parsedFormation = JSON.parse(formation);
@@ -216,6 +216,27 @@ export async function createCompleteFormation(req: FastifyRequest, res: FastifyR
           );
           if (!resultTexts.rows[0].id) {
             throw new Error("Erreur lors de l'insertion d'un texte !");
+          }
+        }
+      }
+
+      // Insert photosTexts
+      const parsedPhotosTexts = JSON.parse(photosTexts);
+      if (parsedPhotosTexts.length > 0) {
+        for (const photoText of parsedPhotosTexts) {
+          const moduleIndex = photoText.key ? parseInt(photoText.key.split("-")[1]) : -1;
+          const resultPhotoText = await client.query(
+            "INSERT INTO photo_text (id_module, title, description, photo_path, text_content) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+            [
+              modulesIds[moduleIndex],
+              photoText.title,
+              photoText.description,
+              photoText.photo_path,
+              photoText.text_content,
+            ]
+          );
+          if (!resultPhotoText.rows[0].id) {
+            throw new Error("Erreur lors de l'insertion d'un photo texte !");
           }
         }
       }

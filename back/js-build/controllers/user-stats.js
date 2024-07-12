@@ -91,7 +91,7 @@ function getUserProgressionByUser(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const { id } = req.body;
-            const response = yield server_1.fastify.pg.query("SELECT id, id_user, id_formation, id_module, id_video, id_text, id_quiz, complete FROM user_progression WHERE id_user = $1", [id]);
+            const response = yield server_1.fastify.pg.query("SELECT id, id_user, id_formation, id_module, id_video, id_text, id_photo_text, id_quiz, complete FROM user_progression WHERE id_user = $1", [id]);
             res.code(200).send(response.rows);
         }
         catch (error) {
@@ -114,8 +114,8 @@ exports.getUserProgressionByUser = getUserProgressionByUser;
 function saveUserProgression(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const { id_user, id_formation, id_module, id_video, id_text, id_quiz, complete } = req.body;
-            const response = yield server_1.fastify.pg.query("INSERT INTO user_progression (id_user, id_formation, id_module, id_video, id_text, id_quiz, complete) VALUES ($1, $2, $3, $4, $5, $6, $7)", [id_user, id_formation, id_module, id_video, id_text, id_quiz, complete]);
+            const { id_user, id_formation, id_module, id_video, id_text, id_photo_text, id_quiz, complete, } = req.body;
+            const response = yield server_1.fastify.pg.query("INSERT INTO user_progression (id_user, id_formation, id_module, id_video, id_text, id_photo_text, id_quiz, complete) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)", [id_user, id_formation, id_module, id_video, id_text, id_photo_text, id_quiz, complete]);
             res.code(200).send("Progression enregistrée !");
         }
         catch (error) {
