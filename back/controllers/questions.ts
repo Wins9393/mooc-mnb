@@ -3,6 +3,7 @@ import { fastify } from "../server";
 import {
   AnswerOptionFromDB,
   BodyGetCorrectAnswer,
+  IdParams,
   QuestionToDB,
   QuestionsByFormationBody,
 } from "../types/types";
@@ -133,6 +134,31 @@ export async function createQuestion(
       // Gestion d'autres types d'erreurs si nécessaire
       res.code(500).send({
         error: "Erreur inconnue lors de la création de la question",
+      });
+    }
+  }
+}
+
+export async function deleteQuestion(
+  request: FastifyRequest<{ Params: IdParams }>,
+  reply: FastifyReply
+) {
+  try {
+    const { id } = request.params;
+
+    await fastify.pg.query("DELETE FROM questions WHERE id=$1 RETURNING id", [id]);
+
+    reply.code(200).send(`Question ${id} successfully deleted`);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      reply.code(500).send({
+        error: "Erreur lors de la suppression de la question",
+        details: error.message,
+      });
+    } else {
+      // Gestion d'autres types d'erreurs si nécessaire
+      reply.code(500).send({
+        error: "Erreur inconnue lors de la suppression de la question",
       });
     }
   }

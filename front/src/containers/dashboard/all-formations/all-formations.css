@@ -2,7 +2,9 @@
   width: 100%;
 
   .allFormations__cascaderItem--main {
+    position: relative;
     min-width: 200px;
+    max-width: 300px;
     border: solid 1px var(--separator-grey);
     border-radius: 8px;
     padding: 4px 16px;
@@ -10,10 +12,32 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    overflow: hidden;
+
+    .allFormations__cascaderItem--imageFormation {
+      position: absolute;
+      top: 0;
+      left: 0;
+      max-width: 100%;
+      z-index: 0;
+      opacity: 0.2;
+    }
+
+    .allFormations__cascaderItem--title_group {
+      max-width: 100%;
+    }
+
+    .allFormations__cascaderItem--content {
+      .allFormations__cascaderItem--imagePhotoTexte,
+      .allFormations__cascaderItem--imageVideo {
+        max-width: 100%;
+      }
+    }
 
     .allFormations__cascaderItem--buttons_group {
       .allFormations__cascaderItem--button {
         padding: 2px 8px;
+        margin-top: 8px;
         font-size: 12px;
         height: auto;
         border-radius: 0;

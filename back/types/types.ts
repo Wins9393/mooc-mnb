@@ -2,6 +2,18 @@ export interface IdParams {
   id: number;
 }
 
+export interface IdParamsVideo {
+  id_video: number;
+}
+
+export interface IdParamsText {
+  id_text: number;
+}
+
+export interface IdParamsPhotoText {
+  id_photo_text: number;
+}
+
 export interface UserAnswersByFormationByUser {
   id_user: number;
   id_formation: number;

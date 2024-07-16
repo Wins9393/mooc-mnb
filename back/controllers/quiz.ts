@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { fastify } from "../server";
-import { BodyResetQuizById, QuizToDB } from "../types/types";
+import { BodyResetQuizById, IdParams, QuizToDB } from "../types/types";
 
 export async function resetQuizById(
   req: FastifyRequest<{ Body: BodyResetQuizById }>,
@@ -52,6 +52,31 @@ export async function createQuiz(req: FastifyRequest<{ Body: QuizToDB }>, res: F
       // Gestion d'autres types d'erreurs si nécessaire
       res.code(500).send({
         error: "Erreur inconnue lors de la création du quiz",
+      });
+    }
+  }
+}
+
+export async function deleteQuiz(
+  request: FastifyRequest<{ Params: IdParams }>,
+  reply: FastifyReply
+) {
+  try {
+    const { id } = request.params;
+
+    await fastify.pg.query("DELETE FROM quiz WHERE id=$1 RETURNING id", [id]);
+
+    reply.code(200).send(`Quiz ${id} successfully deleted`);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      reply.code(500).send({
+        error: "Erreur lors de la suppression du quiz",
+        details: error.message,
+      });
+    } else {
+      // Gestion d'autres types d'erreurs si nécessaire
+      reply.code(500).send({
+        error: "Erreur inconnue lors de la suppression du quiz",
       });
     }
   }

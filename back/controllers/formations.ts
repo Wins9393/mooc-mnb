@@ -1,4 +1,4 @@
-import { FastifyReply, FastifyRequest, FastifyRequestContext } from "fastify";
+import { FastifyReply, FastifyRequest } from "fastify";
 import { fastify } from "../server";
 import { Formation, FormationToDB, FormationWithModule, IdParams } from "../types/types";
 import path from "node:path";
@@ -133,6 +133,31 @@ export async function updateFormation(
       // Gestion d'autres types d'erreurs si nécessaire
       reply.code(500).send({
         error: "Erreur inconnue lors de la modification de la formation",
+      });
+    }
+  }
+}
+
+export async function deleteFormation(
+  request: FastifyRequest<{ Params: IdParams }>,
+  reply: FastifyReply
+) {
+  try {
+    const { id } = request.params;
+
+    await fastify.pg.query("DELETE FROM formations WHERE id=$1 RETURNING id", [id]);
+
+    reply.code(200).send(`Formation ${id} successfully deleted`);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      reply.code(500).send({
+        error: "Erreur lors de la suppression de la formation",
+        details: error.message,
+      });
+    } else {
+      // Gestion d'autres types d'erreurs si nécessaire
+      reply.code(500).send({
+        error: "Erreur inconnue lors de la suppression de la formation",
       });
     }
   }

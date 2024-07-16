@@ -129,3 +129,28 @@ export async function createModule(req: FastifyRequest<{ Body: ModuleToDB }>, re
     }
   }
 }
+
+export async function deleteModule(
+  request: FastifyRequest<{ Params: IdParams }>,
+  reply: FastifyReply
+) {
+  try {
+    const { id } = request.params;
+
+    await fastify.pg.query("DELETE FROM modules WHERE id=$1 RETURNING id", [id]);
+
+    reply.code(200).send(`Module ${id} successfully deleted`);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      reply.code(500).send({
+        error: "Erreur lors de la suppression du module",
+        details: error.message,
+      });
+    } else {
+      // Gestion d'autres types d'erreurs si nécessaire
+      reply.code(500).send({
+        error: "Erreur inconnue lors de la suppression du module",
+      });
+    }
+  }
+}

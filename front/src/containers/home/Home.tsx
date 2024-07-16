@@ -7,7 +7,7 @@ export function Home() {
         height: "calc(100vh - var(--header-height))",
       }}>
       <img
-        style={{ width: "100%", height: "99%", objectFit: "cover" }}
+        style={{ width: "100%", height: "100%", objectFit: "cover", marginBottom: "-8px" }}
         src="./home-bg.webp"
         alt=""
       />

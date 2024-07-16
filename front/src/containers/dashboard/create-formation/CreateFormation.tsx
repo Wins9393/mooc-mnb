@@ -1,6 +1,6 @@
 import { Button, Steps, message } from "antd";
 import { CreateFormationForm } from "../../../components/dashboard-components/CreateFormationForm";
-import { useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import {
   FormationToDB,
   ModuleToDB,
@@ -15,6 +15,7 @@ import "../dashboard.css";
 import { CreateModuleForm } from "../../../components/dashboard-components/CreateModuleForm";
 import { CreateQuestionAndQuizForm } from "../../../components/dashboard-components/CreateQuestionAndQuizForm";
 import { CreateTypeCoursForm } from "../../../components/dashboard-components/CreateTypeCoursForm";
+import { MainContext } from "../../../contexts/MainContext";
 
 export function CreateFormation() {
   const [current, setCurrent] = useState<number>(0);
@@ -36,13 +37,9 @@ export function CreateFormation() {
   const [quizQuestionsAndAnswers, setQuizQuestionsAndAnswers] =
     useState<QuizQuestionsAndAnswersContent>({});
 
-  useEffect(() => {
-    console.log("newPhotosTexts: ", newPhotosTexts);
-  }, [newPhotosTexts]);
-
-  useEffect(() => {
-    console.log("newVideos: ", newVideos);
-  }, [newVideos]);
+  const mainContext = useContext(MainContext);
+  if (!mainContext) return null;
+  const { getFormationsWithModules } = mainContext;
 
   const steps = [
     {
@@ -198,24 +195,25 @@ export function CreateFormation() {
         }
       );
 
-      setNewFormation({
-        type: "formation",
-        title: "",
-        description: undefined,
-        cover_path: "",
-        published: false,
-      });
-      setNewModules([]);
-      setSelectedFile(null);
-      setAllValuesTypeForm({});
-      setNewVideos([]);
-      setNewTexts([]);
-      setNewPhotosTexts([]);
-      setQuizQuestionsAndAnswers({});
-      setCurrent(0);
       console.log("completeFormationResult: ", completeFormationResults);
       if (completeFormationResults.ok) {
         message.success("Nouvelle formation créée avec succès !");
+        setNewFormation({
+          type: "formation",
+          title: "",
+          description: undefined,
+          cover_path: "",
+          published: false,
+        });
+        setNewModules([]);
+        setSelectedFile(null);
+        setAllValuesTypeForm({});
+        setNewVideos([]);
+        setNewTexts([]);
+        setNewPhotosTexts([]);
+        setQuizQuestionsAndAnswers({});
+        setCurrent(0);
+        getFormationsWithModules();
       } else {
         message.error(`${completeFormationResults.statusText}`);
       }

@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { fastify } from "../server";
-import { TextToDB } from "../types/types";
+import { IdParamsText, TextToDB } from "../types/types";
 
 export async function createText(req: FastifyRequest<{ Body: TextToDB }>, res: FastifyReply) {
   try {
@@ -20,6 +20,32 @@ export async function createText(req: FastifyRequest<{ Body: TextToDB }>, res: F
       // Gestion d'autres types d'erreurs si nécessaire
       res.code(500).send({
         error: "Erreur inconnue lors de la création du text",
+      });
+    }
+  }
+}
+
+export async function deleteText(
+  request: FastifyRequest<{ Params: IdParamsText }>,
+  reply: FastifyReply
+) {
+  try {
+    const { id_text } = request.params;
+    console.log("ID TEXT: ", id_text);
+
+    await fastify.pg.query("DELETE FROM texts WHERE id=$1 RETURNING id", [id_text]);
+
+    reply.code(200).send(`Text ${id_text} successfully deleted`);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      reply.code(500).send({
+        error: "Erreur lors de la suppression du text",
+        details: error.message,
+      });
+    } else {
+      // Gestion d'autres types d'erreurs si nécessaire
+      reply.code(500).send({
+        error: "Erreur inconnue lors de la suppression du text",
       });
     }
   }
