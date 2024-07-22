@@ -8,7 +8,7 @@ interface AddFormationModalInterface {
   setCustomHandleOk: Dispatch<SetStateAction<() => Promise<void>>>;
 }
 
-export function AddFormationDisplay({
+export function AddModuleDisplay({
   content,
   setIsModifiedContent,
   setCustomHandleOk,

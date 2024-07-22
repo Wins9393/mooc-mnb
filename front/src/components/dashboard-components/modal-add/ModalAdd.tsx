@@ -12,7 +12,7 @@ import {
   isText,
   isVideo,
 } from "../../../typesGuards/typesGuard";
-import { AddFormationDisplay } from "./AddFormationDisplay";
+import { AddModuleDisplay } from "./AddModuleDisplay";
 import { AddContentDisplay } from "./AddContentDisplay";
 
 export interface ModalProps {
@@ -79,7 +79,7 @@ export function ModalAdd({
     if (content !== null) {
       if (isFormation(content)) {
         return (
-          <AddFormationDisplay
+          <AddModuleDisplay
             content={content}
             setIsModifiedContent={setIsModifiedContent}
             setCustomHandleOk={setCustomHandleOk}
@@ -89,7 +89,8 @@ export function ModalAdd({
         return (
           <AddContentDisplay
             content={content}
-            setIsModifiedContent={setIsModifiedContent}
+            getContentByModule={getContentByModule}
+            setContentByModule={setContentByModule}
             setCustomHandleOk={setCustomHandleOk}
           />
         );

@@ -2,11 +2,19 @@ import { Card, Form, Input, message, Select, Upload, UploadFile, UploadProps } f
 import { PlusOutlined } from "@ant-design/icons";
 import { returnFileSizeFormated } from "../../../utils/utils";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { ContentType, Module, PhotoTextToDB, TextToDB, VideoToDB } from "../../../types/types";
+import {
+  ContentByModule,
+  ContentType,
+  Module,
+  PhotoTextToDB,
+  TextToDB,
+  VideoToDB,
+} from "../../../types/types";
 
 interface AddContentModalInterface {
   content: ContentType | null;
-  setIsModifiedContent: Dispatch<SetStateAction<boolean>>;
+  getContentByModule: (id_module: number) => Promise<ContentByModule | null>;
+  setContentByModule: Dispatch<SetStateAction<ContentByModule | null>>;
   setCustomHandleOk: Dispatch<SetStateAction<() => Promise<void>>>;
 }
 
@@ -19,25 +27,18 @@ const normFile = (e: any) => {
 
 export function AddContentDisplay({
   content,
-  setIsModifiedContent,
+  getContentByModule,
+  setContentByModule,
   setCustomHandleOk,
 }: AddContentModalInterface) {
   const [contentType, setContentType] = useState<"video" | "text" | "photo_text">("video");
   const [newVideo, setNewVideo] = useState<VideoToDB | null>(null);
   const [newText, setNewText] = useState<TextToDB | null>(null);
   const [newPhotoText, setNewPhotoText] = useState<PhotoTextToDB | null>(null);
-  const [selectedFile, setSelectedFile] = useState<UploadFile | null>(null);
 
   const [form] = Form.useForm();
   const maxVideoSize = 1e7;
   const maxPhotoSize = 500000;
-
-  useEffect(() => {
-    console.log("newVideo: ", newVideo);
-    console.log("newText: ", newText);
-    console.log("newPhotoText: ", newPhotoText);
-    console.log("content: ", content);
-  }, [newVideo, newText, newPhotoText]);
 
   useEffect(() => {
     setCustomHandleOk(() => customHandleOk);
@@ -91,7 +92,7 @@ export function AddContentDisplay({
   };
 
   function handleContentTypeChange(value: "video" | "text" | "photo_text") {
-    console.log("value: ", value);
+    // console.log("value: ", value);
     setContentType(value);
   }
 
@@ -99,13 +100,14 @@ export function AddContentDisplay({
     allValues: VideoToDB | TextToDB | PhotoTextToDB,
     content: ContentType | null
   ) {
-    console.log("allValues: ", allValues);
-    console.log("content: ", content);
+    // console.log("allValues: ", allValues);
+    // console.log("content: ", content);
     if (contentType === "video") {
       setNewVideo((prevVideo) => {
         const updatedVideo = {
           ...prevVideo,
           ...allValues,
+          type: contentType,
           id_module: (content as Module).id,
         } as VideoToDB;
 
@@ -117,6 +119,7 @@ export function AddContentDisplay({
         const updatedText = {
           ...prevText,
           ...allValues,
+          type: contentType,
           id_module: (content as Module).id,
         } as TextToDB;
 
@@ -128,6 +131,8 @@ export function AddContentDisplay({
         const updatedPhotoText = {
           ...prevPhotoText,
           ...allValues,
+          type: contentType,
+          // photo_path: (allValues as PhotoTextToDB)?.photo[0]?.name,
           id_module: (content as Module).id,
         } as PhotoTextToDB;
 
@@ -137,11 +142,105 @@ export function AddContentDisplay({
   }
 
   async function customHandleOk() {
-    try {
-      if (contentType === "video" && newVideo !== null) {
+    if (contentType === "video") {
+      if (
+        newVideo?.title &&
+        newVideo?.id_module &&
+        newVideo?.video[0].originFileObj instanceof File
+      ) {
+        try {
+          const formData = new FormData();
+          formData.append("selectedVideo", newVideo.video[0].originFileObj, newVideo.video[0].name);
+
+          await fetch(`${import.meta.env.VITE_API_URL}/upload/file`, {
+            method: "POST",
+            credentials: "include",
+            body: formData,
+          });
+
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/video/create`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ ...newVideo, path: newVideo.video[0].name }),
+          });
+
+          if (response.ok) {
+            setContentByModule(await getContentByModule((content as Module)?.id));
+          }
+        } catch (error) {
+          console.log(error);
+          message.error("Un problème est survenu pendant l'ajout de la vidéo");
+        }
+      } else {
+        console.log("Tous les champs obligatoire doivent être rempli");
+        message.error("Tous les champs obligatoire doivent être rempli");
       }
-    } catch (error) {
-      message.error("Erreur");
+    }
+    if (contentType === "text") {
+      if (newText?.title && newText?.id_module && newText?.content) {
+        try {
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/text/create`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(newText),
+          });
+
+          if (response.ok) {
+            setContentByModule(await getContentByModule((content as Module)?.id));
+          }
+        } catch (error) {
+          console.log(error);
+          message.error("Un problème est survenu pendant l'ajout du texte");
+        }
+      } else {
+        console.log("Tous les champs obligatoire doivent être rempli");
+        message.error("Tous les champs obligatoire doivent être rempli");
+      }
+    }
+    if (contentType === "photo_text") {
+      if (
+        newPhotoText?.title &&
+        newPhotoText?.text_content &&
+        newPhotoText?.photo[0].originFileObj instanceof File
+      ) {
+        try {
+          const formData = new FormData();
+          formData.append(
+            "selectedPhoto",
+            newPhotoText.photo[0].originFileObj,
+            newPhotoText.photo[0].name
+          );
+
+          await fetch(`${import.meta.env.VITE_API_URL}/upload/file`, {
+            method: "POST",
+            credentials: "include",
+            body: formData,
+          });
+
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/photo_text/create`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ ...newPhotoText, photo_path: newPhotoText.photo[0].name }),
+          });
+
+          if (response.ok) {
+            setContentByModule(await getContentByModule((content as Module)?.id));
+          }
+        } catch (error) {
+          console.log(error);
+          message.error("Un problème est survenu pendant l'ajout du photo texte");
+        }
+      }
+      console.log("newPhotoText: ", newPhotoText);
     }
   }
 

@@ -180,6 +180,14 @@ export interface TextToDB {
   content: string;
 }
 
+export interface PhotoTextToDB {
+  id_module: number;
+  title: string;
+  description?: string;
+  photo_path: string;
+  text_content: string;
+}
+
 export interface QuizToDB {
   id_module: number;
   title: string;

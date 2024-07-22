@@ -2,24 +2,27 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { fastify } from "../server";
 import { IdParamsVideo, VideoToDB } from "../types/types";
 
-export async function createVideo(req: FastifyRequest<{ Body: VideoToDB }>, res: FastifyReply) {
+export async function createVideo(
+  request: FastifyRequest<{ Body: VideoToDB }>,
+  reply: FastifyReply
+) {
   try {
-    const { id_module, path, title, description, cover_path } = req.body;
+    const { id_module, path, title, description, cover_path } = request.body;
     const query =
       "INSERT INTO videos (id_module, path, title, description, cover_path) VALUES ($1, $2, $3, $4, $5) RETURNING id";
     const values = [id_module, path, title, description, cover_path];
     const result = await fastify.pg.query(query, values);
 
-    res.code(200).send(result.rows[0].id); // Optionnel
+    reply.code(200).send(result.rows[0].id); // Optionnel
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.code(500).send({
+      reply.code(500).send({
         error: "Erreur lors de la création de la video",
         details: error.message,
       });
     } else {
       // Gestion d'autres types d'erreurs si nécessaire
-      res.code(500).send({
+      reply.code(500).send({
         error: "Erreur inconnue lors de la création de la video",
       });
     }

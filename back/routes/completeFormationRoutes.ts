@@ -12,6 +12,7 @@ import {
   getModulesWithContentsByModuleId,
   getQuizByModuleId,
 } from "../controllers/modules";
+import { createPhotoText } from "../controllers/photos-texts";
 import {
   createQuestion,
   getCorrectAnswerByQuestion,
@@ -27,6 +28,7 @@ import {
   FormationToDB,
   IdParams,
   ModuleToDB,
+  PhotoTextToDB,
   QuestionToDB,
   QuestionsByFormationBody,
   QuizToDB,
@@ -108,20 +110,12 @@ fastify.route<{ Params: {}; Body: FormationToDB }>({
   handler: createFormation,
 });
 
-/** Answers Options */
-fastify.route<{ Params: {}; Body: AnswerOptionToDB }>({
+/** Videos */
+fastify.route<{ Params: {}; Body: VideoToDB }>({
   method: "POST",
-  url: "/answersoptions/create",
+  url: "/video/create",
   preHandler: [authenticate, checkPermissions],
-  handler: createAnswerOption,
-});
-
-/** Quiz */
-fastify.route<{ Params: {}; Body: QuizToDB }>({
-  method: "POST",
-  url: "/quiz/create",
-  preHandler: [authenticate, checkPermissions],
-  handler: createQuiz,
+  handler: createVideo,
 });
 
 /** Texts */
@@ -132,10 +126,26 @@ fastify.route<{ Params: {}; Body: TextToDB }>({
   handler: createText,
 });
 
-/** Videos */
-fastify.route<{ Params: {}; Body: VideoToDB }>({
+/** Photos Texts */
+fastify.route<{ Params: {}; Body: PhotoTextToDB }>({
   method: "POST",
-  url: "/video/create",
+  url: "/photo_text/create",
   preHandler: [authenticate, checkPermissions],
-  handler: createVideo,
+  handler: createPhotoText,
+});
+
+/** Quiz */
+fastify.route<{ Params: {}; Body: QuizToDB }>({
+  method: "POST",
+  url: "/quiz/create",
+  preHandler: [authenticate, checkPermissions],
+  handler: createQuiz,
+});
+
+/** Answers Options */
+fastify.route<{ Params: {}; Body: AnswerOptionToDB }>({
+  method: "POST",
+  url: "/answersoptions/create",
+  preHandler: [authenticate, checkPermissions],
+  handler: createAnswerOption,
 });

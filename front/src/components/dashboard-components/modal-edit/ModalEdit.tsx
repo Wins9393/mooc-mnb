@@ -39,35 +39,35 @@ export function ModalEdit({ openEdit, setOpenEdit, content, setIsModifiedContent
           />
         );
       } else if (isModule(content)) {
-        console.log("content is Module", content);
+        // console.log("content is Module", content);
         // Afficher les données spécifiques à Module
         return <div>Module Content: {content.id_formation}</div>;
       } else if (isVideo(content)) {
-        console.log("content is Video", content);
+        // console.log("content is Video", content);
         // Afficher les données spécifiques à Video
         return <div>Video Content: {content.title_video}</div>;
       } else if (isText(content)) {
-        console.log("content is Text", content);
+        // console.log("content is Text", content);
         // Afficher les données spécifiques à Text
         return <div>Text Content: {content.title_text}</div>;
       } else if (isPhotoText(content)) {
-        console.log("content is PhotoText", content);
+        // console.log("content is PhotoText", content);
         // Afficher les données spécifiques à Text
         return <div>Photo Text Content: {content.title_photo_text}</div>;
       } else if (isQuiz(content)) {
-        console.log("content is Quiz", content);
+        // console.log("content is Quiz", content);
         // Afficher les données spécifiques à Quiz
         return <div>Quiz Content: {content.questions.length} questions</div>;
       } else if (isQuestion(content)) {
-        console.log("content is Question", content);
+        // console.log("content is Question", content);
         // Afficher les données spécifiques à Question
         return <div>Question Content: {content.question_text}</div>;
       } else if (isAnswerOption(content)) {
-        console.log("content is AnswerOption", content);
+        // console.log("content is AnswerOption", content);
         // Afficher les données spécifiques à AnswerOption
         return <div>AnswerOption Content: {content.text}</div>;
       } else {
-        console.log("Unknown content type", content);
+        // console.log("Unknown content type", content);
         return <div>Unknown content type</div>;
       }
     }
