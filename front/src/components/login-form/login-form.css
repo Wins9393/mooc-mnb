@@ -1,0 +1,16 @@
+.loginForm__container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  height: 100vh;
+
+  .loginForm__formContainer {
+    position: absolute;
+    width: fit-content;
+    padding: 48px;
+    background-color: color-mix(in lab, var(--nude) 90%, transparent);
+    border-radius: 16px;
+  }
+}

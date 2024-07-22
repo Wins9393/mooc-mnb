@@ -1,7 +1,8 @@
 import { useContext } from "react";
 import { Button, Form, Input, message } from "antd";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
+import "./register-form.css";
 
 type FieldType = {
   firstname?: string;
@@ -43,20 +44,9 @@ export function RegisterForm() {
   };
 
   return (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-      }}>
-      <div
-        style={{
-          width: "fit-content",
-          padding: "48px",
-        }}>
+    <div className="registerForm__container">
+      <img style={{ width: "100%", height: "100%", objectFit: "cover" }} src="./home.webp" alt="" />
+      <div className="registerForm__formContainer">
         <Form
           name="basic"
           labelCol={{ span: 8 }}
@@ -105,6 +95,35 @@ export function RegisterForm() {
             <Button htmlType="submit">Inscription</Button>
           </Form.Item>
         </Form>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          gap: "16px",
+          position: "absolute",
+          left: "50%",
+          transform: "translate(-50%)",
+          bottom: "6vh",
+        }}>
+        <NavLink to={"/login"}>
+          <Button
+            type="primary"
+            size="large"
+            shape="round"
+            disabled={location.pathname === "/login"}>
+            Connexion
+          </Button>
+        </NavLink>
+
+        <NavLink to={"/register"}>
+          <Button
+            type="primary"
+            size="large"
+            shape="round"
+            disabled={location.pathname === "/register"}>
+            Inscription
+          </Button>
+        </NavLink>
       </div>
     </div>
   );

@@ -26,7 +26,7 @@
           }
 
           .active {
-            color: var(--accent-violet);
+            color: var(--accent-ambre);
           }
         }
       }
@@ -40,7 +40,7 @@
 
 .second-header {
   height: var(--header-height);
-  background-color: var(--accent-violet);
+  background-color: var(--nude);
   position: sticky;
   top: var(--header-height);
   z-index: 2;

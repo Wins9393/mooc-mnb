@@ -50,6 +50,13 @@ fastify.route<{ Params: IdParams; Body: {} }>({
 });
 
 /** Modules */
+fastify.route<{ Params: {}; Body: ModuleToDB }>({
+  method: "POST",
+  url: "/module/create",
+  preHandler: [authenticate, checkPermissions],
+  handler: createModule,
+});
+
 fastify.route<{ Params: IdParams; Body: {} }>({
   method: "GET",
   url: "/module/:id/content",
@@ -65,6 +72,13 @@ fastify.route<{ Params: IdParams; Body: {} }>({
 });
 
 /** Questions */
+fastify.route<{ Params: {}; Body: QuestionToDB }>({
+  method: "POST",
+  url: "/question/create",
+  preHandler: [authenticate, checkPermissions],
+  handler: createQuestion,
+});
+
 fastify.route<{ Params: {}; Body: BodyGetCorrectAnswer }>({
   method: "POST",
   url: "/answer/question",
@@ -87,7 +101,12 @@ fastify.route<{ Params: {}; Body: {} }>({
   handler: createCompleteFormation,
 });
 
-/** Create Inutilisés */
+fastify.route<{ Params: {}; Body: FormationToDB }>({
+  method: "POST",
+  url: "/formations/create",
+  preHandler: [authenticate, checkPermissions],
+  handler: createFormation,
+});
 
 /** Answers Options */
 fastify.route<{ Params: {}; Body: AnswerOptionToDB }>({
@@ -95,14 +114,6 @@ fastify.route<{ Params: {}; Body: AnswerOptionToDB }>({
   url: "/answersoptions/create",
   preHandler: [authenticate, checkPermissions],
   handler: createAnswerOption,
-});
-
-/** Questions */
-fastify.route<{ Params: {}; Body: QuestionToDB }>({
-  method: "POST",
-  url: "/question/create",
-  preHandler: [authenticate, checkPermissions],
-  handler: createQuestion,
 });
 
 /** Quiz */
@@ -127,20 +138,4 @@ fastify.route<{ Params: {}; Body: VideoToDB }>({
   url: "/video/create",
   preHandler: [authenticate, checkPermissions],
   handler: createVideo,
-});
-
-/** Modules */
-fastify.route<{ Params: {}; Body: ModuleToDB }>({
-  method: "POST",
-  url: "/module/create",
-  preHandler: [authenticate, checkPermissions],
-  handler: createModule,
-});
-
-/** Formations */
-fastify.route<{ Params: {}; Body: FormationToDB }>({
-  method: "POST",
-  url: "/formations/create",
-  preHandler: [authenticate, checkPermissions],
-  handler: createFormation,
 });

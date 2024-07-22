@@ -1,21 +1,24 @@
+@import url("https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap");
+
 @font-face {
   font-family: "Avenir";
   src: url("./src/assets/fonts/AvenirNextLTPro-Regular.otf") format("otf");
   font-weight: normal;
   font-style: normal;
 }
+
 :root {
   --header-height: 5vh;
   --white-rose: #dad2d8;
   --white: #f7f0f0;
   --dark: #190b28;
-  --light-blue: #3c91e6;
-  --pastel-blue: #457eac;
-  --accent-violet: #995d81;
   --disabled: #aaa;
   --separator-grey: #e9e2e2;
   --danger: #e84118;
   --validate: #27ae60;
+  --edit: #00a8ff;
+  --nude: #ecd6c9;
+  --accent-ambre: #cc8e35;
 }
 
 #root {
@@ -24,7 +27,8 @@
 }
 
 * {
-  font-family: "Avenir", sans-serif;
+  /* font-family: "Avenir", sans-serif; */
+  font-family: "Josefin Sans", sans-serif;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -34,12 +38,13 @@
 
 a {
   color: var(--white);
+  text-decoration: inherit;
 }
 
 button,
 input[type="submit"] {
   background-color: var(--dark) !important;
-  border: solid 1px var(--white) !important;
+  transition: border-color 0.25s !important;
 
   span {
     color: var(--white);
@@ -48,7 +53,7 @@ input[type="submit"] {
 
 button:has(.anticon) {
   background-color: transparent !important;
-  /* border: none !important; */
+  border: none !important;
 }
 
 button:has(.anticon) span {
@@ -56,11 +61,15 @@ button:has(.anticon) span {
 }
 
 button:not(:has(.anticon)):hover {
-  border: solid 1px var(--accent-violet) !important;
+  border: solid 1px var(--accent-ambre) !important;
+  span {
+    color: var(--accent-ambre) !important;
+    transition: color 0.25s !important;
+  }
 }
 
 button[role="switch"][aria-checked="true"] {
-  background-color: var(--accent-violet) !important;
+  background-color: var(--nude) !important;
 }
 
 button[role="switch"][aria-checked="false"] {

@@ -35,16 +35,41 @@
     }
 
     .allFormations__cascaderItem--buttons_group {
+      display: flex;
+      gap: 4px;
+      margin-top: 16px;
       .allFormations__cascaderItem--button {
-        padding: 2px 8px;
-        margin-top: 8px;
         font-size: 12px;
         height: auto;
         border-radius: 0;
+        transition: background-color 0.25s !important;
+        span {
+          color: white;
+          svg {
+            fill: white;
+          }
+        }
+      }
+
+      .edit {
+        background-color: color-mix(in lab, var(--nude) 50%, var(--edit)) !important;
+      }
+      .edit:hover {
+        background-color: color-mix(in lab, var(--nude) 20%, var(--edit)) !important;
       }
 
       .delete {
-        background-color: var(--danger) !important;
+        background-color: color-mix(in lab, var(--nude) 50%, var(--danger)) !important;
+      }
+      .delete:hover {
+        background-color: color-mix(in lab, var(--nude) 20%, var(--danger)) !important;
+      }
+
+      .add {
+        background-color: color-mix(in lab, var(--nude) 50%, var(--validate)) !important;
+      }
+      .add:hover {
+        background-color: color-mix(in lab, var(--nude) 20%, var(--validate)) !important;
       }
     }
   }

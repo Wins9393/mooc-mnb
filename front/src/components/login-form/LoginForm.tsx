@@ -1,7 +1,8 @@
 import { useContext } from "react";
-import { Button, Form, Input } from "antd";
-import { useNavigate } from "react-router-dom";
+import { Button, Form, Input, message } from "antd";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
+import "./login-form.css";
 
 type FieldType = {
   email?: string;
@@ -15,6 +16,7 @@ export function LoginForm() {
 
   const { login } = authContext;
   const navigate = useNavigate();
+  const location = useLocation();
 
   const onFinish = async (values: any) => {
     if (values.email && values.password) {
@@ -24,6 +26,7 @@ export function LoginForm() {
         navigate("/formations");
       } else {
         console.log("Identifiants incorrects !");
+        message.error("Identifiants incorrects !");
       }
     }
   };
@@ -33,20 +36,9 @@ export function LoginForm() {
   };
 
   return (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-      }}>
-      <div
-        style={{
-          width: "fit-content",
-          padding: "48px",
-        }}>
+    <div className="loginForm__container">
+      <img style={{ width: "100%", height: "100%", objectFit: "cover" }} src="./home.webp" alt="" />
+      <div className="loginForm__formContainer">
         <Form
           name="basic"
           labelCol={{ span: 8 }}
@@ -74,6 +66,35 @@ export function LoginForm() {
             <Button htmlType="submit">Connexion</Button>
           </Form.Item>
         </Form>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          gap: "16px",
+          position: "absolute",
+          left: "50%",
+          transform: "translate(-50%)",
+          bottom: "6vh",
+        }}>
+        <NavLink to={"/login"}>
+          <Button
+            type="primary"
+            size="large"
+            shape="round"
+            disabled={location.pathname === "/login"}>
+            Connexion
+          </Button>
+        </NavLink>
+
+        <NavLink to={"/register"}>
+          <Button
+            type="primary"
+            size="large"
+            shape="round"
+            disabled={location.pathname === "/register"}>
+            Inscription
+          </Button>
+        </NavLink>
       </div>
     </div>
   );

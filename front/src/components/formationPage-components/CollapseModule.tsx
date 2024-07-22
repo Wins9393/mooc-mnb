@@ -91,7 +91,7 @@ export function CollapseModule({
     });
 
     if (result) {
-      return { backgroundColor: "#dad2d8" };
+      return { backgroundColor: "var(--nude)" };
     }
     return {};
   }

@@ -36,11 +36,11 @@ function groupQuestionsAndAnswersOptionsByQuiz(resultsFromDB: QuizFromDB[]): Qui
 }
 
 export async function getQuizByModuleId(
-  req: FastifyRequest<{ Params: IdParams }>,
-  res: FastifyReply
+  request: FastifyRequest<{ Params: IdParams }>,
+  reply: FastifyReply
 ) {
   try {
-    const { id } = req.params;
+    const { id } = request.params;
     const query =
       "SELECT qz.id AS quiz_id, qz.title AS quiz_title, qs.id AS question_id, qs.question_text, qs.explanation, qs.is_multiple_choice, ao.id AS answer_option_id, ao.answer_text, ao.correct FROM quiz qz INNER JOIN questions qs ON qz.id = qs.id_quiz INNER JOIN answers_options ao ON qs.id = ao.id_question WHERE qz.id_module = $1";
     const value = [id];
@@ -49,16 +49,16 @@ export async function getQuizByModuleId(
     const quizzes = groupQuestionsAndAnswersOptionsByQuiz(response.rows);
     const quiz = quizzes.length > 0 ? quizzes[0] : null;
 
-    res.code(200).send(quiz);
+    reply.code(200).send(quiz);
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.code(500).send({
+      reply.code(500).send({
         error: "Erreur lors de la récupération des quiz",
         details: error.message,
       });
     } else {
       // Gestion d'autres types d'erreurs si nécessaire
-      res.code(500).send({
+      reply.code(500).send({
         error: "Erreur inconnue lors de la récupération des quiz",
       });
     }
@@ -66,11 +66,11 @@ export async function getQuizByModuleId(
 }
 
 export async function getModulesWithContentsByModuleId(
-  req: FastifyRequest<{ Params: IdParams }>,
-  res: FastifyReply
+  request: FastifyRequest<{ Params: IdParams }>,
+  reply: FastifyReply
 ) {
   try {
-    const { id } = req.params;
+    const { id } = request.params;
     const videosQuery =
       "SELECT v.id AS id_video, v.path AS path_video, v.title AS title_video, v.description AS description_video, v.cover_path AS cover_path_video FROM videos v WHERE v.id_module=$1";
     const textsQuery =
@@ -90,40 +90,43 @@ export async function getModulesWithContentsByModuleId(
       photos_texts: photosTextsResponse.rows,
     };
 
-    res.code(200).send(result);
+    reply.code(200).send(result);
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.code(500).send({
+      reply.code(500).send({
         error: "Erreur lors de la récupération des modules et de leurs contenu",
         details: error.message,
       });
     } else {
       // Gestion d'autres types d'erreurs si nécessaire
-      res.code(500).send({
+      reply.code(500).send({
         error: "Erreur inconnue lors de la récupération des modules et de leurs contenu",
       });
     }
   }
 }
 
-export async function createModule(req: FastifyRequest<{ Body: ModuleToDB }>, res: FastifyReply) {
+export async function createModule(
+  request: FastifyRequest<{ Body: ModuleToDB }>,
+  reply: FastifyReply
+) {
   try {
-    const { id_formation, title, description } = req.body;
+    const { id_formation, title, description } = request.body;
     const query =
       "INSERT INTO modules (id_formation, title, description) VALUES ($1, $2, $3) RETURNING id";
     const values = [id_formation, title, description];
     const result = await fastify.pg.query(query, values);
 
-    res.code(200).send(result.rows[0].id);
+    reply.code(200).send(result.rows[0].id);
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.code(500).send({
+      reply.code(500).send({
         error: "Erreur lors de la création du module",
         details: error.message,
       });
     } else {
       // Gestion d'autres types d'erreurs si nécessaire
-      res.code(500).send({
+      reply.code(500).send({
         error: "Erreur inconnue lors de la création du module",
       });
     }

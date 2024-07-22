@@ -1,55 +1,55 @@
+import { Button } from "antd";
+import { useContext, useEffect } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { AuthContext } from "../../contexts/AuthContext";
+
 export function Home() {
+  const navigate = useNavigate();
+
+  const authContext = useContext(AuthContext);
+  if (!authContext) return null;
+
+  const { user } = authContext;
+
+  useEffect(() => {
+    if (user?.authenticated) {
+      navigate("/formations");
+    }
+  }, [user]);
+
   return (
     <div
       style={{
         position: "relative",
         width: "100vw",
-        height: "calc(100vh - var(--header-height))",
+        height: "100vh",
       }}>
       <img
         style={{ width: "100%", height: "100%", objectFit: "cover", marginBottom: "-8px" }}
-        src="./home-bg.webp"
+        src="./home.webp"
         alt=""
       />
-      <h1
+      <div
         style={{
-          width: "100%",
+          display: "flex",
+          gap: "16px",
           position: "absolute",
-          top: "10vh",
           left: "50%",
           transform: "translate(-50%)",
-          fontSize: "5rem",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
+          bottom: "6vh",
         }}>
-        <span
-          style={{
-            position: "absolute",
-            top: "1rem",
-            fontSize: "16rem",
-            color: "var(--dark)",
-            letterSpacing: "0rem",
-            fontWeight: "bold",
-            textShadow: "0 0 8px white",
-          }}>
-          MNB
-        </span>
-        <span
-          style={{
-            position: "absolute",
-            top: "12rem",
-            left: "50%",
-            transform: "translate(-44%)",
-            color: "var(--white)",
-            fontSize: "8rem",
-            letterSpacing: "10rem",
-            fontWeight: "lighter",
-            textShadow: "1px 1px 12px white, 0 0 1em white, 0 0 0.6em white, 0 0 0.2em white",
-          }}>
-          learn
-        </span>
-      </h1>
+        <NavLink to={"/login"}>
+          <Button type="primary" size="large" shape="round">
+            Connexion
+          </Button>
+        </NavLink>
+
+        <NavLink to={"/register"}>
+          <Button type="primary" size="large" shape="round">
+            Inscription
+          </Button>
+        </NavLink>
+      </div>
     </div>
   );
 }

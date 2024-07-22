@@ -22,6 +22,7 @@ export const FormationItem: React.FC<FormationItemProps> = ({ formation }) => {
         </p>
       </div>
       <Button
+        type="primary"
         className="button formationItem__card--button"
         onClick={() => navigate(`/formation/${formation.id}`)}>
         Commencer

@@ -1,10 +1,12 @@
 import { MouseEvent, useContext, useEffect, useState } from "react";
 import { MainContext } from "../../../contexts/MainContext";
 import { Button, Cascader, CascaderProps } from "antd";
+import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { ContentByModule, ContentType, Quiz } from "../../../types/types";
 import { ModalEdit } from "../../../components/dashboard-components/modal-edit/ModalEdit";
 import { ModalSupp } from "../../../components/dashboard-components/modal-supp/ModalSupp";
 import "./all-formations.css";
+import { ModalAdd } from "../../../components/dashboard-components/modal-add/ModalAdd";
 
 interface Option {
   value: string | number;
@@ -17,6 +19,7 @@ export function AllFormations() {
   const [quizByModule, setQuizByModule] = useState<Quiz | null>(null);
   const [openEdit, setOpenEdit] = useState<boolean>(false);
   const [openSupp, setOpenSupp] = useState<boolean>(false);
+  const [openAdd, setOpenAdd] = useState<boolean>(false);
   const [content, setContent] = useState<ContentType | null>(null);
   const [isModifiedContent, setIsModifiedContent] = useState<boolean>(false);
 
@@ -39,6 +42,13 @@ export function AllFormations() {
     e.stopPropagation();
     e.preventDefault();
     setOpenSupp(true);
+    setContent(content);
+  }
+
+  async function handleAddClick(e: MouseEvent<HTMLElement>, content: ContentType) {
+    e.stopPropagation();
+    e.preventDefault();
+    setOpenAdd(true);
     setContent(content);
   }
 
@@ -65,10 +75,10 @@ export function AllFormations() {
     label:
       (
         <div className="allFormations__cascaderItem--main">
-          <img
+          {/* <img
             className="allFormations__cascaderItem--imageFormation"
             src={`${import.meta.env.VITE_API_URL}/public/${formation.cover_path}`}
-          />
+          /> */}
           <div className="allFormations__cascaderItem--title_group">
             <span style={{ fontSize: "10px", fontWeight: "bold" }}>Formation: </span>
             <p style={{ fontSize: "16px" }}>{formation.title}</p>
@@ -78,14 +88,18 @@ export function AllFormations() {
           </div>
           <div className="allFormations__cascaderItem--buttons_group">
             <Button
-              className="button allFormations__cascaderItem--button"
-              onClick={(e) => handleEditClick(e, formation)}>
-              Edit
-            </Button>
+              className="button allFormations__cascaderItem--button edit"
+              onClick={(e) => handleEditClick(e, formation)}
+              icon={<EditOutlined />}></Button>
             <Button
               className="button allFormations__cascaderItem--button delete"
-              onClick={(e) => handleDeleteClick(e, formation)}>
-              Delete
+              onClick={(e) => handleDeleteClick(e, formation)}
+              icon={<DeleteOutlined />}></Button>
+            <Button
+              className="button allFormations__cascaderItem--button add"
+              onClick={(e) => handleAddClick(e, formation)}>
+              {" "}
+              Module <PlusOutlined />
             </Button>
           </div>
         </div>
@@ -106,14 +120,17 @@ export function AllFormations() {
               </div>
               <div className="allFormations__cascaderItem--buttons_group">
                 <Button
-                  className="button allFormations__cascaderItem--button"
-                  onClick={(e) => handleEditClick(e, module)}>
-                  Edit
-                </Button>
+                  className="button allFormations__cascaderItem--button edit"
+                  onClick={(e) => handleEditClick(e, module)}
+                  icon={<EditOutlined />}></Button>
                 <Button
                   className="button allFormations__cascaderItem--button delete"
-                  onClick={(e) => handleDeleteClick(e, module)}>
-                  Delete
+                  onClick={(e) => handleDeleteClick(e, module)}
+                  icon={<DeleteOutlined />}></Button>
+                <Button
+                  className="button allFormations__cascaderItem--button add"
+                  onClick={(e) => handleAddClick(e, module)}>
+                  Contenu <PlusOutlined />
                 </Button>
               </div>
             </div>
@@ -137,15 +154,13 @@ export function AllFormations() {
                     </div>
                     <div className="allFormations__cascaderItem--buttons_group">
                       <Button
-                        className="button allFormations__cascaderItem--button"
-                        onClick={(e) => handleEditClick(e, video)}>
-                        Edit
-                      </Button>
+                        className="button allFormations__cascaderItem--button edit"
+                        onClick={(e) => handleEditClick(e, video)}
+                        icon={<EditOutlined />}></Button>
                       <Button
                         className="button allFormations__cascaderItem--button delete"
-                        onClick={(e) => handleDeleteClick(e, video)}>
-                        Delete
-                      </Button>
+                        onClick={(e) => handleDeleteClick(e, video)}
+                        icon={<DeleteOutlined />}></Button>
                     </div>
                   </div>
                 ) || "",
@@ -166,15 +181,13 @@ export function AllFormations() {
                     </div>
                     <div className="allFormations__cascaderItem--buttons_group">
                       <Button
-                        className="button allFormations__cascaderItem--button"
-                        onClick={(e) => handleEditClick(e, text)}>
-                        Edit
-                      </Button>
+                        className="button allFormations__cascaderItem--button edit"
+                        onClick={(e) => handleEditClick(e, text)}
+                        icon={<EditOutlined />}></Button>
                       <Button
                         className="button allFormations__cascaderItem--button delete"
-                        onClick={(e) => handleDeleteClick(e, text)}>
-                        Delete
-                      </Button>
+                        onClick={(e) => handleDeleteClick(e, text)}
+                        icon={<DeleteOutlined />}></Button>
                     </div>
                   </div>
                 ) || "",
@@ -199,15 +212,13 @@ export function AllFormations() {
                     </div>
                     <div className="allFormations__cascaderItem--buttons_group">
                       <Button
-                        className="button allFormations__cascaderItem--button"
-                        onClick={(e) => handleEditClick(e, pt)}>
-                        Edit
-                      </Button>
+                        className="button allFormations__cascaderItem--button edit"
+                        onClick={(e) => handleEditClick(e, pt)}
+                        icon={<EditOutlined />}></Button>
                       <Button
                         className="button allFormations__cascaderItem--button delete"
-                        onClick={(e) => handleDeleteClick(e, pt)}>
-                        Delete
-                      </Button>
+                        onClick={(e) => handleDeleteClick(e, pt)}
+                        icon={<DeleteOutlined />}></Button>
                     </div>
                   </div>
                 ) || "",
@@ -223,14 +234,17 @@ export function AllFormations() {
                 </div>
                 <div className="allFormations__cascaderItem--buttons_group">
                   <Button
-                    className="button allFormations__cascaderItem--button"
-                    onClick={(e) => (quizByModule ? handleEditClick(e, quizByModule) : "")}>
-                    Edit
-                  </Button>
+                    className="button allFormations__cascaderItem--button edit"
+                    onClick={(e) => (quizByModule ? handleEditClick(e, quizByModule) : "")}
+                    icon={<EditOutlined />}></Button>
                   <Button
                     className="button allFormations__cascaderItem--button delete"
-                    onClick={(e) => (quizByModule ? handleDeleteClick(e, quizByModule) : "")}>
-                    Delete
+                    onClick={(e) => (quizByModule ? handleDeleteClick(e, quizByModule) : "")}
+                    icon={<DeleteOutlined />}></Button>
+                  <Button
+                    className="button allFormations__cascaderItem--button add"
+                    onClick={(e) => (quizByModule ? handleAddClick(e, quizByModule) : "")}>
+                    Question <PlusOutlined />
                   </Button>
                 </div>
               </div>
@@ -253,14 +267,17 @@ export function AllFormations() {
                     </div>
                     <div className="allFormations__cascaderItem--buttons_group">
                       <Button
-                        className="button allFormations__cascaderItem--button"
-                        onClick={(e) => handleEditClick(e, question)}>
-                        Edit
-                      </Button>
+                        className="button allFormations__cascaderItem--button edit"
+                        onClick={(e) => handleEditClick(e, question)}
+                        icon={<EditOutlined />}></Button>
                       <Button
                         className="button allFormations__cascaderItem--button delete"
-                        onClick={(e) => handleDeleteClick(e, question)}>
-                        Delete
+                        onClick={(e) => handleDeleteClick(e, question)}
+                        icon={<DeleteOutlined />}></Button>
+                      <Button
+                        className="button allFormations__cascaderItem--button add"
+                        onClick={(e) => handleAddClick(e, question)}>
+                        Réponse <PlusOutlined />
                       </Button>
                     </div>
                   </div>
@@ -278,15 +295,13 @@ export function AllFormations() {
                       </div>
                       <div className="allFormations__cascaderItem--buttons_group">
                         <Button
-                          className="button allFormations__cascaderItem--button"
-                          onClick={(e) => handleEditClick(e, ao)}>
-                          Edit
-                        </Button>
+                          className="button allFormations__cascaderItem--button edit"
+                          onClick={(e) => handleEditClick(e, ao)}
+                          icon={<EditOutlined />}></Button>
                         <Button
                           className="button allFormations__cascaderItem--button delete"
-                          onClick={(e) => handleDeleteClick(e, ao)}>
-                          Delete
-                        </Button>
+                          onClick={(e) => handleDeleteClick(e, ao)}
+                          icon={<DeleteOutlined />}></Button>
                       </div>
                     </div>
                   ) || "",
@@ -310,6 +325,16 @@ export function AllFormations() {
       <ModalSupp
         openSupp={openSupp}
         setOpenSupp={setOpenSupp}
+        content={content}
+        setIsModifiedContent={setIsModifiedContent}
+        getContentByModule={getContentByModule}
+        setContentByModule={setContentByModule}
+        getQuizByModule={getQuizByModule}
+        setQuizByModule={setQuizByModule}
+      />
+      <ModalAdd
+        openAdd={openAdd}
+        setOpenAdd={setOpenAdd}
         content={content}
         setIsModifiedContent={setIsModifiedContent}
         getContentByModule={getContentByModule}
