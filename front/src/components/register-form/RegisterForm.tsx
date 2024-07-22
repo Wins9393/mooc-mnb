@@ -57,6 +57,7 @@ export function RegisterForm() {
           onFinishFailed={onFinishFailed}
           autoComplete="off">
           <Form.Item<FieldType>
+            className="loginForm__formItem"
             label="Prénom"
             name="firstname"
             rules={[{ required: true, message: "Veuillez renseigner votre prénom !" }]}>
@@ -64,6 +65,7 @@ export function RegisterForm() {
           </Form.Item>
 
           <Form.Item<FieldType>
+            className="loginForm__formItem"
             label="Nom"
             name="lastname"
             rules={[{ required: true, message: "Veuillez renseigner votre nom !" }]}>
@@ -71,6 +73,7 @@ export function RegisterForm() {
           </Form.Item>
 
           <Form.Item<FieldType>
+            className="loginForm__formItem"
             label="Magasin"
             name="shop"
             rules={[{ required: true, message: "Veuillez renseigner votre magasin !" }]}>
@@ -78,6 +81,7 @@ export function RegisterForm() {
           </Form.Item>
 
           <Form.Item<FieldType>
+            className="loginForm__formItem"
             label="Email"
             name="email"
             rules={[{ required: true, message: "Veuillez renseigner votre email !" }]}>
@@ -85,6 +89,7 @@ export function RegisterForm() {
           </Form.Item>
 
           <Form.Item<FieldType>
+            className="loginForm__formItem"
             label="Mot de passe"
             name="password"
             rules={[{ required: true, message: "Veuillez renseigner votre mot de passe !" }]}>

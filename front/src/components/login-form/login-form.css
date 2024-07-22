@@ -10,7 +10,14 @@
     position: absolute;
     width: fit-content;
     padding: 48px;
-    background-color: color-mix(in lab, var(--nude) 90%, transparent);
+    /* background-color: color-mix(in lab, var(--nude) 90%, transparent); */
+    background-color: color-mix(in lab, #000 80%, transparent);
     border-radius: 16px;
+
+    .loginForm__formItem {
+      label {
+        color: white;
+      }
+    }
   }
 }

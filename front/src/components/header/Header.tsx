@@ -32,6 +32,13 @@ export function Header() {
                 ""
               )}
             </ul>
+            <div style={{ height: "var(--header-height)", maxWidth: "300px", padding: "4px" }}>
+              <img
+                style={{ height: "100%", width: "100%", objectFit: "contain" }}
+                src="./logo-MNB-blanc.png"
+                alt=""
+              />
+            </div>
             <ul className="header__nav--list right-nav">
               <li>
                 <Link to="/" onClick={logout}>

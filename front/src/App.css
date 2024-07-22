@@ -43,7 +43,7 @@ a {
 
 button,
 input[type="submit"] {
-  background-color: var(--dark) !important;
+  background-color: color-mix(in lab, #000 80%, transparent) !important;
   transition: border-color 0.25s !important;
 
   span {

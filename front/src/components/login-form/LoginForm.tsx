@@ -49,6 +49,7 @@ export function LoginForm() {
           onFinishFailed={onFinishFailed}
           autoComplete="off">
           <Form.Item<FieldType>
+            className="loginForm__formItem"
             label="Email"
             name="email"
             rules={[{ required: true, message: "Veuillez renseigner votre email !" }]}>
@@ -56,6 +57,7 @@ export function LoginForm() {
           </Form.Item>
 
           <Form.Item<FieldType>
+            className="loginForm__formItem"
             label="Mot de passe"
             name="password"
             rules={[{ required: true, message: "Veuillez renseigner votre mot de passe !" }]}>
