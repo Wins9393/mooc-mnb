@@ -7,18 +7,14 @@ import {
   getContentsNumberByFormation,
   getFormationsWithModules,
 } from "../controllers/formations";
-import {
-  createModule,
-  getModulesWithContentsByModuleId,
-  getQuizByModuleId,
-} from "../controllers/modules";
+import { createModule, getModulesWithContentsByModuleId } from "../controllers/modules";
 import { createPhotoText } from "../controllers/photos-texts";
 import {
   createQuestion,
   getCorrectAnswerByQuestion,
   getQuestionsByFormation,
 } from "../controllers/questions";
-import { createQuiz } from "../controllers/quiz";
+import { createQuiz, getQuizByModuleId } from "../controllers/quiz";
 import { createText } from "../controllers/texts";
 import { createVideo } from "../controllers/videos";
 import { fastify } from "../server";

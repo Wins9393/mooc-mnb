@@ -45,7 +45,7 @@ export function RegisterForm() {
 
   return (
     <div className="registerForm__container">
-      <img style={{ width: "100%", height: "100%", objectFit: "cover" }} src="./home.webp" alt="" />
+      <img className="registerForm__background-image" src="./home-fanny.webp" />
       <div className="registerForm__formContainer">
         <Form
           name="basic"
@@ -97,35 +97,27 @@ export function RegisterForm() {
           </Form.Item>
 
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <Button htmlType="submit">Inscription</Button>
+            <Button type="primary" size="large" shape="round" htmlType="submit">
+              Inscription
+            </Button>
           </Form.Item>
         </Form>
       </div>
       <div
-        style={{
-          display: "flex",
-          gap: "16px",
-          position: "absolute",
-          left: "50%",
-          transform: "translate(-50%)",
-          bottom: "6vh",
-        }}>
+        className="register__buttons-container"
+        style={location.pathname === "/register" ? { gap: "0" } : { gap: "32px" }}>
         <NavLink to={"/login"}>
-          <Button
-            type="primary"
-            size="large"
-            shape="round"
-            disabled={location.pathname === "/login"}>
+          <Button type="primary" size="large" shape="round">
             Connexion
           </Button>
         </NavLink>
 
         <NavLink to={"/register"}>
           <Button
+            style={location.pathname === "/register" ? { display: "none" } : { display: "block" }}
             type="primary"
             size="large"
-            shape="round"
-            disabled={location.pathname === "/register"}>
+            shape="round">
             Inscription
           </Button>
         </NavLink>

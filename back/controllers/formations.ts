@@ -183,6 +183,7 @@ export async function createCompleteFormation(req: FastifyRequest, res: FastifyR
           fields[part.fieldname] = (await part.value) as string;
         }
       }
+
       const { formation, modules, videos, texts, photosTexts, quizQuestionsAndAnswers } = fields;
 
       // Insert formation
@@ -246,6 +247,7 @@ export async function createCompleteFormation(req: FastifyRequest, res: FastifyR
       }
 
       // Insert photosTexts
+      console.log("photosTexts LENGTH: ", photosTexts.length);
       const parsedPhotosTexts = JSON.parse(photosTexts);
       if (parsedPhotosTexts.length > 0) {
         for (const photoText of parsedPhotosTexts) {

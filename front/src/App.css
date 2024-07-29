@@ -2,9 +2,19 @@
 
 @font-face {
   font-family: "Avenir";
-  src: url("./src/assets/fonts/AvenirNextLTPro-Regular.otf") format("otf");
+  src: url("./src/assets/fonts/avenir/AvenirNextLTPro-Regular.otf") format("otf");
   font-weight: normal;
   font-style: normal;
+}
+
+@font-face {
+  font-family: "MADETommySoft-Light";
+  src: url("./src/assets/fonts/tommy-soft/MADETommySoft-Light.ttf.woff") format("woff"),
+    url("./src/assets/fonts/tommy-soft/MADETommySoft-Light.ttf.svg#MADETommySoft-Light")
+      format("svg"),
+    url("./src/assets/fonts/tommy-soft/MADETommySoft-Light.ttf.eot"),
+    url("./src/assets/fonts/tommy-soft/MADETommySoft-Light.ttf.eot?#iefix")
+      format("embedded-opentype");
 }
 
 :root {
@@ -43,11 +53,11 @@ a {
 
 button,
 input[type="submit"] {
-  background-color: color-mix(in lab, #000 80%, transparent) !important;
-  transition: border-color 0.25s !important;
+  background-color: var(--accent-ambre) !important;
+  transition: all 0.25s !important;
 
   span {
-    color: var(--white);
+    color: var(--dark);
   }
 }
 
@@ -61,9 +71,9 @@ button:has(.anticon) span {
 }
 
 button:not(:has(.anticon)):hover {
-  border: solid 1px var(--accent-ambre) !important;
+  border: solid 1px var(--nude) !important;
   span {
-    color: var(--accent-ambre) !important;
+    color: var(--nude) !important;
     transition: color 0.25s !important;
   }
 }

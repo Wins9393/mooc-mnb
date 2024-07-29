@@ -5,8 +5,8 @@ import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { ContentByModule, ContentType, Quiz } from "../../../types/types";
 import { ModalEdit } from "../../../components/dashboard-components/modal-edit/ModalEdit";
 import { ModalSupp } from "../../../components/dashboard-components/modal-supp/ModalSupp";
-import "./all-formations.css";
 import { ModalAdd } from "../../../components/dashboard-components/modal-add/ModalAdd";
+import "./all-formations.css";
 
 interface Option {
   value: string | number;
@@ -15,6 +15,7 @@ interface Option {
 }
 
 export function AllFormations() {
+  const [currentModuleId, setCurrentModuleId] = useState<number | null>(null);
   const [contentByModule, setContentByModule] = useState<ContentByModule | null>(null);
   const [quizByModule, setQuizByModule] = useState<Quiz | null>(null);
   const [openEdit, setOpenEdit] = useState<boolean>(false);
@@ -30,6 +31,10 @@ export function AllFormations() {
   useEffect(() => {
     getFormationsWithModules();
   }, [isModifiedContent]);
+
+  useEffect(() => {
+    console.log("quizByModule: ", quizByModule);
+  }, [quizByModule]);
 
   async function handleEditClick(e: MouseEvent<HTMLElement>, content: ContentType) {
     e.stopPropagation();
@@ -65,6 +70,7 @@ export function AllFormations() {
     if (contentType === "module") {
       const content = await getContentByModule(Number(contentId));
       const quiz = await getQuizByModule(Number(contentId));
+      setCurrentModuleId((content as ContentByModule)?.id);
       setContentByModule(content);
       setQuizByModule(quiz);
     }
@@ -251,62 +257,65 @@ export function AllFormations() {
             ) : (
               ""
             ),
-            children: quizByModule?.questions.map((question) => ({
-              value: `formation-${formation.id}-module-${module.id}-quiz-${quizByModule?.id}-question-${question.id}`,
-              label:
-                (
-                  <div className="allFormations__cascaderItem--main">
-                    <div className="allFormations__cascaderItem--title_group">
-                      <span style={{ fontSize: "10px", fontWeight: "bold" }}>Question: </span>
-                      <p style={{ fontSize: "16px" }}>{question?.question_text}</p>
-                    </div>
-                    <div className="allFormations__cascaderItem--content">
-                      <p>
-                        Choix multiple: <span>{question?.is_multiple_choice ? "Oui" : "Non"}</span>
-                      </p>
-                    </div>
-                    <div className="allFormations__cascaderItem--buttons_group">
-                      <Button
-                        className="button allFormations__cascaderItem--button edit"
-                        onClick={(e) => handleEditClick(e, question)}
-                        icon={<EditOutlined />}></Button>
-                      <Button
-                        className="button allFormations__cascaderItem--button delete"
-                        onClick={(e) => handleDeleteClick(e, question)}
-                        icon={<DeleteOutlined />}></Button>
-                      <Button
-                        className="button allFormations__cascaderItem--button add"
-                        onClick={(e) => handleAddClick(e, question)}>
-                        Réponse <PlusOutlined />
-                      </Button>
-                    </div>
-                  </div>
-                ) || "",
-              children: question.answer_options.map((ao) => ({
-                value: `formation-${formation.id}-module-${module.id}-quiz-${quizByModule?.id}-question-${question.id}-answeroption-${ao.id}`,
+            children: quizByModule?.questions.map((question) => {
+              return {
+                value: `formation-${formation.id}-module-${module.id}-quiz-${quizByModule?.id}-question-${question.id}`,
                 label:
                   (
                     <div className="allFormations__cascaderItem--main">
                       <div className="allFormations__cascaderItem--title_group">
-                        <span style={{ fontSize: "10px", fontWeight: "bold" }}>Réponse: </span>
+                        <span style={{ fontSize: "10px", fontWeight: "bold" }}>Question: </span>
+                        <p style={{ fontSize: "16px" }}>{question?.question_text}</p>
                       </div>
                       <div className="allFormations__cascaderItem--content">
-                        <p style={{ fontSize: "16px" }}>{ao?.text}</p>
+                        <p>
+                          Choix multiple:{" "}
+                          <span>{question?.is_multiple_choice ? "Oui" : "Non"}</span>
+                        </p>
                       </div>
                       <div className="allFormations__cascaderItem--buttons_group">
                         <Button
                           className="button allFormations__cascaderItem--button edit"
-                          onClick={(e) => handleEditClick(e, ao)}
+                          onClick={(e) => handleEditClick(e, question)}
                           icon={<EditOutlined />}></Button>
                         <Button
                           className="button allFormations__cascaderItem--button delete"
-                          onClick={(e) => handleDeleteClick(e, ao)}
+                          onClick={(e) => handleDeleteClick(e, question)}
                           icon={<DeleteOutlined />}></Button>
+                        <Button
+                          className="button allFormations__cascaderItem--button add"
+                          onClick={(e) => handleAddClick(e, question)}>
+                          Réponse <PlusOutlined />
+                        </Button>
                       </div>
                     </div>
                   ) || "",
-              })),
-            })),
+                children: question.answer_options.map((ao) => ({
+                  value: `formation-${formation.id}-module-${module.id}-quiz-${quizByModule?.id}-question-${question.id}-answeroption-${ao.id}`,
+                  label:
+                    (
+                      <div className="allFormations__cascaderItem--main">
+                        <div className="allFormations__cascaderItem--title_group">
+                          <span style={{ fontSize: "10px", fontWeight: "bold" }}>Réponse: </span>
+                        </div>
+                        <div className="allFormations__cascaderItem--content">
+                          <p style={{ fontSize: "16px" }}>{ao?.text}</p>
+                        </div>
+                        <div className="allFormations__cascaderItem--buttons_group">
+                          <Button
+                            className="button allFormations__cascaderItem--button edit"
+                            onClick={(e) => handleEditClick(e, ao)}
+                            icon={<EditOutlined />}></Button>
+                          <Button
+                            className="button allFormations__cascaderItem--button delete"
+                            onClick={(e) => handleDeleteClick(e, ao)}
+                            icon={<DeleteOutlined />}></Button>
+                        </div>
+                      </div>
+                    ) || "",
+                })),
+              };
+            }),
           },
         ],
       };
@@ -336,6 +345,7 @@ export function AllFormations() {
         openAdd={openAdd}
         setOpenAdd={setOpenAdd}
         content={content}
+        currentModuleId={currentModuleId}
         setIsModifiedContent={setIsModifiedContent}
         getContentByModule={getContentByModule}
         setContentByModule={setContentByModule}

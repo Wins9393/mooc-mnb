@@ -14,6 +14,7 @@ import {
 } from "../../types/types";
 import { CloseCircleTwoTone, CheckCircleTwoTone } from "@ant-design/icons";
 import { ChangeEvent, Dispatch, SetStateAction, useContext, useRef } from "react";
+import DOMPurify from "dompurify";
 import { AuthContext } from "../../contexts/AuthContext";
 import { MainContext } from "../../contexts/MainContext";
 
@@ -301,7 +302,6 @@ export function ContentModule({
         );
       case "photo_text":
         const photoTextItem = item as PhotoText;
-        console.log("item: ", item);
         return (
           <div className="formationPage__photo-text-container">
             <img
@@ -309,7 +309,11 @@ export function ContentModule({
               src={`${import.meta.env.VITE_API_URL}/public/${
                 photoTextItem.photo_path_photo_text
               }`}></img>
-            <p>{photoTextItem.text_content_photo_text}</p>
+            <div
+              className="formationPage__photo-text-text"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(photoTextItem.text_content_photo_text),
+              }}></div>
           </div>
         );
       case "text":

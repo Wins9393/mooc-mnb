@@ -1,6 +1,6 @@
 import { Button, Steps, message } from "antd";
 import { CreateFormationForm } from "../../../components/dashboard-components/CreateFormationForm";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   FormationToDB,
   ModuleToDB,
@@ -40,6 +40,10 @@ export function CreateFormation() {
   const mainContext = useContext(MainContext);
   if (!mainContext) return null;
   const { getFormationsWithModules } = mainContext;
+
+  useEffect(() => {
+    console.log("newPhotosTexts:", newPhotosTexts);
+  }, [newPhotosTexts]);
 
   const steps = [
     {
@@ -153,6 +157,7 @@ export function CreateFormation() {
 
       const formData = new FormData();
       formData.append("formation", JSON.stringify(formation));
+
       if (selectedFile instanceof File) {
         formData.append("selectedFile", selectedFile, selectedFile.name);
       } else {
@@ -183,6 +188,7 @@ export function CreateFormation() {
       });
 
       formData.append("photosTexts", JSON.stringify(photosTexts));
+      console.log("PHOTOS TEXTS LENGTH: ", JSON.stringify(photosTexts).length);
       formData.append("texts", JSON.stringify(texts));
       formData.append("quizQuestionsAndAnswers", JSON.stringify(quizQuestionsAndAnswers));
 

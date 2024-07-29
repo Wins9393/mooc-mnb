@@ -71,9 +71,11 @@ export function CreateTypeCoursForm({
   const uploadPhotosProps: UploadProps = {
     beforeUpload: (file) => {
       const isJPG = file.type === "image/jpeg";
+      const isPNG = file.type === "image/png";
+      const isWebP = file.type === "image/webp";
 
-      if (!isJPG) {
-        message.error(`${file.name} n'est pas un fichier .jpg`);
+      if (!isJPG && !isPNG && !isWebP) {
+        message.error(`${file.name} n'est pas un fichier .jpg, .png, ou .webp`);
         return Upload.LIST_IGNORE;
       }
 
@@ -88,18 +90,9 @@ export function CreateTypeCoursForm({
 
       return false;
     },
-    // onChange: (info) => {
-    //   console.log(info);
-    // if (info.file.status === "removed") {
-    //   setSelectedFile(null);
-    // } else {
-    //   setSelectedFile(info.file);
-    //   setNewFormation((prevFormation: FormationToDB) => ({
-    //     ...prevFormation,
-    //     cover_path: info.file.name,
-    //   }));
-    // }
-    // },
+    onChange: (info) => {
+      console.log(info);
+    },
     maxCount: 1,
     listType: "picture-card",
   };
@@ -308,7 +301,7 @@ export function CreateTypeCoursForm({
                                 </Form.Item>
                                 <Form.Item
                                   required
-                                  label={`Fichier .jpg (taille max: ${returnFileSizeFormated(
+                                  label={`Fichier .jpg, .png ou .webp (taille max: ${returnFileSizeFormated(
                                     maxPhotoSize
                                   )})`}
                                   name={[field.name, "photo"]}

@@ -1,4 +1,4 @@
-import { Card, Form, Input, message, Select, Upload, UploadFile, UploadProps } from "antd";
+import { Card, Form, Input, message, Select, Upload, UploadProps } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { returnFileSizeFormated } from "../../../utils/utils";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
@@ -7,6 +7,8 @@ import {
   ContentType,
   Module,
   PhotoTextToDB,
+  Quiz,
+  QuizToDB,
   TextToDB,
   VideoToDB,
 } from "../../../types/types";
@@ -15,6 +17,8 @@ interface AddContentModalInterface {
   content: ContentType | null;
   getContentByModule: (id_module: number) => Promise<ContentByModule | null>;
   setContentByModule: Dispatch<SetStateAction<ContentByModule | null>>;
+  getQuizByModule: (id_module: number) => Promise<Quiz | null>;
+  setQuizByModule: Dispatch<SetStateAction<Quiz | null>>;
   setCustomHandleOk: Dispatch<SetStateAction<() => Promise<void>>>;
 }
 
@@ -29,12 +33,15 @@ export function AddContentDisplay({
   content,
   getContentByModule,
   setContentByModule,
+  getQuizByModule,
+  setQuizByModule,
   setCustomHandleOk,
 }: AddContentModalInterface) {
-  const [contentType, setContentType] = useState<"video" | "text" | "photo_text">("video");
+  const [contentType, setContentType] = useState<"video" | "text" | "photo_text" | "quiz">("video");
   const [newVideo, setNewVideo] = useState<VideoToDB | null>(null);
   const [newText, setNewText] = useState<TextToDB | null>(null);
   const [newPhotoText, setNewPhotoText] = useState<PhotoTextToDB | null>(null);
+  const [newQuiz, setNewQuiz] = useState<QuizToDB | null>(null);
 
   const [form] = Form.useForm();
   const maxVideoSize = 1e7;
@@ -42,7 +49,7 @@ export function AddContentDisplay({
 
   useEffect(() => {
     setCustomHandleOk(() => customHandleOk);
-  }, [newVideo, newText, newPhotoText, content]);
+  }, [newVideo, newText, newPhotoText, newQuiz, content]);
 
   const uploadVideoProps: UploadProps = {
     beforeUpload: (file) => {
@@ -91,13 +98,13 @@ export function AddContentDisplay({
     listType: "picture-card",
   };
 
-  function handleContentTypeChange(value: "video" | "text" | "photo_text") {
+  function handleContentTypeChange(value: "video" | "text" | "photo_text" | "quiz") {
     // console.log("value: ", value);
     setContentType(value);
   }
 
   function handleContentChange(
-    allValues: VideoToDB | TextToDB | PhotoTextToDB,
+    allValues: VideoToDB | TextToDB | PhotoTextToDB | QuizToDB,
     content: ContentType | null
   ) {
     // console.log("allValues: ", allValues);
@@ -139,6 +146,18 @@ export function AddContentDisplay({
         return updatedPhotoText;
       });
     }
+    if (contentType === "quiz") {
+      setNewQuiz((prevQuiz) => {
+        const updatedQuiz = {
+          ...prevQuiz,
+          ...allValues,
+          type: contentType,
+          id_module: (content as Module).id,
+        } as QuizToDB;
+
+        return updatedQuiz;
+      });
+    }
   }
 
   async function customHandleOk() {
@@ -175,8 +194,8 @@ export function AddContentDisplay({
           message.error("Un problème est survenu pendant l'ajout de la vidéo");
         }
       } else {
-        console.log("Tous les champs obligatoire doivent être rempli");
-        message.error("Tous les champs obligatoire doivent être rempli");
+        console.log("Tous les champs obligatoires doivent être rempli");
+        message.error("Tous les champs obligatoires doivent être rempli");
       }
     }
     if (contentType === "text") {
@@ -199,8 +218,8 @@ export function AddContentDisplay({
           message.error("Un problème est survenu pendant l'ajout du texte");
         }
       } else {
-        console.log("Tous les champs obligatoire doivent être rempli");
-        message.error("Tous les champs obligatoire doivent être rempli");
+        console.log("Tous les champs obligatoires doivent être rempli");
+        message.error("Tous les champs obligatoires doivent être rempli");
       }
     }
     if (contentType === "photo_text") {
@@ -239,8 +258,37 @@ export function AddContentDisplay({
           console.log(error);
           message.error("Un problème est survenu pendant l'ajout du photo texte");
         }
+      } else {
+        console.log("Tous les champs obligatoires doivent être rempli");
+        message.error("Tous les champs obligatoires doivent être rempli");
       }
-      console.log("newPhotoText: ", newPhotoText);
+    }
+    if (contentType === "quiz") {
+      if (newQuiz?.title && newQuiz.id_module) {
+        console.log("newQuiz: ", newQuiz);
+        try {
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/quiz/create`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(newQuiz),
+          });
+          if (response.ok) {
+            setQuizByModule(await getQuizByModule((content as Module)?.id));
+          } else {
+            const badResponse = await response.json();
+            console.log(badResponse.error);
+          }
+        } catch (error) {
+          console.log(error);
+          message.error("Un problème est survenu pendant l'ajout du quiz");
+        }
+      } else {
+        console.log("Tous les champs obligatoires doivent être rempli");
+        message.error("Tous les champs obligatoires doivent être rempli");
+      }
     }
   }
 
@@ -252,7 +300,7 @@ export function AddContentDisplay({
       name={"module-content"}
       autoComplete="off"
       layout="vertical"
-      onValuesChange={(newValues, allValues) => handleContentChange(allValues, content)}>
+      onValuesChange={(_, allValues) => handleContentChange(allValues, content)}>
       <div style={{ display: "flex", rowGap: 16, flexDirection: "column" }}>
         <Card size="small" title={`Nouveau contenu`} key={(content as Module)?.id}>
           <Form.Item label="Type de contenu" name={["type"]}>
@@ -263,6 +311,7 @@ export function AddContentDisplay({
                 { value: "video", label: <span>Video</span> },
                 { value: "text", label: <span>Texte</span> },
                 { value: "photo_text", label: <span>Photo + Texte</span> },
+                { value: "quiz", label: <span>Quiz</span> },
               ]}
             />
           </Form.Item>
@@ -386,6 +435,27 @@ export function AddContentDisplay({
                       },
                     ]}>
                     <Input.TextArea />
+                  </Form.Item>
+                </div>
+              ) : contentType === "quiz" ? (
+                <div
+                  style={{
+                    borderRadius: 8,
+                    border: "solid 1px var(--white-rose)",
+                    padding: "16px",
+                    marginBottom: 8,
+                  }}>
+                  <h3 style={{ marginBottom: 8 }}>Nouveau Quiz</h3>
+                  <Form.Item
+                    label="Titre du quiz"
+                    name={["title"]}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Le titre du quiz est requis",
+                      },
+                    ]}>
+                    <Input />
                   </Form.Item>
                 </div>
               ) : (

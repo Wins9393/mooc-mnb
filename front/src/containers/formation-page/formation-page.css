@@ -42,11 +42,17 @@
 
         .formationPage__photo-text-container {
           max-width: 100%;
+          text-align: center;
 
           .formationPage__photo-text-photo {
-            max-width: 100%;
+            max-width: 70%;
             object-fit: contain;
             margin-bottom: 16px;
+          }
+
+          .formationPage__photo-text-text {
+            font-size: 1.2rem;
+            margin-top: 32px;
           }
         }
 

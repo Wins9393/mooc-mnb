@@ -2,6 +2,7 @@ import { Button } from "antd";
 import { useContext, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
+import "./home.css";
 
 export function Home() {
   const navigate = useNavigate();
@@ -18,26 +19,19 @@ export function Home() {
   }, [user]);
 
   return (
-    <div
-      style={{
-        position: "relative",
-        width: "100vw",
-        height: "100vh",
-      }}>
-      <img
-        style={{ width: "100%", height: "100%", objectFit: "cover", marginBottom: "-8px" }}
-        src="./home.webp"
-        alt=""
-      />
-      <div
-        style={{
-          display: "flex",
-          gap: "16px",
-          position: "absolute",
-          left: "50%",
-          transform: "translate(-50%)",
-          bottom: "6vh",
-        }}>
+    <div className="home__container">
+      <img className="home__background-image" src="./home-fanny.webp" />
+      <div className="home__title-container">
+        <div className="home__title-sub-container">
+          <h1>
+            Bienvenue dans la <br />
+            <span className="home__title--mnb">MNB</span>{" "}
+            <span className="home__title--digital-academy">Digital Academy</span>
+          </h1>
+          <h2>Formez vous pour devenir expert de la marque</h2>
+        </div>
+      </div>
+      <div className="home__buttons-container">
         <NavLink to={"/login"}>
           <Button type="primary" size="large" shape="round">
             Connexion

@@ -37,7 +37,7 @@ export function LoginForm() {
 
   return (
     <div className="loginForm__container">
-      <img style={{ width: "100%", height: "100%", objectFit: "cover" }} src="./home.webp" alt="" />
+      <img className="loginForm__background-image" src="./home-fanny.webp" />
       <div className="loginForm__formContainer">
         <Form
           name="basic"
@@ -65,35 +65,27 @@ export function LoginForm() {
           </Form.Item>
 
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <Button htmlType="submit">Connexion</Button>
+            <Button type="primary" size="large" shape="round" htmlType="submit">
+              Connexion
+            </Button>
           </Form.Item>
         </Form>
       </div>
       <div
-        style={{
-          display: "flex",
-          gap: "16px",
-          position: "absolute",
-          left: "50%",
-          transform: "translate(-50%)",
-          bottom: "6vh",
-        }}>
+        className="login__buttons-container"
+        style={location.pathname === "/login" ? { gap: "0" } : { gap: "32px" }}>
         <NavLink to={"/login"}>
           <Button
+            style={location.pathname === "/login" ? { display: "none" } : { display: "block" }}
             type="primary"
             size="large"
-            shape="round"
-            disabled={location.pathname === "/login"}>
+            shape="round">
             Connexion
           </Button>
         </NavLink>
 
         <NavLink to={"/register"}>
-          <Button
-            type="primary"
-            size="large"
-            shape="round"
-            disabled={location.pathname === "/register"}>
+          <Button type="primary" size="large" shape="round">
             Inscription
           </Button>
         </NavLink>

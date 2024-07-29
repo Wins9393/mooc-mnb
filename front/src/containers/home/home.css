@@ -1,0 +1,117 @@
+.home__container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+
+  .home__background-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    margin-bottom: -8px;
+  }
+
+  .home__title-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%);
+    height: 220px;
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    @media screen and (max-width: 710px) {
+      top: 30%;
+    }
+
+    .home__title-sub-container {
+      width: fit-content;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+
+      h1 {
+        font-family: "MADETommySoft-Light", sans-serif;
+        font-weight: 100;
+        font-size: 2rem;
+        line-height: 0.8;
+        color: var(--white-rose);
+
+        @media screen and (max-width: 540px) {
+          font-size: 1.4rem;
+        }
+
+        .home__title--mnb {
+          font-family: "MADETommySoft-Light", sans-serif;
+          font-weight: 700;
+          font-size: 8rem;
+          color: var(--nude);
+          text-shadow: 0 0 1em white;
+
+          @media screen and (max-width: 540px) {
+            font-size: 7.2rem;
+          }
+
+          @media screen and (max-width: 370px) {
+            font-size: 6rem;
+          }
+        }
+
+        .home__title--digital-academy {
+          font-family: "MADETommySoft-Light", sans-serif;
+          font-weight: 100;
+          font-size: 6rem;
+          color: var(--white-rose);
+
+          @media screen and (max-width: 540px) {
+            font-size: 5rem;
+          }
+
+          @media screen and (max-width: 370px) {
+            font-size: 4rem;
+          }
+        }
+      }
+
+      h2 {
+        font-family: "MADETommySoft-Light", sans-serif;
+        font-weight: 100;
+        font-size: 1.4rem;
+        color: var(--white-rose);
+        margin-top: 16px;
+        text-align: center;
+
+        @media screen and (max-width: 540px) {
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+
+  .home__buttons-container {
+    display: flex;
+    gap: 32px;
+    position: absolute;
+    left: 50%;
+    bottom: 18vh;
+    transform: translate(-50%);
+
+    button {
+      background-color: var(--accent-ambre) !important;
+
+      span {
+        color: #000;
+      }
+    }
+
+    button:hover {
+      border: solid 1px var(--nude) !important;
+      span {
+        color: var(--nude) !important;
+      }
+    }
+  }
+}

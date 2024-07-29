@@ -54,7 +54,7 @@ export function AddModuleDisplay({
         setIsModifiedContent(true);
       }
     } else {
-      message.error("Une erreur empêche la création du module");
+      message.error("Tous les champs obligatoires sont requis");
     }
   }
 

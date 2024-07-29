@@ -67,8 +67,8 @@ export function CollapseModule({
   } = mainContext ?? {};
 
   useEffect(() => {
-    console.log("moduleContent: ", moduleContent);
-  }, [moduleContent]);
+    console.log("moduleQuiz: ", moduleQuiz);
+  }, [moduleQuiz]);
 
   useEffect(() => {
     console.log("userProgression: ", userProgression);

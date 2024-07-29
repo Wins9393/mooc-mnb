@@ -1,21 +1,14 @@
 import { Button, message, Modal } from "antd";
 
-import { Dispatch, MouseEvent, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { ContentByModule, ContentType, Quiz } from "../../../types/types";
-import {
-  isAnswerOption,
-  isFormation,
-  isModule,
-  isPhotoText,
-  isQuestion,
-  isQuiz,
-  isText,
-  isVideo,
-} from "../../../typesGuards/typesGuard";
+import { isFormation, isModule, isQuestion, isQuiz } from "../../../typesGuards/typesGuard";
 import { AddModuleDisplay } from "./AddModuleDisplay";
 import { AddContentDisplay } from "./AddContentDisplay";
+import { AddQuestionDisplay } from "./AddQuestionDisplay";
 
 export interface ModalProps {
+  currentModuleId: number | null;
   openAdd: boolean;
   setOpenAdd: Dispatch<SetStateAction<boolean>>;
   content: ContentType | null;
@@ -27,6 +20,7 @@ export interface ModalProps {
 }
 
 export function ModalAdd({
+  currentModuleId,
   openAdd,
   setOpenAdd,
   content,
@@ -57,7 +51,7 @@ export function ModalAdd({
     }
   }, [content]);
 
-  const handleOk = async (e: MouseEvent<HTMLButtonElement>) => {
+  const handleOk = async () => {
     setLoading(true);
     setIsModifiedContent(false);
 
@@ -66,7 +60,7 @@ export function ModalAdd({
     } catch (error) {
       message.error("Une erreur s'est produite pendant l'ajout");
     }
-
+    // Gérer les erreurs avant de fermer la modal
     setLoading(false);
     setOpenAdd(false);
   };
@@ -91,27 +85,24 @@ export function ModalAdd({
             content={content}
             getContentByModule={getContentByModule}
             setContentByModule={setContentByModule}
+            getQuizByModule={getQuizByModule}
+            setQuizByModule={setQuizByModule}
             setCustomHandleOk={setCustomHandleOk}
           />
         );
-      } else if (isVideo(content)) {
-        // Afficher les données spécifiques à Video
-        return <div>Video Content: {content.title_video}</div>;
-      } else if (isText(content)) {
-        // Afficher les données spécifiques à Text
-        return <div>Text Content: {content.title_text}</div>;
-      } else if (isPhotoText(content)) {
-        // Afficher les données spécifiques à Text
-        return <div>Photo Text Content: {content.title_photo_text}</div>;
       } else if (isQuiz(content)) {
-        // Afficher les données spécifiques à Quiz
-        return <div>Quiz Content: {content.questions.length} questions</div>;
+        return (
+          <AddQuestionDisplay
+            currentModuleId={currentModuleId}
+            content={content}
+            getQuizByModule={getQuizByModule}
+            setQuizByModule={setQuizByModule}
+            setCustomHandleOk={setCustomHandleOk}
+          />
+        );
       } else if (isQuestion(content)) {
         // Afficher les données spécifiques à Question
         return <div>Question Content: {content.question_text}</div>;
-      } else if (isAnswerOption(content)) {
-        // Afficher les données spécifiques à AnswerOption
-        return <div>AnswerOption Content: {content.text}</div>;
       } else {
         return <div>Unknown content type</div>;
       }

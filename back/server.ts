@@ -12,6 +12,14 @@ dotenv.config({ path: "./.env.local" });
 
 export const fastify = Fastify({
   logger: true,
+  bodyLimit: 20 * 1024 * 1024,
+});
+
+fastify.register(fastifyMultipart, {
+  limits: {
+    fileSize: 20 * 1024 * 1024,
+    files: 10,
+  },
 });
 
 fastify.register(fastifyPostgres, {
@@ -38,12 +46,6 @@ fastify.register(fastifyStatic, {
   root: path.join(__dirname, "../public"),
   prefix: "/public/",
   // constraints: { host: process.env.FRONT_URL },
-});
-
-fastify.register(fastifyMultipart, {
-  limits: {
-    fileSize: 1e8,
-  },
 });
 
 import "./routes/index";
