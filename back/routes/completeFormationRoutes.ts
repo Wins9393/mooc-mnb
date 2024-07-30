@@ -141,7 +141,7 @@ fastify.route<{ Params: {}; Body: QuizToDB }>({
 /** Answers Options */
 fastify.route<{ Params: {}; Body: AnswerOptionToDB }>({
   method: "POST",
-  url: "/answersoptions/create",
+  url: "/answer_option/create",
   preHandler: [authenticate, checkPermissions],
   handler: createAnswerOption,
 });

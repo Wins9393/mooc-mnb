@@ -6,6 +6,7 @@ import { isFormation, isModule, isQuestion, isQuiz } from "../../../typesGuards/
 import { AddModuleDisplay } from "./AddModuleDisplay";
 import { AddContentDisplay } from "./AddContentDisplay";
 import { AddQuestionDisplay } from "./AddQuestionDisplay";
+import { AddAnswerOptionDisplay } from "./AddAnswerOptionDisplay";
 
 export interface ModalProps {
   currentModuleId: number | null;
@@ -101,8 +102,15 @@ export function ModalAdd({
           />
         );
       } else if (isQuestion(content)) {
-        // Afficher les données spécifiques à Question
-        return <div>Question Content: {content.question_text}</div>;
+        return (
+          <AddAnswerOptionDisplay
+            currentModuleId={currentModuleId}
+            content={content}
+            getQuizByModule={getQuizByModule}
+            setQuizByModule={setQuizByModule}
+            setCustomHandleOk={setCustomHandleOk}
+          />
+        );
       } else {
         return <div>Unknown content type</div>;
       }

@@ -251,7 +251,7 @@ export function ContentModule({
         <div>
           <div
             className={`formationPage__quiz-valide--container ${
-              scoreByQuiz < 70 ? "quiz-echec" : "quiz-reussi"
+              scoreByQuiz < 100 ? "quiz-echec" : "quiz-reussi"
             }`}>
             <p>{`Quiz soumis le ${dateValidation.getDate()}/${(dateValidation.getMonth() + 1)
               .toString()
@@ -259,19 +259,21 @@ export function ContentModule({
                 2,
                 "0"
               )}/${dateValidation.getFullYear()} à ${dateValidation.getHours()}H${dateValidation.getMinutes()}`}</p>
-            {scoreByQuiz < 70 ? (
+            {scoreByQuiz < 100 ? (
               <p>
                 <span style={{ fontWeight: "bold" }}>Echec </span>
-                avec un score de: <span style={{ fontWeight: "bold" }}>{scoreByQuiz}%</span>
+                avec un score de:{" "}
+                <span style={{ fontWeight: "bold" }}>{scoreByQuiz.toFixed(2)}%</span>
               </p>
             ) : (
               <p>
                 <span style={{ fontWeight: "bold" }}>Réussite </span>
-                avec un score de: <span style={{ fontWeight: "bold" }}>{scoreByQuiz}%</span>
+                avec un score de:{" "}
+                <span style={{ fontWeight: "bold" }}>{scoreByQuiz.toFixed(2)}%</span>
               </p>
             )}
           </div>
-          {scoreByQuiz < 70 ? (
+          {scoreByQuiz < 100 ? (
             <Button
               style={{ marginTop: "8px" }}
               onClick={() => (user ? handleResetQuiz(user?.id, id_quiz) : "")}>

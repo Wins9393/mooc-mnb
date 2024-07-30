@@ -77,10 +77,10 @@ export function AddQuestionDisplay({
       <Form.Item
         label="Titre de la question"
         name={["title"]}
-        rules={[{ required: true, message: "Le titre du module est requis" }]}>
+        rules={[{ required: true, message: "Le titre de la question est requis" }]}>
         <Input value={newQuestion?.question_text} onChange={onQuestionTextChange} />
       </Form.Item>
-      <Form.Item label="Choix Multiple ?" name={["description"]}>
+      <Form.Item label="Choix Multiple ?" name={["is_multiple_choice"]}>
         <Switch
           defaultChecked={newQuestion?.is_multiple_choice}
           onChange={onMultipleChoiceChange}
