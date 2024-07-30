@@ -5,6 +5,7 @@ import {
   Module,
   ModuleCollapseItem,
   PhotoText,
+  QuestionFromDB,
   Quiz,
   Text,
   UserAnswer,
@@ -13,16 +14,24 @@ import {
   Video,
 } from "../../types/types";
 import { CloseCircleTwoTone, CheckCircleTwoTone } from "@ant-design/icons";
-import { ChangeEvent, Dispatch, SetStateAction, useContext, useRef } from "react";
+import {
+  ChangeEvent,
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import DOMPurify from "dompurify";
 import { AuthContext } from "../../contexts/AuthContext";
 import { MainContext } from "../../contexts/MainContext";
+import { ModalNextContent } from "./ModalNextContent";
 
 interface ContentModuleInterface {
   currentFormation: Formation | null;
   currentModule: Module | null;
   currentModuleItem: ModuleCollapseItem | null;
-
   fadeClass: string;
   isQuizAnswered: boolean;
   oldUserAnswers: UserAnswer[] | undefined;
@@ -64,8 +73,23 @@ export function ContentModule({
 
   const { user } = authContext ?? {};
 
-  const { getCorrectAnswer, saveUserStats, saveUserProgression, userProgression } =
-    mainContext ?? {};
+  const {
+    getCorrectAnswer,
+    saveUserStats,
+    saveUserProgression,
+    userProgression,
+    // totalQuestionsByFormation,
+    // totalUserAnswersByFormation,
+  } = mainContext ?? {};
+
+  // const [isNextContentOpen, setIsNextContentOpen] = useState<boolean>(false);
+
+  // useEffect(() => {
+  //   setIsNextContentOpen(false);
+  //   if (isFormationComplete(totalQuestionsByFormation, totalUserAnswersByFormation)) {
+  //     setIsNextContentOpen(true);
+  //   }
+  // }, [totalUserAnswersByFormation]);
 
   function onVideoEnded(video: Video) {
     if (
@@ -296,11 +320,13 @@ export function ContentModule({
       case "video":
         const videoItem = item as Video;
         return (
-          <video
-            onEnded={() => onVideoEnded(videoItem)}
-            controls
-            className={`formationPage__video ${fadeClass}`}
-            src={`${import.meta.env.VITE_API_URL}/public/${videoItem.path_video}`}></video>
+          <>
+            <video
+              onEnded={() => onVideoEnded(videoItem)}
+              controls
+              className={`formationPage__video ${fadeClass}`}
+              src={`${import.meta.env.VITE_API_URL}/public/${videoItem.path_video}`}></video>
+          </>
         );
       case "photo_text":
         const photoTextItem = item as PhotoText;
@@ -320,7 +346,11 @@ export function ContentModule({
         );
       case "text":
         const textItem = item as Text;
-        return <p className={`${fadeClass}`}>{textItem.content_text}</p>;
+        return (
+          <>
+            <p className={`${fadeClass}`}>{textItem.content_text}</p>;
+          </>
+        );
       case "quiz":
         const quizItem = item as Quiz;
 
@@ -426,6 +456,26 @@ export function ContentModule({
     }
   }
 
+  function isFormationComplete(
+    totalQuestionsByFormation: QuestionFromDB[] | null,
+    totalUserAnswersByFormation: UserAnswer[] | null
+  ): boolean {
+    if (totalUserAnswersByFormation && totalQuestionsByFormation) {
+      if (totalUserAnswersByFormation.length < totalQuestionsByFormation.length) return false;
+
+      const multipleQuestions = totalQuestionsByFormation.filter(
+        (question) => question.is_multiple_choice
+      );
+
+      if (multipleQuestions.length) {
+        console.log("multipleQuestions: ", multipleQuestions);
+      }
+      return true;
+    }
+
+    return false;
+  }
+
   return (
     <>
       {currentModuleItem && currentModuleItem.item !== null ? (
@@ -456,6 +506,10 @@ export function ContentModule({
           ? renderModuleItem(currentModuleItem.item, currentModuleItem.type)
           : ""}
       </div>
+      {/* <ModalNextContent
+        isNextContentOpen={isNextContentOpen}
+        setIsNextContentOpen={setIsNextContentOpen}
+      /> */}
     </>
   );
 }

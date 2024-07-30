@@ -32,6 +32,7 @@ export function FormationPage() {
     getUserProgressionByUser,
     getContentsByFormationId,
     getUserAnswersByFormationByUserId,
+
     getQuestionsByFormation,
   } = mainContext ?? {};
 

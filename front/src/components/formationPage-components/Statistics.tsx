@@ -18,12 +18,7 @@ export function Statistics({ idFormation }: StatisticsInterface) {
 
   const statiscticsContext = useContext(StatisticsContext);
   if (!statiscticsContext) return;
-  const {
-    getProgressionPercentageByFormation,
-    getScorePercentageByFormation,
-    // progressionPercentage,
-    // scorePercentage,
-  } = statiscticsContext;
+  const { getProgressionPercentageByFormation, getScorePercentageByFormation } = statiscticsContext;
 
   const [progressionPercentage, setProgressionPercentage] = useState<number>(0);
   const [scorePercentage, setScorePercentage] = useState<number>(0);
@@ -53,17 +48,19 @@ export function Statistics({ idFormation }: StatisticsInterface) {
       <div className="formationPage__title">
         <h2 className="title-h2">Statistiques</h2>
       </div>
-      <div className="formationPage__score-wrapper">
-        <div className="score-wrapper__progression-container">
+      <div className="formationPage__stats-wrapper">
+        <div className="progressBar-wrapper progression-container">
           <p>Progression:</p>
-          <div className="score-wrapper__progress-bar-progression">
-            <p style={{ width: `${progressionPercentage}%` }}>{progressionPercentage}%</p>
+          <div className="progressBar progressBar__progression">
+            <span style={{ width: `${progressionPercentage}%` }}></span>
+            <p>{progressionPercentage}%</p>
           </div>
         </div>
-        <div className="score-wrapper__score-container">
+        <div className="progressBar-wrapper score-container">
           <p>Score:</p>
-          <div className="score-wrapper__progress-bar-score">
-            <p style={{ width: `${scorePercentage}%` }}>{scorePercentage}%</p>
+          <div className="progressBar progressBar__score">
+            <span style={{ width: `${scorePercentage}%` }}></span>
+            <p>{scorePercentage}%</p>
           </div>
         </div>
       </div>

@@ -67,12 +67,8 @@ export function CollapseModule({
   } = mainContext ?? {};
 
   useEffect(() => {
-    console.log("moduleQuiz: ", moduleQuiz);
-  }, [moduleQuiz]);
-
-  useEffect(() => {
-    console.log("userProgression: ", userProgression);
-  }, [userProgression]);
+    console.log("moduleContent: ", moduleContent);
+  }, [moduleContent]);
 
   function changeCollapseBGColor(userProgression: UserProgression[], content: ModuleCollapseItem) {
     const result = userProgression?.some((progress) => {
@@ -184,13 +180,15 @@ export function CollapseModule({
 
       const contentItems = combinedContent.map((content) => (
         <div
-          className="formationPage__collapse-item-box"
+          className={`formationPage__collapse-item-box ${
+            content.id === selectedItemId ? "selected-item" : ""
+          }`}
           style={
             userProgression && content.item ? changeCollapseBGColor(userProgression, content) : {}
           }
           key={content.id}
           onClick={() => onItemModuleClick(content)}>
-          <span className={content.id === selectedItemId ? "selected-item" : ""}></span>
+          <span className={content.id === selectedItemId ? "selected-item-dot" : ""}></span>
           <p className="formationPage__collapse-item">{content.title}</p>
           {content.type === "video" && <PlayCircleOutlined />}
           {content.type === "text" && <FileTextOutlined />}
@@ -201,7 +199,11 @@ export function CollapseModule({
 
       items?.push({
         key: module.id,
-        label: module.title,
+        label: (
+          <span style={currentModule?.id === module.id ? { fontWeight: 500 } : {}}>
+            {module.title}
+          </span>
+        ),
         children: contentItems,
         onClick: () => {
           if (currentModule?.id !== module.id) {
@@ -212,6 +214,7 @@ export function CollapseModule({
         },
       });
     });
+    console.log("items", items);
 
     return items;
   }
