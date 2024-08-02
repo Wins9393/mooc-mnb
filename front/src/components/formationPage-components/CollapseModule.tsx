@@ -146,7 +146,6 @@ export function CollapseModule({
 
   // Boucle sur les modules présents dans la formation pour remplir le tableau d'Items pour le Collapse
   function getCollapseItems(modules: Module[]) {
-    console.log("modules:", modules);
     let items: CollapseProps["items"] = [];
 
     if (!modules) {
@@ -214,7 +213,6 @@ export function CollapseModule({
         },
       });
     });
-    console.log("items", items);
 
     return items;
   }

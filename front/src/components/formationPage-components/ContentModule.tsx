@@ -78,17 +78,18 @@ export function ContentModule({
     saveUserStats,
     saveUserProgression,
     userProgression,
+    // Affiche Modal Fin de Formation
     // totalQuestionsByFormation,
     // totalUserAnswersByFormation,
   } = mainContext ?? {};
 
-  // const [isNextContentOpen, setIsNextContentOpen] = useState<boolean>(false);
+  const [isNextContentOpen, setIsNextContentOpen] = useState<boolean>(false);
 
+  // Affiche Modal Fin de Formation
   // useEffect(() => {
-  //   setIsNextContentOpen(false);
-  //   if (isFormationComplete(totalQuestionsByFormation, totalUserAnswersByFormation)) {
-  //     setIsNextContentOpen(true);
-  //   }
+  //   setIsNextContentOpen(
+  //     isFormationComplete(totalQuestionsByFormation, totalUserAnswersByFormation)
+  //   );
   // }, [totalUserAnswersByFormation]);
 
   function onVideoEnded(video: Video) {
@@ -456,25 +457,30 @@ export function ContentModule({
     }
   }
 
-  function isFormationComplete(
-    totalQuestionsByFormation: QuestionFromDB[] | null,
-    totalUserAnswersByFormation: UserAnswer[] | null
-  ): boolean {
-    if (totalUserAnswersByFormation && totalQuestionsByFormation) {
-      if (totalUserAnswersByFormation.length < totalQuestionsByFormation.length) return false;
+  // Affiche Modal Fin de Formation
+  // function isFormationComplete(
+  //   totalQuestionsByFormation: QuestionFromDB[] | null,
+  //   totalUserAnswersByFormation: UserAnswer[] | null
+  // ): boolean {
+  //   if (!totalQuestionsByFormation || !totalUserAnswersByFormation) {
+  //     return false;
+  //   }
 
-      const multipleQuestions = totalQuestionsByFormation.filter(
-        (question) => question.is_multiple_choice
-      );
+  //   if (totalUserAnswersByFormation.length < totalQuestionsByFormation.length) {
+  //     return false;
+  //   }
 
-      if (multipleQuestions.length) {
-        console.log("multipleQuestions: ", multipleQuestions);
-      }
-      return true;
-    }
+  //   console.log("answers: ", totalUserAnswersByFormation, "question: ", totalQuestionsByFormation);
 
-    return false;
-  }
+  //   const multipleQuestions = totalQuestionsByFormation.filter((question) => {
+  //     return question.is_multiple_choice === true;
+  //   });
+
+  //   if (multipleQuestions.length) {
+  //     console.log("multipleQuestions: ", multipleQuestions);
+  //   }
+  //   return true;
+  // }
 
   return (
     <>
@@ -506,7 +512,9 @@ export function ContentModule({
           ? renderModuleItem(currentModuleItem.item, currentModuleItem.type)
           : ""}
       </div>
-      {/* <ModalNextContent
+      {/*
+      // Affiche Modal Fin de Formation 
+      <ModalNextContent
         isNextContentOpen={isNextContentOpen}
         setIsNextContentOpen={setIsNextContentOpen}
       /> */}
