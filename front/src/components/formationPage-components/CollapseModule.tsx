@@ -200,7 +200,7 @@ export function CollapseModule({
       items?.push({
         key: module.id,
         label: (
-          <span style={currentModule?.id === module.id ? { fontWeight: 500 } : {}}>
+          <span style={currentModule?.id === module.id ? { fontWeight: 500 } : { fontWeight: 300 }}>
             {module.title}
           </span>
         ),
