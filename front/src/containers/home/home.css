@@ -34,7 +34,7 @@
       justify-content: space-between;
 
       h1 {
-        font-family: "MADETommySoft-Light", sans-serif;
+        font-family: "MADETommySoft", sans-serif;
         font-weight: 100;
         font-size: 2rem;
         line-height: 0.8;
@@ -45,8 +45,7 @@
         }
 
         .home__title--mnb {
-          font-family: "MADETommySoft-Light", sans-serif;
-          font-weight: 700;
+          font-family: "MADETommySoft-Bold", sans-serif;
           font-size: 8rem;
           color: var(--nude);
           text-shadow: 0 0 1em white;
@@ -61,8 +60,7 @@
         }
 
         .home__title--digital-academy {
-          font-family: "MADETommySoft-Light", sans-serif;
-          font-weight: 100;
+          font-family: "MADETommySoft-Thin", sans-serif;
           font-size: 6rem;
           color: var(--white-rose);
 
@@ -77,7 +75,7 @@
       }
 
       h2 {
-        font-family: "MADETommySoft-Light", sans-serif;
+        font-family: "MADETommySoft", sans-serif;
         font-weight: 100;
         font-size: 1.4rem;
         color: var(--white-rose);
