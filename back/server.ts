@@ -8,7 +8,7 @@ import * as dotenv from "dotenv";
 import cors from "@fastify/cors";
 import path from "node:path";
 
-dotenv.config({ path: "./.env.local" });
+dotenv.config({ path: "./.env" });
 
 export const fastify = Fastify({
   logger: true,
