@@ -568,58 +568,6 @@ ALTER TABLE ONLY public.videos ALTER COLUMN id SET DEFAULT nextval('public.video
 
 
 --
--- TOC entry 4940 (class 0 OID 19633)
--- Dependencies: 215
--- Data for Name: answers_options; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (74, 34, 'L''élégance et le luxe à la française', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (75, 34, 'Effortless chic parisien', true);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (76, 34, 'Pur et élégant', true);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (77, 34, 'Tendance street-wear', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (78, 35, 'Le pont inversé', true);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (79, 35, 'Le pont retourné', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (80, 36, 'La charnière harpon', true);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (81, 36, 'La charnière flex', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (82, 37, 'Branche droite', true);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (83, 37, 'Branche gauche', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (84, 38, 'Veronika', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (85, 38, 'Germaine', true);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (86, 38, 'Mélody', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (87, 39, 'Clara', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (88, 39, 'Joséphine Bäumer', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (89, 39, 'Mélody', true);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (90, 40, 'Monsieur Blanc', true);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (91, 40, 'Camélia', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (92, 40, 'Aristide', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (93, 41, 'Suzanne', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (94, 41, 'Camélia', true);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (95, 41, 'Clara', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (96, 42, 'Bois, lin, bambou', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (97, 42, 'Acétate de cellulose, fleur de coton, algues', true);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (98, 42, 'Métal, soie, acétate de cellulose', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (99, 43, 'Parce qu''il est bon marché', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (100, 43, 'En raison de sa solidité et de son hypoallergénicité', true);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (101, 43, 'Parce qu''il est coloré', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (102, 44, 'Acier inoxydable et argent', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (103, 44, 'Acier inoxydable et or 22 carats', true);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (104, 44, 'Aluminium et or 18 carats', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (105, 45, 'Polissage manuel', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (106, 45, 'Traitement galvanique', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (107, 45, 'Bain chimique', true);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (108, 46, 'Augmenter la flexibilité des montures', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (109, 46, 'Créer une finition luxueuse et durable', true);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (110, 46, 'Améliorer la transparence du matériau', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (113, 47, 'Japon', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (114, 47, 'États-Unis', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (115, 47, 'Italie', true);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (116, 49, 'Leur aspect industriel brut et sans finition', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (117, 49, 'La présence d''un logo sur les charnières, accompagné d’une fine couche de laque délicatement déposée', true);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (118, 49, 'Leur structure en bois massif non traité', false);
-INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (119, 49, 'Leur design minimaliste sans ornements ni finitions', false);
-
-
---
 -- TOC entry 4942 (class 0 OID 19639)
 -- Dependencies: 217
 -- Data for Name: formations; Type: TABLE DATA; Schema: public; Owner: postgres
@@ -700,6 +648,19 @@ accessoires de choix alliant style et qualité.</p>');
 
 
 --
+-- TOC entry 4948 (class 0 OID 19657)
+-- Dependencies: 223
+-- Data for Name: quiz; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO public.quiz (id, id_module, title) VALUES (32, 75, 'Quiz');
+INSERT INTO public.quiz (id, id_module, title) VALUES (33, 76, 'Quiz');
+INSERT INTO public.quiz (id, id_module, title) VALUES (34, 77, 'Quiz');
+INSERT INTO public.quiz (id, id_module, title) VALUES (35, 78, 'Quiz');
+INSERT INTO public.quiz (id, id_module, title) VALUES (36, 79, 'Quiz');
+
+
+--
 -- TOC entry 4946 (class 0 OID 19651)
 -- Dependencies: 221
 -- Data for Name: questions; Type: TABLE DATA; Schema: public; Owner: postgres
@@ -723,25 +684,55 @@ INSERT INTO public.questions (id, id_quiz, question_text, explanation, is_multip
 
 
 --
--- TOC entry 4948 (class 0 OID 19657)
--- Dependencies: 223
--- Data for Name: quiz; Type: TABLE DATA; Schema: public; Owner: postgres
+-- TOC entry 4940 (class 0 OID 19633)
+-- Dependencies: 215
+-- Data for Name: answers_options; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO public.quiz (id, id_module, title) VALUES (32, 75, 'Quiz');
-INSERT INTO public.quiz (id, id_module, title) VALUES (33, 76, 'Quiz');
-INSERT INTO public.quiz (id, id_module, title) VALUES (34, 77, 'Quiz');
-INSERT INTO public.quiz (id, id_module, title) VALUES (35, 78, 'Quiz');
-INSERT INTO public.quiz (id, id_module, title) VALUES (36, 79, 'Quiz');
-
-
---
--- TOC entry 4950 (class 0 OID 19661)
--- Dependencies: 225
--- Data for Name: texts; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (74, 34, 'L''élégance et le luxe à la française', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (75, 34, 'Effortless chic parisien', true);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (76, 34, 'Pur et élégant', true);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (77, 34, 'Tendance street-wear', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (78, 35, 'Le pont inversé', true);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (79, 35, 'Le pont retourné', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (80, 36, 'La charnière harpon', true);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (81, 36, 'La charnière flex', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (82, 37, 'Branche droite', true);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (83, 37, 'Branche gauche', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (84, 38, 'Veronika', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (85, 38, 'Germaine', true);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (86, 38, 'Mélody', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (87, 39, 'Clara', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (88, 39, 'Joséphine Bäumer', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (89, 39, 'Mélody', true);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (90, 40, 'Monsieur Blanc', true);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (91, 40, 'Camélia', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (92, 40, 'Aristide', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (93, 41, 'Suzanne', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (94, 41, 'Camélia', true);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (95, 41, 'Clara', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (96, 42, 'Bois, lin, bambou', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (97, 42, 'Acétate de cellulose, fleur de coton, algues', true);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (98, 42, 'Métal, soie, acétate de cellulose', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (99, 43, 'Parce qu''il est bon marché', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (100, 43, 'En raison de sa solidité et de son hypoallergénicité', true);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (101, 43, 'Parce qu''il est coloré', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (102, 44, 'Acier inoxydable et argent', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (103, 44, 'Acier inoxydable et or 22 carats', true);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (104, 44, 'Aluminium et or 18 carats', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (105, 45, 'Polissage manuel', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (106, 45, 'Traitement galvanique', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (107, 45, 'Bain chimique', true);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (108, 46, 'Augmenter la flexibilité des montures', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (109, 46, 'Créer une finition luxueuse et durable', true);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (110, 46, 'Améliorer la transparence du matériau', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (113, 47, 'Japon', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (114, 47, 'États-Unis', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (115, 47, 'Italie', true);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (116, 49, 'Leur aspect industriel brut et sans finition', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (117, 49, 'La présence d''un logo sur les charnières, accompagné d’une fine couche de laque délicatement déposée', true);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (118, 49, 'Leur structure en bois massif non traité', false);
+INSERT INTO public.answers_options (id, id_question, answer_text, correct) VALUES (119, 49, 'Leur design minimaliste sans ornements ni finitions', false);
 
 
 --
@@ -754,14 +745,6 @@ INSERT INTO public.quiz (id, id_module, title) VALUES (36, 79, 'Quiz');
 INSERT INTO public.users (id, firstname, lastname, email, password, role, created_at, shop) VALUES (1, 'wins', 'wins', 'wins@admin.fr', '$argon2id$v=19$m=65536,t=3,p=4$cw1+NlKH/IlBZMq3f6u6Hg$/le2NsXt3HvvwT7VIWUzqk7pPO6uNOiVJMSla4/24UE', 'sadmin', '2024-06-03 13:32:57', NULL);
 INSERT INTO public.users (id, firstname, lastname, email, password, role, created_at, shop) VALUES (2, 'test', 'un', 'test@un.fr', '$argon2id$v=19$m=65536,t=3,p=4$UBvfbrmSTnwA2wib0VYINA$JDwuPrIfVX/1mEr+kANTiVSM8C25b7g3u6xWQ0dlnhc', 'user', '2024-06-03 13:53:06', 'Edgard Caen');
 INSERT INTO public.users (id, firstname, lastname, email, password, role, created_at, shop) VALUES (3, 'test', 'deux', 'test@deux.fr', '$argon2id$v=19$m=65536,t=3,p=4$T2+8ko1CZzzba4aKZPmyCw$75JLO7K30LH4oTlznGDsTija3YhQz4Kj4H71DbROZPE', 'user', '2024-06-03 13:53:30', 'Krys Boulogne');
-
-
---
--- TOC entry 4958 (class 0 OID 19681)
--- Dependencies: 233
--- Data for Name: videos; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
 
 
 --
