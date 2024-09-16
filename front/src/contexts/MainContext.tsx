@@ -7,6 +7,7 @@ import {
   IsCorrectAnswer,
   QuestionFromDB,
   Quiz,
+  ScoreAndCompletionByFormation,
   UserAnswer,
   UserProgression,
 } from "../types/types";
@@ -39,6 +40,7 @@ interface MainContextType {
   totalUserAnswersByFormation: UserAnswer[] | null;
   getQuestionsByFormation(id_formation: number): Promise<QuestionFromDB[] | null>;
   totalQuestionsByFormation: QuestionFromDB[] | null;
+  getProgressionByFormation(idUser: number, idFormation: number): Promise<ScoreAndCompletionByFormation | undefined>
 }
 
 const MainContext = createContext<MainContextType | null>(null);
@@ -80,6 +82,23 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       setIsLoadingFormations(false);
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  async function getProgressionByFormation(idUser: number, idFormation: number): Promise<ScoreAndCompletionByFormation | undefined>{
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/progression/formation`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({id_user: idUser, id_formation: idFormation})
+      });
+      const data = await response.json()
+      return data
+    } catch (error) {
+      console.log(error)
     }
   }
 
@@ -353,6 +372,7 @@ const MainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         totalUserAnswersByFormation,
         getQuestionsByFormation,
         totalQuestionsByFormation,
+        getProgressionByFormation
       }}>
       {children}
     </MainContext.Provider>

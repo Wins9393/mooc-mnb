@@ -23,6 +23,11 @@ export interface QuestionsByFormationBody {
   id_formation: number;
 }
 
+export interface ProgressionByUserByFormation {
+  id_user: number;
+  id_formation: number;
+}
+
 // Formations Controller
 export interface Video {
   id: number;
@@ -288,4 +293,37 @@ export interface UserSession {
   email: string;
   role: string;
   createdAt: string;
+}
+
+export interface QuizByFormation {
+  id_quiz: number;
+  id_module: number;
+  id_formation: number;
+}
+
+export interface JoindedQuestion {
+  id_user: number;
+  id_quiz: number;
+  id_question: number;
+  id_answer_option: number;
+  correct: boolean;
+}
+
+interface ProgressionByQuiz {
+  id_quiz: number | undefined;
+  complete: boolean;
+  score: number;
+}
+
+export interface ScoreAndCompletionByFormation {
+  id_formation: number;
+  total_quizzes: number;
+  quizzes_completion: [ProgressionByQuiz];
+}
+
+export interface AnswersByMultipleChoiceQuestions {
+  id: number;
+  id_quiz: number;
+  is_multiple_choice: boolean;
+  correct: boolean;
 }

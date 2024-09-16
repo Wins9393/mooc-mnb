@@ -3,19 +3,13 @@ import { resetQuizById } from "../controllers/quiz";
 import {
   getUserAnswersByFormationByUser,
   getUserAnswersByQuizId,
+  getUserProgressionAndCompletionByFormation,
   getUserProgressionByUser,
   saveUserAnswer,
   saveUserProgression,
 } from "../controllers/user-stats";
 import { fastify } from "../server";
-import {
-  BodyGetUserAnswer,
-  BodyResetQuizById,
-  BodySaveUserAnswer,
-  IdParams,
-  UserAnswersByFormationByUser,
-  UserProgression,
-} from "../types/types";
+import { BodyGetUserAnswer, BodyResetQuizById, BodySaveUserAnswer, IdParams, ProgressionByUserByFormation, UserAnswersByFormationByUser, UserProgression } from "../types/types";
 
 /** User Stats */
 fastify.route<{ Params: {}; Body: BodySaveUserAnswer }>({
@@ -58,4 +52,11 @@ fastify.route<{ Params: {}; Body: UserProgression }>({
   url: "/progression/save",
   preHandler: [authenticate],
   handler: saveUserProgression,
+});
+
+fastify.route<{ Params: {}; Body: ProgressionByUserByFormation }>({
+  method: "POST",
+  url: "/progression/formation",
+  preHandler: [authenticate],
+  handler: getUserProgressionAndCompletionByFormation,
 });

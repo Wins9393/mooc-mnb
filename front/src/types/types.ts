@@ -1,14 +1,6 @@
 import { UploadFile } from "antd";
 
-export type ContentType =
-  | Formation
-  | Module
-  | Video
-  | Text
-  | PhotoText
-  | Quiz
-  | QuestionFromDB
-  | AnswerOption;
+export type ContentType = Formation | Module | Video | Text | PhotoText | Quiz | QuestionFromDB | AnswerOption;
 
 export interface Formation {
   id: number;
@@ -236,4 +228,16 @@ export interface User {
   email: string;
   role: string;
   createdAt: string;
+}
+
+export interface ProgressionByQuiz {
+  id_quiz: number | undefined;
+  complete: boolean;
+  score: number;
+}
+
+export interface ScoreAndCompletionByFormation {
+  id_formation: number;
+  total_quizzes: number;
+  quizzes_completion: [ProgressionByQuiz];
 }
