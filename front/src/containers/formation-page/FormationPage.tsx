@@ -1,16 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { MainContext } from "../../contexts/MainContext";
 import { useParams } from "react-router-dom";
-import {
-  Formation,
-  Module,
-  ModuleCollapseItem,
-  Quiz,
-  UserAnswer,
-  UserAnswerWithoutCorrect,
-  UserProgression,
-  FullAnswerOption,
-} from "../../types/types";
+import { Formation, Module, ModuleCollapseItem, Quiz, UserAnswer, UserAnswerWithoutCorrect, UserProgression, FullAnswerOption } from "../../types/types";
 import { Col, Row } from "antd";
 import "./formation-page.css";
 import { AuthContext } from "../../contexts/AuthContext";
@@ -46,9 +37,7 @@ export function FormationPage() {
   const [currentModule, setCurrentModule] = useState<Module | null>(null);
   const [currentModuleItem, setCurrentModuleItem] = useState<ModuleCollapseItem | null>(null);
 
-  const [selectedUserAnswers, setSelectedUserAnswers] = useState<UserAnswerWithoutCorrect[] | null>(
-    null
-  );
+  const [selectedUserAnswers, setSelectedUserAnswers] = useState<UserAnswerWithoutCorrect[] | null>(null);
   const [oldUserAnswers, setOldUserAnswers] = useState<UserAnswer[] | undefined>(undefined);
   const [isQuizAnswered, setIsQuizAnswered] = useState<boolean>(false);
   const [scoreByQuiz, setScoreByQuiz] = useState<number>(0);
@@ -85,9 +74,7 @@ export function FormationPage() {
 
   useEffect(() => {
     if (currentModuleItem) {
-      const quizAnswered = oldUserAnswers?.some(
-        (oldAnswer) => oldAnswer.id_quiz === (currentModuleItem?.item as Quiz).id
-      );
+      const quizAnswered = oldUserAnswers?.some((oldAnswer) => oldAnswer.id_quiz === (currentModuleItem?.item as Quiz).id);
       setIsQuizAnswered(quizAnswered === true);
     }
   }, [oldUserAnswers, currentModuleItem]);
@@ -101,15 +88,12 @@ export function FormationPage() {
   }, [currentModuleItem, oldUserAnswers, isVideoEnded]);
 
   function getCurrentFormation(id_formation: number) {
-    const formation: Formation | undefined = formations.find(
-      (formation) => formation.id === id_formation
-    );
+    const formation: Formation | undefined = formations.find((formation) => formation.id === id_formation);
     if (formation) setCurrentFormation(formation);
   }
 
   function getModulesByFormationId(id_formation: number) {
-    const modules: Module[] | null =
-      formations.find((f) => f.id === id_formation)?.modules.sort((a, b) => a.id - b.id) ?? null;
+    const modules: Module[] | null = formations.find((f) => f.id === id_formation)?.modules.sort((a, b) => a.id - b.id) ?? null;
     setModules(modules);
   }
 
@@ -118,11 +102,7 @@ export function FormationPage() {
     setOldUserAnswers(oldUserAnswers);
   }
 
-  function isProgressionSavedByType(
-    userProgression: UserProgression[] | null,
-    id_content: number,
-    type: string
-  ): boolean {
+  function isProgressionSavedByType(userProgression: UserProgression[] | null, id_content: number, type: string): boolean {
     if (userProgression && userProgression.length > 0) {
       if (type === "video") {
         return userProgression.some((progress) => progress.id_video === id_content);
@@ -144,16 +124,13 @@ export function FormationPage() {
   async function getScoreByQuiz(userAnswers: UserAnswer[] | undefined) {
     let goodAnswers = 0;
 
-    const groupOldAnswersByQuestion = userAnswers?.reduce(
-      (acc: { [key: number]: UserAnswer[] }, answer: UserAnswer) => {
-        if (!acc[answer.id_question]) {
-          acc[answer.id_question] = [];
-        }
-        acc[answer.id_question].push(answer);
-        return acc;
-      },
-      {}
-    );
+    const groupOldAnswersByQuestion = userAnswers?.reduce((acc: { [key: number]: UserAnswer[] }, answer: UserAnswer) => {
+      if (!acc[answer.id_question]) {
+        acc[answer.id_question] = [];
+      }
+      acc[answer.id_question].push(answer);
+      return acc;
+    }, {});
 
     if (groupOldAnswersByQuestion) {
       const questionsNumber = Object.keys(groupOldAnswersByQuestion).length;
@@ -168,10 +145,7 @@ export function FormationPage() {
           const userAnswersNumber = answers.length;
           const userCorrectAnswersNumber = answers.filter((answer) => answer.correct).length;
 
-          if (
-            correctAnswersNumber === userAnswersNumber &&
-            correctAnswersNumber === userCorrectAnswersNumber
-          ) {
+          if (correctAnswersNumber === userAnswersNumber && correctAnswersNumber === userCorrectAnswersNumber) {
             goodAnswers++;
           }
         } else {
@@ -193,19 +167,16 @@ export function FormationPage() {
       await resetQuizById(user_id, quiz_id);
       await getOldUserAnswers(user_id, quiz_id);
       setSelectedUserAnswers([]);
+      if (localStorage.getItem(`formation-${currentFormation?.id}-user-${user?.id}`)) {
+        localStorage.removeItem(`formation-${currentFormation?.id}-user-${user?.id}`);
+      }
     }
   }
 
   return (
     <div className="formationPage__main-container">
       <Row className="formationPage__wrapper" gutter={[16, 32]}>
-        <Col
-          xs={24}
-          sm={24}
-          md={24}
-          lg={6}
-          xl={6}
-          className="formationPage__questions-collapse-container">
+        <Col xs={24} sm={24} md={24} lg={6} xl={6} className="formationPage__questions-collapse-container">
           <CollapseModule
             modules={modules}
             currentModule={currentModule}

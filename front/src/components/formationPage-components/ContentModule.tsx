@@ -5,8 +5,9 @@ import {
   Module,
   ModuleCollapseItem,
   PhotoText,
-  QuestionFromDB,
+  ProgressionByQuiz,
   Quiz,
+  ScoreAndCompletionByFormation,
   Text,
   UserAnswer,
   UserAnswerWithoutCorrect,
@@ -14,15 +15,7 @@ import {
   Video,
 } from "../../types/types";
 import { CloseCircleTwoTone, CheckCircleTwoTone } from "@ant-design/icons";
-import {
-  ChangeEvent,
-  Dispatch,
-  SetStateAction,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { ChangeEvent, Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from "react";
 import DOMPurify from "dompurify";
 import { AuthContext } from "../../contexts/AuthContext";
 import { MainContext } from "../../contexts/MainContext";
@@ -40,11 +33,7 @@ interface ContentModuleInterface {
   setSelectedUserAnswers: Dispatch<SetStateAction<UserAnswerWithoutCorrect[] | null>>;
   setIsVideoEnded: Dispatch<SetStateAction<boolean>>;
   handleResetQuiz(user_id: number, quiz_id: number): Promise<void>;
-  isProgressionSavedByType(
-    userProgression: UserProgression[] | null,
-    id_content: number,
-    type: string
-  ): boolean;
+  isProgressionSavedByType(userProgression: UserProgression[] | null, id_content: number, type: string): boolean;
   getOldUserAnswers(id_user: number, id_quiz: number): Promise<void>;
 }
 
@@ -64,6 +53,7 @@ export function ContentModule({
   getOldUserAnswers,
 }: ContentModuleInterface) {
   const questionRefs = useRef<Map<number, HTMLInputElement[]>>(new Map());
+  const [progress, setProgress] = useState<ScoreAndCompletionByFormation | undefined>();
 
   const authContext = useContext(AuthContext);
   if (!authContext) return;
@@ -73,31 +63,45 @@ export function ContentModule({
 
   const { user } = authContext ?? {};
 
-  const {
-    getCorrectAnswer,
-    saveUserStats,
-    saveUserProgression,
-    userProgression,
-    // Affiche Modal Fin de Formation
-    // totalQuestionsByFormation,
-    // totalUserAnswersByFormation,
-  } = mainContext ?? {};
+  const { getCorrectAnswer, saveUserStats, saveUserProgression, userProgression, getProgressionByFormation } = mainContext ?? {};
 
   const [isNextContentOpen, setIsNextContentOpen] = useState<boolean>(false);
 
-  // Affiche Modal Fin de Formation
-  // useEffect(() => {
-  //   setIsNextContentOpen(
-  //     isFormationComplete(totalQuestionsByFormation, totalUserAnswersByFormation)
-  //   );
-  // }, [totalUserAnswersByFormation]);
+  useEffect(() => {
+    if (user && currentFormation) {
+      async function getProgression(userId: number, formationId: number) {
+        const progressData = await getProgressionByFormation(userId, formationId);
+        setProgress(progressData);
+      }
+
+      getProgression(user.id, currentFormation.id);
+    }
+  }, [userProgression]);
+
+  useEffect(() => {
+    displayModalNextContent(isFormationComplete);
+  }, [progress]);
+
+  function displayModalNextContent(isFormationComplete: Function) {
+    const displayed = localStorage.getItem(`formation-${currentFormation?.id}-user-${user?.id}`);
+
+    if (user && currentFormation) {
+      if (isFormationComplete(progress) && displayed !== "true") {
+        setIsNextContentOpen(true);
+        localStorage.setItem(`formation-${currentFormation?.id}-user-${user?.id}`, "true");
+      }
+    }
+  }
+
+  // Fonction qui check si le module (quiz) est passé de complete false à true
+  function isFormationComplete(progress: ScoreAndCompletionByFormation | undefined) {
+    if (progress?.quizzes_completion.length === progress?.total_quizzes && currentFormation) {
+      return progress?.quizzes_completion.every((progressQuiz: ProgressionByQuiz) => progressQuiz.complete === true);
+    }
+  }
 
   function onVideoEnded(video: Video) {
-    if (
-      user &&
-      currentModule &&
-      !isProgressionSavedByType(userProgression, video.id_video, "video")
-    ) {
+    if (user && currentModule && !isProgressionSavedByType(userProgression, video.id_video, "video")) {
       saveUserProgression({
         id_user: user?.id,
         id_formation: currentModule?.id_formation,
@@ -112,16 +116,13 @@ export function ContentModule({
   }
 
   async function onValidateQuiz(userAnswers: UserAnswer[], quizItem: Quiz) {
-    const groupAnswersByQuestion = userAnswers.reduce(
-      (acc: { [key: number]: UserAnswer[] }, answer: UserAnswer) => {
-        if (!acc[answer.id_question]) {
-          acc[answer.id_question] = [];
-        }
-        acc[answer.id_question].push(answer);
-        return acc;
-      },
-      {}
-    );
+    const groupAnswersByQuestion = userAnswers.reduce((acc: { [key: number]: UserAnswer[] }, answer: UserAnswer) => {
+      if (!acc[answer.id_question]) {
+        acc[answer.id_question] = [];
+      }
+      acc[answer.id_question].push(answer);
+      return acc;
+    }, {});
 
     if (Object.keys(groupAnswersByQuestion).length < quizItem.questions.length) {
       message.error("Veuillez choisir une réponse pour chaque question !");
@@ -137,9 +138,7 @@ export function ContentModule({
         const multipleCorrectAnswer = correctAnswers.correctAnswer as FullAnswerOption[];
 
         const userAnswersStat = answers.map((userAnswer) => {
-          const isCorrect = multipleCorrectAnswer.some(
-            (correctAnswer) => correctAnswer.id === userAnswer.id_answer_option
-          );
+          const isCorrect = multipleCorrectAnswer.some((correctAnswer) => correctAnswer.id === userAnswer.id_answer_option);
           return {
             ...userAnswer,
             correct: isCorrect,
@@ -148,10 +147,7 @@ export function ContentModule({
 
         userAnswersStat.forEach((userAnswer) => saveUserStats(userAnswer));
       } else {
-        const correctAnswer = await getCorrectAnswer(
-          answers[0].id_question,
-          answers[0].id_answer_option
-        );
+        const correctAnswer = await getCorrectAnswer(answers[0].id_question, answers[0].id_answer_option);
 
         const oneCorrectAnswer = correctAnswer.correctAnswer as FullAnswerOption;
 
@@ -164,12 +160,7 @@ export function ContentModule({
       }
     }
 
-    if (
-      user &&
-      currentModule &&
-      quizItem &&
-      !isProgressionSavedByType(userProgression, quizItem.id, "quiz")
-    ) {
+    if (user && currentModule && quizItem && !isProgressionSavedByType(userProgression, quizItem.id, "quiz")) {
       saveUserProgression({
         id_user: user?.id,
         id_formation: currentModule?.id_formation,
@@ -187,13 +178,7 @@ export function ContentModule({
     window.scrollTo(0, 0);
   }
 
-  function onUserAnswerChange(
-    e: ChangeEvent<HTMLInputElement>,
-    id_question: number,
-    id_answer: number,
-    id_quiz: number,
-    is_multiple_choice: boolean
-  ) {
+  function onUserAnswerChange(e: ChangeEvent<HTMLInputElement>, id_question: number, id_answer: number, id_quiz: number, is_multiple_choice: boolean) {
     const inputs = questionRefs.current.get(id_question) || [];
 
     if (!is_multiple_choice) {
@@ -206,19 +191,13 @@ export function ContentModule({
       setSelectedUserAnswers((prevAnswers) => {
         let updatedAnswers = prevAnswers ? [...prevAnswers] : [];
 
-        const existingQuestionIndex = updatedAnswers.findIndex(
-          (answer) => answer.id_question === id_question
-        );
+        const existingQuestionIndex = updatedAnswers.findIndex((answer) => answer.id_question === id_question);
 
-        const existingAnswerIndex = updatedAnswers.findIndex(
-          (answer) => answer.id_answer_option === id_answer
-        );
+        const existingAnswerIndex = updatedAnswers.findIndex((answer) => answer.id_answer_option === id_answer);
 
         if (user) {
           if (existingAnswerIndex > -1 && !e.target.checked) {
-            updatedAnswers = updatedAnswers.filter(
-              (answer) => answer.id_answer_option !== id_answer
-            );
+            updatedAnswers = updatedAnswers.filter((answer) => answer.id_answer_option !== id_answer);
           } else {
             const newAnswer = {
               id_user: user?.id,
@@ -241,9 +220,7 @@ export function ContentModule({
       setSelectedUserAnswers((prevAnswers) => {
         const updatedAnswers = prevAnswers ? [...prevAnswers] : [];
 
-        const existingAnswerIndex = updatedAnswers.findIndex(
-          (answer) => answer.id_answer_option === id_answer
-        );
+        const existingAnswerIndex = updatedAnswers.findIndex((answer) => answer.id_answer_option === id_answer);
 
         if (user) {
           const newAnswer = {
@@ -274,34 +251,24 @@ export function ContentModule({
     return (
       (
         <div>
-          <div
-            className={`formationPage__quiz-valide--container ${
-              scoreByQuiz < 100 ? "quiz-echec" : "quiz-reussi"
-            }`}>
+          <div className={`formationPage__quiz-valide--container ${scoreByQuiz < 100 ? "quiz-echec" : "quiz-reussi"}`}>
             <p>{`Quiz soumis le ${dateValidation.getDate()}/${(dateValidation.getMonth() + 1)
               .toString()
-              .padStart(
-                2,
-                "0"
-              )}/${dateValidation.getFullYear()} à ${dateValidation.getHours()}H${dateValidation.getMinutes()}`}</p>
+              .padStart(2, "0")}/${dateValidation.getFullYear()} à ${dateValidation.getHours()}H${dateValidation.getMinutes()}`}</p>
             {scoreByQuiz < 100 ? (
               <p>
                 <span style={{ fontWeight: "bold" }}>Echec </span>
-                avec un score de:{" "}
-                <span style={{ fontWeight: "bold" }}>{scoreByQuiz.toFixed(2)}%</span>
+                avec un score de: <span style={{ fontWeight: "bold" }}>{scoreByQuiz.toFixed(2)}%</span>
               </p>
             ) : (
               <p>
                 <span style={{ fontWeight: "bold" }}>Réussite </span>
-                avec un score de:{" "}
-                <span style={{ fontWeight: "bold" }}>{scoreByQuiz.toFixed(2)}%</span>
+                avec un score de: <span style={{ fontWeight: "bold" }}>{scoreByQuiz.toFixed(2)}%</span>
               </p>
             )}
           </div>
           {scoreByQuiz < 100 ? (
-            <Button
-              style={{ marginTop: "8px" }}
-              onClick={() => (user ? handleResetQuiz(user?.id, id_quiz) : "")}>
+            <Button style={{ marginTop: "8px" }} onClick={() => (user ? handleResetQuiz(user?.id, id_quiz) : "")}>
               Rééssayer
             </Button>
           ) : (
@@ -326,23 +293,21 @@ export function ContentModule({
               onEnded={() => onVideoEnded(videoItem)}
               controls
               className={`formationPage__video ${fadeClass}`}
-              src={`${import.meta.env.VITE_API_URL}/public/${videoItem.path_video}`}></video>
+              src={`${import.meta.env.VITE_API_URL}/public/${videoItem.path_video}`}
+            ></video>
           </>
         );
       case "photo_text":
         const photoTextItem = item as PhotoText;
         return (
           <div className="formationPage__photo-text-container">
-            <img
-              className={`formationPage__photo-text-photo ${fadeClass}`}
-              src={`${import.meta.env.VITE_API_URL}/public/${
-                photoTextItem.photo_path_photo_text
-              }`}></img>
+            <img className={`formationPage__photo-text-photo ${fadeClass}`} src={`${import.meta.env.VITE_API_URL}/public/${photoTextItem.photo_path_photo_text}`}></img>
             <div
               className="formationPage__photo-text-text"
               dangerouslySetInnerHTML={{
                 __html: DOMPurify.sanitize(photoTextItem.text_content_photo_text),
-              }}></div>
+              }}
+            ></div>
           </div>
         );
       case "text":
@@ -357,26 +322,15 @@ export function ContentModule({
 
         return (
           <div className={`formationPage__quiz-wrapper ${fadeClass}`}>
-            {isQuizAnswered && oldUserAnswers?.length
-              ? displayQuizResult(oldUserAnswers?.[0].date_answer, quizItem.id)
-              : ""}
+            {isQuizAnswered && oldUserAnswers?.length ? displayQuizResult(oldUserAnswers?.[0].date_answer, quizItem.id) : ""}
             {quizItem?.questions.map((question) => {
               const userAnswer = oldUserAnswers?.filter((a) => a.id_question === question.id);
               const questionRef = questionRefs.current.get(question.id) || [];
               return (
-                <div
-                  key={`question-${question.id}`}
-                  className="formationPage__questions-answers-bloc">
+                <div key={`question-${question.id}`} className="formationPage__questions-answers-bloc">
                   <div className="formationPage__question-bloc">
                     <h3>
-                      {question.question_text}{" "}
-                      {question.is_multiple_choice ? (
-                        <span style={{ fontSize: ".8rem", fontWeight: "light" }}>
-                          (plusieurs réponses possibles)
-                        </span>
-                      ) : (
-                        ""
-                      )}
+                      {question.question_text} {question.is_multiple_choice ? <span style={{ fontSize: ".8rem", fontWeight: "light" }}>(plusieurs réponses possibles)</span> : ""}
                     </h3>
                   </div>
                   <Divider style={{ margin: "16px" }} />
@@ -387,15 +341,9 @@ export function ContentModule({
                           {oldUserAnswers?.map((item) =>
                             item.id_answer_option === answer.id ? (
                               item.correct ? (
-                                <CheckCircleTwoTone
-                                  key={`answer-${answer.id}`}
-                                  twoToneColor="#52c41a"
-                                />
+                                <CheckCircleTwoTone key={`answer-${answer.id}`} twoToneColor="#52c41a" />
                               ) : (
-                                <CloseCircleTwoTone
-                                  key={`answer-${answer.id}`}
-                                  twoToneColor="#A30015"
-                                />
+                                <CloseCircleTwoTone key={`answer-${answer.id}`} twoToneColor="#A30015" />
                               )
                             ) : (
                               ""
@@ -405,9 +353,7 @@ export function ContentModule({
                             <p>{answer.text}</p>{" "}
                             {isQuizAnswered ? (
                               <input
-                                checked={userAnswer?.some(
-                                  (uAnswer) => uAnswer.id_answer_option === answer.id
-                                )}
+                                checked={userAnswer?.some((uAnswer) => uAnswer.id_answer_option === answer.id)}
                                 disabled={true}
                                 name={`answer_option-question-${question.id}`}
                                 type="checkbox"
@@ -417,15 +363,7 @@ export function ContentModule({
                                 disabled={false}
                                 key={answer.id}
                                 name={`answer_option-question-${question.id}`}
-                                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                                  onUserAnswerChange(
-                                    e,
-                                    question.id,
-                                    answer.id,
-                                    quizItem.id,
-                                    question.is_multiple_choice
-                                  )
-                                }
+                                onChange={(e: ChangeEvent<HTMLInputElement>) => onUserAnswerChange(e, question.id, answer.id, quizItem.id, question.is_multiple_choice)}
                                 ref={(el) => {
                                   if (el && !questionRef.includes(el)) {
                                     questionRefs.current.set(question.id, [...questionRef, el]);
@@ -442,13 +380,7 @@ export function ContentModule({
                 </div>
               );
             })}
-            {isQuizAnswered ? (
-              ""
-            ) : (
-              <Button onClick={() => onValidateQuiz(selectedUserAnswers as UserAnswer[], quizItem)}>
-                Valider
-              </Button>
-            )}
+            {isQuizAnswered ? "" : <Button onClick={() => onValidateQuiz(selectedUserAnswers as UserAnswer[], quizItem)}>Valider</Button>}
           </div>
         );
 
@@ -456,31 +388,6 @@ export function ContentModule({
         return null;
     }
   }
-
-  // Affiche Modal Fin de Formation
-  // function isFormationComplete(
-  //   totalQuestionsByFormation: QuestionFromDB[] | null,
-  //   totalUserAnswersByFormation: UserAnswer[] | null
-  // ): boolean {
-  //   if (!totalQuestionsByFormation || !totalUserAnswersByFormation) {
-  //     return false;
-  //   }
-
-  //   if (totalUserAnswersByFormation.length < totalQuestionsByFormation.length) {
-  //     return false;
-  //   }
-
-  //   console.log("answers: ", totalUserAnswersByFormation, "question: ", totalQuestionsByFormation);
-
-  //   const multipleQuestions = totalQuestionsByFormation.filter((question) => {
-  //     return question.is_multiple_choice === true;
-  //   });
-
-  //   if (multipleQuestions.length) {
-  //     console.log("multipleQuestions: ", multipleQuestions);
-  //   }
-  //   return true;
-  // }
 
   return (
     <>
@@ -508,16 +415,9 @@ export function ContentModule({
       )}
 
       <div className="formationPage__content-wrapper">
-        {currentModuleItem && currentModuleItem?.item !== null && currentModuleItem.type !== null
-          ? renderModuleItem(currentModuleItem.item, currentModuleItem.type)
-          : ""}
+        {currentModuleItem && currentModuleItem?.item !== null && currentModuleItem.type !== null ? renderModuleItem(currentModuleItem.item, currentModuleItem.type) : ""}
       </div>
-      {/*
-      // Affiche Modal Fin de Formation 
-      <ModalNextContent
-        isNextContentOpen={isNextContentOpen}
-        setIsNextContentOpen={setIsNextContentOpen}
-      /> */}
+      <ModalNextContent isNextContentOpen={isNextContentOpen} setIsNextContentOpen={setIsNextContentOpen} currentFormation={currentFormation} progress={progress} />
     </>
   );
 }
