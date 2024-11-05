@@ -33,10 +33,6 @@ export const FormationItem: React.FC<FormationItemProps> = ({ formation }) => {
     const awarded =
       progress.quizzes_completion.every((qc: ProgressionByQuiz) => qc.score === 100) && complete;
 
-    console.log("progress: ", progress);
-    console.log("awarded: ", awarded);
-    console.log("complete: ", complete);
-
     awarded
       ? setLevelProgression("awarded")
       : complete
