@@ -1,6 +1,14 @@
 import { UploadFile } from "antd";
 
-export type ContentType = Formation | Module | Video | Text | PhotoText | Quiz | QuestionFromDB | AnswerOption;
+export type ContentType =
+  | Formation
+  | Module
+  | Video
+  | Text
+  | PhotoText
+  | Quiz
+  | QuestionFromDB
+  | AnswerOption;
 
 export interface Formation {
   id: number;
@@ -225,6 +233,7 @@ export interface User {
   firstname: string;
   lastname: string;
   shop: string;
+  city: string;
   email: string;
   role: string;
   createdAt: string;

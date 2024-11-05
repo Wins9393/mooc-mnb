@@ -7,7 +7,7 @@ export async function getUsers(request: FastifyRequest, reply: FastifyReply) {
     const currentUserId = request.session.user?.id;
     if (currentUserId) {
       const query =
-        "SELECT id, firstname, lastname, shop, email, role, created_at FROM public.users WHERE id != $1";
+        "SELECT id, firstname, lastname, shop, city, email, role, created_at FROM public.users WHERE id != $1";
       const response = await fastify.pg.query(query, [currentUserId]);
       reply.code(200).send(response.rows);
     }
@@ -33,7 +33,7 @@ export async function getOneUser(
   try {
     const { id } = request.params;
     const query =
-      "SELECT id, firstname, lastname, shop, email, role, created_at FROM public.users WHERE id = $1";
+      "SELECT id, firstname, lastname, shop, city, email, role, created_at FROM public.users WHERE id = $1";
     const values = [id];
     const response = await fastify.pg.query(query, values);
 

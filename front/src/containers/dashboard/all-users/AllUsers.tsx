@@ -106,7 +106,7 @@ export function AllUsers() {
     {
       title: "Id",
       dataIndex: "id",
-      width: "10%",
+      width: "5%",
       ...getColumnSearchProps("id"),
       responsive: ["sm"],
     },
@@ -137,9 +137,16 @@ export function AllUsers() {
       responsive: ["sm"],
     },
     {
+      title: "Ville",
+      dataIndex: "city",
+      width: "10%",
+      ...getColumnSearchProps("city"),
+      responsive: ["sm"],
+    },
+    {
       title: "Role",
       dataIndex: "role",
-      width: "10%",
+      width: "5%",
       ...getColumnSearchProps("role"),
       responsive: ["sm"],
     },

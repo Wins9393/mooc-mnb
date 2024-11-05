@@ -8,16 +8,22 @@ import {
   UserAnswersByFormationByUser,
   ProgressionByUserByFormation,
   QuizByFormation,
-  JoindedQuestion,
   ScoreAndCompletionByFormation,
   AnswersByMultipleChoiceQuestions,
+  QuestionInQuiz,
+  CorrectAnswerOption,
+  UserAnswer,
 } from "../types/types";
 
-export async function saveUserAnswer(req: FastifyRequest<{ Body: BodySaveUserAnswer }>, res: FastifyReply) {
+export async function saveUserAnswer(
+  req: FastifyRequest<{ Body: BodySaveUserAnswer }>,
+  res: FastifyReply
+) {
   try {
     const { id_user, id_question, id_answer_option, date_answer, id_quiz, correct } = req.body;
 
-    const query = "INSERT INTO user_answers (id_user, id_question, id_answer_option, date_answer, id_quiz, correct) VALUES ($1, $2, $3, $4, $5, $6)";
+    const query =
+      "INSERT INTO user_answers (id_user, id_question, id_answer_option, date_answer, id_quiz, correct) VALUES ($1, $2, $3, $4, $5, $6)";
     const values = [id_user, id_question, id_answer_option, date_answer, id_quiz, correct];
 
     const results = await fastify.pg.query(query, values);
@@ -37,10 +43,14 @@ export async function saveUserAnswer(req: FastifyRequest<{ Body: BodySaveUserAns
   }
 }
 
-export async function getUserAnswersByQuizId(req: FastifyRequest<{ Body: BodyGetUserAnswer }>, res: FastifyReply) {
+export async function getUserAnswersByQuizId(
+  req: FastifyRequest<{ Body: BodyGetUserAnswer }>,
+  res: FastifyReply
+) {
   try {
     const { id_user, id_quiz } = req.body;
-    const query = "SELECT id, id_user, id_question, id_answer_option, date_answer, id_quiz, correct FROM user_answers WHERE id_user=$1 AND id_quiz=$2";
+    const query =
+      "SELECT id, id_user, id_question, id_answer_option, date_answer, id_quiz, correct FROM user_answers WHERE id_user=$1 AND id_quiz=$2";
     const values = [id_user, id_quiz];
 
     const response = await fastify.pg.query(query, values);
@@ -60,7 +70,10 @@ export async function getUserAnswersByQuizId(req: FastifyRequest<{ Body: BodyGet
   }
 }
 
-export async function getUserAnswersByFormationByUser(req: FastifyRequest<{ Body: UserAnswersByFormationByUser }>, res: FastifyReply) {
+export async function getUserAnswersByFormationByUser(
+  req: FastifyRequest<{ Body: UserAnswersByFormationByUser }>,
+  res: FastifyReply
+) {
   try {
     const { id_user, id_formation } = req.body;
     const response = await fastify.pg.query(
@@ -83,7 +96,10 @@ export async function getUserAnswersByFormationByUser(req: FastifyRequest<{ Body
   }
 }
 
-export async function getUserProgressionByUser(req: FastifyRequest<{ Body: IdParams }>, res: FastifyReply) {
+export async function getUserProgressionByUser(
+  req: FastifyRequest<{ Body: IdParams }>,
+  res: FastifyReply
+) {
   try {
     const { id } = req.body;
     const response = await fastify.pg.query(
@@ -106,9 +122,21 @@ export async function getUserProgressionByUser(req: FastifyRequest<{ Body: IdPar
   }
 }
 
-export async function saveUserProgression(req: FastifyRequest<{ Body: UserProgression }>, res: FastifyReply) {
+export async function saveUserProgression(
+  req: FastifyRequest<{ Body: UserProgression }>,
+  res: FastifyReply
+) {
   try {
-    const { id_user, id_formation, id_module, id_video, id_text, id_photo_text, id_quiz, complete } = req.body;
+    const {
+      id_user,
+      id_formation,
+      id_module,
+      id_video,
+      id_text,
+      id_photo_text,
+      id_quiz,
+      complete,
+    } = req.body;
     const response = await fastify.pg.query(
       "INSERT INTO user_progression (id_user, id_formation, id_module, id_video, id_text, id_photo_text, id_quiz, complete) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
       [id_user, id_formation, id_module, id_video, id_text, id_photo_text, id_quiz, complete]
@@ -129,66 +157,67 @@ export async function saveUserProgression(req: FastifyRequest<{ Body: UserProgre
   }
 }
 
-export async function getUserProgressionAndCompletionByFormation(request: FastifyRequest<{ Body: ProgressionByUserByFormation }>, reply: FastifyReply) {
+function calculateScore(
+  questions: QuestionInQuiz[],
+  correctOptionsMap: Map<number, number[]>,
+  userAnswersMap: Map<number, number[]>
+) {
+  let totalQuestions = questions.length;
+  let correctAnswers = 0;
+
+  questions.forEach((question) => {
+    const questionId = question.question_id;
+    const isMultipleChoice = question.is_multiple_choice;
+
+    const correctOptionIds = correctOptionsMap.get(questionId) || [];
+    const userSelectedOptionIds = userAnswersMap.get(questionId) || [];
+
+    if (isMultipleChoice) {
+      // Trier les tableaux pour une comparaison précise
+      correctOptionIds.sort();
+      userSelectedOptionIds.sort();
+
+      if (arraysEqual(correctOptionIds, userSelectedOptionIds)) {
+        correctAnswers++;
+      }
+    } else {
+      if (
+        correctOptionIds.length === 1 &&
+        userSelectedOptionIds.length === 1 &&
+        correctOptionIds[0] === userSelectedOptionIds[0]
+      ) {
+        correctAnswers++;
+      }
+    }
+  });
+
+  return (correctAnswers / totalQuestions) * 100;
+}
+
+// Fonction utilitaire pour comparer deux tableaux
+function arraysEqual(a: number[], b: number[]) {
+  if (a.length !== b.length) return false;
+  return a.every((val, index) => val === b[index]);
+}
+
+export async function getUserProgressionAndCompletionByFormation(
+  request: FastifyRequest<{ Body: ProgressionByUserByFormation }>,
+  reply: FastifyReply
+) {
   try {
     const { id_user, id_formation } = request.body;
 
+    // Récupérer tous les quiz de la formation
     const quizzesByFormation = await fastify.pg.query(
-      "SELECT q.id AS id_quiz, m.id AS id_module, f.id AS id_formation FROM quiz q JOIN modules m ON q.id_module = m.id JOIN formations f ON m.id_formation = f.id WHERE f.id=$1;",
+      "SELECT q.id AS id_quiz FROM quiz q JOIN modules m ON q.id_module = m.id JOIN formations f ON m.id_formation = f.id WHERE f.id = $1;",
       [id_formation]
     );
 
-    const ids_quizzes = quizzesByFormation.rows.map((quiz: QuizByFormation) => quiz.id_quiz);
-
-    const userProgressionByFormation = await fastify.pg.query("SELECT * FROM user_progression WHERE id_formation=$1 AND id_user=$2 AND id_quiz IS NOT NULL;", [
-      id_formation,
-      id_user,
-    ]);
-
-    const resultsByQuiz = await fastify.pg.query("SELECT id_user, id_quiz, id_question, id_answer_option, correct FROM user_answers WHERE id_quiz=ANY($1);", [ids_quizzes]);
-    const ids_questions = resultsByQuiz.rows.map((joinedQuestion: JoindedQuestion) => joinedQuestion.id_question);
-
-    const answersByMultipleChoiceQuestions = await fastify.pg.query(
-      "SELECT q.id, q.id_quiz, q.is_multiple_choice, ao.correct FROM questions q JOIN answers_options ao ON ao.id_question = q.id WHERE q.id=ANY($1) AND q.is_multiple_choice = true;",
-      [ids_questions]
+    // Récupérer la progression de l'utilisateur
+    const userProgressionByFormation = await fastify.pg.query(
+      "SELECT * FROM user_progression WHERE id_formation = $1 AND id_user = $2 AND id_quiz IS NOT NULL;",
+      [id_formation, id_user]
     );
-
-    function calculateScore(resultsByQuiz: JoindedQuestion[], answersByMultipleChoiceQuestions: AnswersByMultipleChoiceQuestions[]) {
-      let totalQuestions = 0;
-      let correctAnswers = 0;
-
-      if (answersByMultipleChoiceQuestions.length > 0) {
-        const simpleChoiceQuestions = resultsByQuiz.filter((joinedQuestion: JoindedQuestion) => {
-          const isMultipleChoice = answersByMultipleChoiceQuestions.some(
-            (multipleChoiceQuestion: AnswersByMultipleChoiceQuestions) => joinedQuestion.id_question === multipleChoiceQuestion.id
-          );
-          return !isMultipleChoice;
-        });
-
-        answersByMultipleChoiceQuestions.forEach((multipleChoiceQuestion: AnswersByMultipleChoiceQuestions) => {
-          const userAnswers = resultsByQuiz.filter((result) => result.id_question === multipleChoiceQuestion.id);
-          const correctOptions = userAnswers.filter((answer) => answer.correct);
-
-          const allCorrectSelected = correctOptions.length === userAnswers.length && correctOptions.every((opt) => opt.correct);
-          if (allCorrectSelected) {
-            correctAnswers++;
-          }
-          totalQuestions++;
-        });
-
-        simpleChoiceQuestions.forEach((simpleQuestion) => {
-          const isCorrect = simpleQuestion.correct;
-          if (isCorrect) correctAnswers++;
-          totalQuestions++;
-        });
-      } else {
-        resultsByQuiz.forEach((result) => {
-          if (result.correct) correctAnswers++;
-          totalQuestions++;
-        });
-      }
-      return (correctAnswers / totalQuestions) * 100;
-    }
 
     const result = {
       id_formation: id_formation,
@@ -196,24 +225,63 @@ export async function getUserProgressionAndCompletionByFormation(request: Fastif
       quizzes_completion: [] as { complete: boolean; id_quiz: number; score: number }[],
     };
 
-    console.log("quizzesByFormation", quizzesByFormation);
-
-    quizzesByFormation.rows.forEach((quiz: QuizByFormation) => {
-      // const idFormation = quiz.id_formation;
+    for (const quiz of quizzesByFormation.rows) {
       const idQuiz = quiz.id_quiz;
 
-      const quizProgression = userProgressionByFormation.rows.find((userProgression: UserProgression) => userProgression.id_quiz === idQuiz);
-      const resultsForQuiz = resultsByQuiz.rows.filter((result: JoindedQuestion) => result.id_quiz === idQuiz);
-      const multipleChoiceQuestionsForQuiz = answersByMultipleChoiceQuestions.rows.filter((question: AnswersByMultipleChoiceQuestions) => question.id_quiz === idQuiz);
+      // Récupérer les questions du quiz
+      const questionsInQuiz = await fastify.pg.query(
+        "SELECT q.id AS question_id, q.is_multiple_choice FROM questions q WHERE q.id_quiz = $1;",
+        [idQuiz]
+      );
 
-      const score = calculateScore(resultsForQuiz, multipleChoiceQuestionsForQuiz);
+      const questionIds = questionsInQuiz.rows.map((q: QuestionInQuiz) => q.question_id);
+
+      // Récupérer les options correctes
+      const correctOptionsData = await fastify.pg.query(
+        "SELECT ao.id AS option_id, ao.id_question FROM answers_options ao WHERE ao.id_question = ANY($1) AND ao.correct = true;",
+        [questionIds]
+      );
+
+      // Organiser les options correctes par question
+      const correctOptionsMap: Map<number, number[]> = new Map<number, number[]>();
+
+      correctOptionsData.rows.forEach((option: CorrectAnswerOption) => {
+        if (!correctOptionsMap.has(option.id_question)) {
+          correctOptionsMap.set(option.id_question, []);
+        }
+        correctOptionsMap.get(option.id_question)?.push(option.option_id);
+      });
+
+      // Récupérer les réponses de l'utilisateur pour ce quiz
+      const userAnswersData = await fastify.pg.query(
+        "SELECT id_question, id_answer_option FROM user_answers WHERE id_user = $1 AND id_quiz = $2;",
+        [id_user, idQuiz]
+      );
+
+      // Organiser les réponses de l'utilisateur par question
+      const userAnswersMap: Map<number, number[]> = new Map<number, number[]>();
+
+      userAnswersData.rows.forEach((answer: UserAnswer) => {
+        if (!userAnswersMap.has(answer.id_question)) {
+          userAnswersMap.set(answer.id_question, []);
+        }
+        userAnswersMap.get(answer.id_question)?.push(answer.id_answer_option);
+      });
+
+      // Calculer le score pour ce quiz
+      const score = calculateScore(questionsInQuiz.rows, correctOptionsMap, userAnswersMap);
+
+      // Vérifier si le quiz est complété
+      const quizProgression = userProgressionByFormation.rows.find(
+        (userProgression: UserProgression) => userProgression.id_quiz === idQuiz
+      );
 
       result.quizzes_completion.push({
         id_quiz: idQuiz,
         complete: quizProgression ? quizProgression.complete : false,
-        score: score ? score : 0,
+        score: score,
       });
-    });
+    }
 
     reply.send(result);
   } catch (error: unknown) {
@@ -225,7 +293,8 @@ export async function getUserProgressionAndCompletionByFormation(request: Fastif
     } else {
       // Gestion d'autres types d'erreurs si nécessaire
       reply.code(500).send({
-        error: "Erreur inconnue lors de la récupération de la progression de l'utilisateur par formation",
+        error:
+          "Erreur inconnue lors de la récupération de la progression de l'utilisateur par formation",
       });
     }
   }

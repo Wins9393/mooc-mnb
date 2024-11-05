@@ -8,6 +8,7 @@ type FieldType = {
   firstname?: string;
   lastname?: string;
   shop?: string;
+  city?: string;
   email?: string;
   password?: string;
 };
@@ -21,11 +22,19 @@ export function RegisterForm() {
   const navigate = useNavigate();
 
   const onFinish = async (values: any) => {
-    if (values.firstname && values.lastname && values.shop && values.email && values.password) {
+    if (
+      values.firstname &&
+      values.lastname &&
+      values.shop &&
+      values.city &&
+      values.email &&
+      values.password
+    ) {
       const isRegistered = await register(
         values.firstname,
         values.lastname,
         values.shop,
+        values.city,
         values.email,
         values.password
       );
@@ -77,6 +86,14 @@ export function RegisterForm() {
             label="Magasin"
             name="shop"
             rules={[{ required: true, message: "Veuillez renseigner votre magasin !" }]}>
+            <Input />
+          </Form.Item>
+
+          <Form.Item<FieldType>
+            className="loginForm__formItem"
+            label="Ville"
+            name="city"
+            rules={[{ required: true, message: "Veuillez renseigner votre ville !" }]}>
             <Input />
           </Form.Item>
 

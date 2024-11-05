@@ -9,6 +9,7 @@ interface AuthContextType {
     firstname: string,
     lastname: string,
     shop: string,
+    city: string,
     email: string,
     password: string
   ): Promise<boolean>;
@@ -19,6 +20,7 @@ interface User {
   firstname: string;
   lastname: string;
   shop: string;
+  city: string;
   email: string;
   role: string;
   authenticated: boolean;
@@ -54,6 +56,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         firstname: data.user.firstname,
         lastname: data.user.lastname,
         shop: data.user.shop,
+        city: data.user.city,
         email: data.user.email,
         role: data.user.role,
         authenticated: data.authenticated,
@@ -79,6 +82,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           firstname: data.user.firstname,
           lastname: data.user.lastname,
           shop: data.user.shop,
+          city: data.user.city,
           email: data.user.email,
           role: data.user.role,
           authenticated: data.authenticated,
@@ -105,6 +109,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     firstname: string,
     lastname: string,
     shop: string,
+    city: string,
     email: string,
     password: string
   ): Promise<boolean> {
@@ -119,6 +124,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           firstname,
           lastname,
           shop,
+          city,
           email,
           password,
         }),
@@ -131,6 +137,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           firstname: data.user.firstname,
           lastname: data.user.lastname,
           shop: data.user.shop,
+          city: data.user.city,
           email: data.user.email,
           role: data.user.role,
           authenticated: data.authenticated,

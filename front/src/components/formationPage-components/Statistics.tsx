@@ -34,13 +34,23 @@ export function Statistics({ idFormation }: StatisticsInterface) {
   }, [userProgression, contentsByFormation, idFormation]);
 
   useEffect(() => {
+    let isMounted = true;
+
     if (totalUserAnswersByFormation && totalQuestionsByFormation) {
       getScorePercentageByFormation(totalUserAnswersByFormation, totalQuestionsByFormation).then(
         (scorePercentageTmp) => {
-          setScorePercentage(scorePercentageTmp);
+          if (isMounted) {
+            setScorePercentage(scorePercentageTmp);
+          }
         }
       );
+    } else {
+      setScorePercentage(0);
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, [totalQuestionsByFormation, totalUserAnswersByFormation, idFormation]);
 
   return (

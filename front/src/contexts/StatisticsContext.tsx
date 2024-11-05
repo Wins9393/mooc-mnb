@@ -102,10 +102,8 @@ const StatisticsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           }
         }
       }
-
       if (questionsNumber) {
         const scorePercentage = parseFloat(((goodAnswers / questions.length) * 100).toFixed(1));
-        setScorePercentage(scorePercentage);
         return scorePercentage;
       }
     }

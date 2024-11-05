@@ -119,6 +119,21 @@ export interface AnswerOptionFromDB {
   correct: boolean;
 }
 
+export interface QuestionInQuiz {
+  question_id: number;
+  is_multiple_choice: boolean;
+}
+
+export interface CorrectAnswerOption {
+  option_id: number;
+  id_question: number;
+}
+
+export interface UserAnswer {
+  id_question: number;
+  id_answer_option: number;
+}
+
 // User Stats Controller
 export interface BodySaveUserAnswer {
   id_user: number;
@@ -290,6 +305,7 @@ export interface UserSession {
   firstname: string;
   lastname: string;
   shop: string;
+  city: string;
   email: string;
   role: string;
   createdAt: string;
@@ -299,14 +315,6 @@ export interface QuizByFormation {
   id_quiz: number;
   id_module: number;
   id_formation: number;
-}
-
-export interface JoindedQuestion {
-  id_user: number;
-  id_quiz: number;
-  id_question: number;
-  id_answer_option: number;
-  correct: boolean;
 }
 
 interface ProgressionByQuiz {

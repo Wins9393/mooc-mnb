@@ -9,7 +9,12 @@ interface ModalNextContentInterface {
   progress: ScoreAndCompletionByFormation | undefined;
 }
 
-export function ModalNextContent({ isNextContentOpen, setIsNextContentOpen, currentFormation, progress }: ModalNextContentInterface) {
+export function ModalNextContent({
+  isNextContentOpen,
+  setIsNextContentOpen,
+  currentFormation,
+  progress,
+}: ModalNextContentInterface) {
   const [score, setScore] = useState<number>(0);
   const handleOk = () => {
     setIsNextContentOpen(false);
@@ -17,9 +22,13 @@ export function ModalNextContent({ isNextContentOpen, setIsNextContentOpen, curr
 
   function getFormationScore(progress: ScoreAndCompletionByFormation | undefined) {
     let initialValue = 0;
-    const score = progress?.quizzes_completion.reduce((acc, current) => acc + current.score, initialValue);
+    const score = progress?.quizzes_completion.reduce(
+      (acc, current) => acc + current.score,
+      initialValue
+    );
     if (score && progress) {
       console.log("score: ", (score / progress.total_quizzes).toFixed(1));
+      console.log("progress: ", progress);
       setScore(parseFloat((score / progress.total_quizzes).toFixed(1)));
       return (score / progress.total_quizzes).toFixed(1);
     }
@@ -40,8 +49,7 @@ export function ModalNextContent({ isNextContentOpen, setIsNextContentOpen, curr
       onOk={handleOk}
       style={{ minWidth: "800px" }}
       styles={{ content: { padding: "32px" } }}
-      title={"Formation terminée"}
-    >
+      title={"Formation terminée"}>
       <div style={{ width: "100%" }}>
         {score === 100 ? (
           <video style={{ maxWidth: "100%" }} autoPlay muted src="/gold.mp4"></video>

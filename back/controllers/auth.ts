@@ -13,6 +13,7 @@ interface RegisterBody {
   firstname: string;
   lastname: string;
   shop: string;
+  city: string;
   email: string;
   password: string;
 }
@@ -29,7 +30,7 @@ export async function login(req: FastifyRequest<{ Body: LoginBody }>, res: Fasti
     const { email, password } = req.body;
 
     const query =
-      "SELECT id, firstname, lastname, shop, email, password, role, created_at FROM public.users WHERE email=$1";
+      "SELECT id, firstname, lastname, shop, city, email, password, role, created_at FROM public.users WHERE email=$1";
     const values = [email];
 
     const response = await fastify.pg.query(query, values);
@@ -46,6 +47,7 @@ export async function login(req: FastifyRequest<{ Body: LoginBody }>, res: Fasti
         firstname: response.rows[0].firstname,
         lastname: response.rows[0].lastname,
         shop: response.rows[0].shop,
+        city: response.rows[0].city,
         email: response.rows[0].email,
         role: response.rows[0].role,
         createdAt: response.rows[0].created_at,
@@ -74,7 +76,7 @@ export async function register(
   reply: FastifyReply
 ) {
   try {
-    const { firstname, lastname, shop, email, password } = request.body;
+    const { firstname, lastname, shop, city, email, password } = request.body;
 
     const hash_password = await argon2.hash(password);
     const dateNow = new Date().toISOString();
@@ -85,9 +87,9 @@ export async function register(
     }
 
     const query =
-      "INSERT INTO public.users(firstname, lastname, shop, email, password, role, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id";
+      "INSERT INTO public.users(firstname, lastname, shop, city, email, password, role, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id";
 
-    const values = [firstname, lastname, shop, email, hash_password, "user", dateNow];
+    const values = [firstname, lastname, shop, city, email, hash_password, "user", dateNow];
 
     const result = await fastify.pg.query(query, values);
 
@@ -98,6 +100,7 @@ export async function register(
         firstname,
         lastname,
         shop,
+        city,
         email,
         role: "user",
         createdAt: dateNow,
