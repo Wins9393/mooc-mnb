@@ -1,6 +1,6 @@
-import { Form, Input, Button, Space, FormListFieldData, Card } from "antd";
+import { Form, Input, Button, FormListFieldData, Card } from "antd";
 import { ModuleToDB } from "../../types/types";
-import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import { MinusCircleOutlined } from "@ant-design/icons";
 import { useEffect } from "react";
 
 interface ModuleFormProps {
@@ -30,7 +30,7 @@ export function CreateModuleForm({ newModules, setNewModules }: ModuleFormProps)
 
   function onRemoveModule(field: FormListFieldData) {
     const updatedModules = [...newModules];
-    const filteredModules = updatedModules.filter((newModule, index) => index !== field.key);
+    const filteredModules = updatedModules.filter((_, index) => index !== field.key);
     setNewModules(filteredModules);
   }
 
@@ -41,7 +41,7 @@ export function CreateModuleForm({ newModules, setNewModules }: ModuleFormProps)
       </h2>
       <Form name="dynamic_module_form" form={form} layout="vertical" style={{ width: "100%" }}>
         <Form.List name="modules">
-          {(fields, { add, remove }) => (
+          {(fields, { add }) => (
             <>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                 {fields.map((field, index) => {

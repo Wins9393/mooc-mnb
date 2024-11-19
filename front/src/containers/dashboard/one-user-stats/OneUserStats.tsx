@@ -36,7 +36,7 @@ export function OneUserStats() {
         <Card title={"Statistiques globales"} styles={{ body: { height: 256, padding: 0 } }}>
           {" "}
           {/* <img
-              src={`${import.meta.env.VITE_API_URL}/public/${formation.cover_path}`}
+              src={`${import.meta.env.VITE_BACK_URL}/public/${formation.cover_path}`}
               style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.2 }}
             /> */}
         </Card>

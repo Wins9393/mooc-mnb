@@ -1,5 +1,5 @@
 import { Button, Modal, message } from "antd";
-import { Dispatch, MouseEvent, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { ContentByModule, ContentType } from "../../../types/types";
 import {
   isAnswerOption,
@@ -74,7 +74,7 @@ export function ModalEdit({ openEdit, setOpenEdit, content, setIsModifiedContent
     return <div>No content available</div>;
   }
 
-  const handleOk = async (e: MouseEvent<HTMLButtonElement>) => {
+  const handleOk = async () => {
     try {
       setLoading(true);
       setIsModifiedContent(false);

@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 
 export function MainContent(props: React.PropsWithChildren) {
   const [minHeight, setMinHeight] = useState(100);
-  const [headerHeight, setHeaderHeight] = useState(5);
+  const [headerHeight, _] = useState(5);
   const [padding, setPadding] = useState(0);
   const location = useLocation();
 

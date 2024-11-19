@@ -35,14 +35,14 @@ import {
 /** Formations with Modules */
 fastify.route<{ Params: {}; Body: {} }>({
   method: "GET",
-  url: "/formations",
+  url: "/api/formations",
   preHandler: [authenticate],
   handler: getFormationsWithModules,
 });
 
 fastify.route<{ Params: IdParams; Body: {} }>({
   method: "GET",
-  url: "/formations/:id/contents",
+  url: "/api/formations/:id/contents",
   preHandler: [authenticate],
   handler: getContentsNumberByFormation,
 });
@@ -50,21 +50,21 @@ fastify.route<{ Params: IdParams; Body: {} }>({
 /** Modules */
 fastify.route<{ Params: {}; Body: ModuleToDB }>({
   method: "POST",
-  url: "/module/create",
+  url: "/api/module/create",
   preHandler: [authenticate, checkPermissions],
   handler: createModule,
 });
 
 fastify.route<{ Params: IdParams; Body: {} }>({
   method: "GET",
-  url: "/module/:id/content",
+  url: "/api/module/:id/content",
   preHandler: [authenticate],
   handler: getModulesWithContentsByModuleId,
 });
 
 fastify.route<{ Params: IdParams; Body: {} }>({
   method: "GET",
-  url: "/module/:id/quiz",
+  url: "/api/module/:id/quiz",
   preHandler: [authenticate],
   handler: getQuizByModuleId,
 });
@@ -72,21 +72,21 @@ fastify.route<{ Params: IdParams; Body: {} }>({
 /** Questions */
 fastify.route<{ Params: {}; Body: QuestionToDB }>({
   method: "POST",
-  url: "/question/create",
+  url: "/api/question/create",
   preHandler: [authenticate, checkPermissions],
   handler: createQuestion,
 });
 
 fastify.route<{ Params: {}; Body: BodyGetCorrectAnswer }>({
   method: "POST",
-  url: "/answer/question",
+  url: "/api/answer/question",
   preHandler: [authenticate],
   handler: getCorrectAnswerByQuestion,
 });
 
 fastify.route<{ Params: {}; Body: QuestionsByFormationBody }>({
   method: "POST",
-  url: "/questions/formation",
+  url: "/api/questions/formation",
   preHandler: [authenticate],
   handler: getQuestionsByFormation,
 });
@@ -94,14 +94,14 @@ fastify.route<{ Params: {}; Body: QuestionsByFormationBody }>({
 /** Complete Formation */
 fastify.route<{ Params: {}; Body: {} }>({
   method: "POST",
-  url: "/complete-formation/create",
+  url: "/api/complete-formation/create",
   preHandler: [authenticate, checkPermissions],
   handler: createCompleteFormation,
 });
 
 fastify.route<{ Params: {}; Body: FormationToDB }>({
   method: "POST",
-  url: "/formations/create",
+  url: "/api/formations/create",
   preHandler: [authenticate, checkPermissions],
   handler: createFormation,
 });
@@ -109,7 +109,7 @@ fastify.route<{ Params: {}; Body: FormationToDB }>({
 /** Videos */
 fastify.route<{ Params: {}; Body: VideoToDB }>({
   method: "POST",
-  url: "/video/create",
+  url: "/api/video/create",
   preHandler: [authenticate, checkPermissions],
   handler: createVideo,
 });
@@ -117,7 +117,7 @@ fastify.route<{ Params: {}; Body: VideoToDB }>({
 /** Texts */
 fastify.route<{ Params: {}; Body: TextToDB }>({
   method: "POST",
-  url: "/text/create",
+  url: "/api/text/create",
   preHandler: [authenticate, checkPermissions],
   handler: createText,
 });
@@ -125,7 +125,7 @@ fastify.route<{ Params: {}; Body: TextToDB }>({
 /** Photos Texts */
 fastify.route<{ Params: {}; Body: PhotoTextToDB }>({
   method: "POST",
-  url: "/photo_text/create",
+  url: "/api/photo_text/create",
   preHandler: [authenticate, checkPermissions],
   handler: createPhotoText,
 });
@@ -133,7 +133,7 @@ fastify.route<{ Params: {}; Body: PhotoTextToDB }>({
 /** Quiz */
 fastify.route<{ Params: {}; Body: QuizToDB }>({
   method: "POST",
-  url: "/quiz/create",
+  url: "/api/quiz/create",
   preHandler: [authenticate, checkPermissions],
   handler: createQuiz,
 });
@@ -141,7 +141,7 @@ fastify.route<{ Params: {}; Body: QuizToDB }>({
 /** Answers Options */
 fastify.route<{ Params: {}; Body: AnswerOptionToDB }>({
   method: "POST",
-  url: "/answer_option/create",
+  url: "/api/answer_option/create",
   preHandler: [authenticate, checkPermissions],
   handler: createAnswerOption,
 });

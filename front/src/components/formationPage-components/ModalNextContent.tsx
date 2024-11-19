@@ -1,18 +1,16 @@
 import { Button, Modal } from "antd";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { Formation, ScoreAndCompletionByFormation } from "../../types/types";
+import { ScoreAndCompletionByFormation } from "../../types/types";
 
 interface ModalNextContentInterface {
   isNextContentOpen: boolean;
   setIsNextContentOpen: Dispatch<SetStateAction<boolean>>;
-  currentFormation: Formation | null;
   progress: ScoreAndCompletionByFormation | undefined;
 }
 
 export function ModalNextContent({
   isNextContentOpen,
   setIsNextContentOpen,
-  currentFormation,
   progress,
 }: ModalNextContentInterface) {
   const [score, setScore] = useState<number>(0);

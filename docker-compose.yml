@@ -1,0 +1,38 @@
+services:
+  back:
+    image: back
+    build:
+      context: back
+      dockerfile: ./Dockerfile
+    env_file:
+      - ./back/.env
+    ports:
+      - 4000:4000
+    depends_on:
+      - database
+  
+  database:
+    image: postgres:16
+    restart: always
+    env_file:
+      - ./back/.env
+    ports:
+      - "5433:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./back/db/db_mooc_mnb.sql:/docker-entrypoint-initdb.d/db_mooc_mnb.sql
+
+  front:
+    image: front
+    env_file:
+      - ./front/.env.local
+    build:
+      context: front
+      dockerfile: ./Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - back
+
+volumes:
+  db-data:

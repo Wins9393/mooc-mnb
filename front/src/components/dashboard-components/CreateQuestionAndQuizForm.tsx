@@ -20,7 +20,7 @@ export function CreateQuestionAndQuizForm({
     form.setFieldsValue(quizQuestionsAndAnswers);
   }, [form]);
 
-  const initialValues = newModules.reduce((acc: QuizQuestionsAndAnswersContent, module, index) => {
+  const initialValues = newModules.reduce((acc: QuizQuestionsAndAnswersContent, _, index) => {
     acc[`module-${index}`] = [
       {
         type: "quiz",
@@ -56,7 +56,7 @@ export function CreateQuestionAndQuizForm({
               autoComplete="off"
               layout="vertical"
               initialValues={initialValues}
-              onValuesChange={(newValues, allValues) => handleValuesChange(allValues)}>
+              onValuesChange={(_, allValues) => handleValuesChange(allValues)}>
               <Form.List name={`module-${moduleIndex}`} initialValue={[]}>
                 {(fields) => (
                   <div style={{ display: "flex", rowGap: 16, flexDirection: "column" }}>

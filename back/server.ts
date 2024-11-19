@@ -10,6 +10,8 @@ import path from "node:path";
 
 dotenv.config({ path: "./.env" });
 
+const { ADDRESS = "localhost" } = process.env;
+
 export const fastify = Fastify({
   logger: true,
   bodyLimit: 20 * 1024 * 1024,
@@ -23,7 +25,7 @@ fastify.register(fastifyMultipart, {
 });
 
 fastify.register(fastifyPostgres, {
-  connectionString: `postgres://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@${process.env.DATABASE_HOST}/moocmnb`,
+  connectionString: `postgres://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@${process.env.DATABASE_HOST}:${process.env.DATABASE_PORT}/${process.env.DATABASE_NAME}`,
 });
 
 fastify.register(cors, {
@@ -50,7 +52,7 @@ fastify.register(fastifyStatic, {
 
 import "./routes/index";
 
-fastify.listen({ port: 4000 }, (error: unknown) => {
+fastify.listen({ host: ADDRESS, port: 4000 }, (error: unknown) => {
   const address = fastify.server.address();
   if (error) {
     throw error;

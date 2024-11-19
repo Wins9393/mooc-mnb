@@ -124,7 +124,7 @@ export function EditFormationDisplay({
                 uid: String((content as Formation).id),
                 name: (content as Formation).title,
                 status: "done",
-                url: `${import.meta.env.VITE_API_URL}/public/${(content as Formation).cover_path}`,
+                url: `${import.meta.env.VITE_BACK_URL}/public/${(content as Formation).cover_path}`,
               },
             ]}>
             <Button icon={<UploadOutlined />}>Upload</Button>

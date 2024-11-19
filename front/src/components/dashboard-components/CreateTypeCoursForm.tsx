@@ -1,4 +1,4 @@
-import { Button, Card, Form, Input, Select, Typography, Upload, UploadProps, message } from "antd";
+import { Button, Card, Form, Input, Select, Upload, UploadProps, message } from "antd";
 import { PlusOutlined, CloseOutlined } from "@ant-design/icons";
 import { ModuleToDB, PhotoTextToDB, TextToDB, VideoToDB } from "../../types/types";
 import { useEffect } from "react";
@@ -163,7 +163,7 @@ export function CreateTypeCoursForm({
               // style={{ maxWidth: 600, minWidth: 300 }}
               autoComplete="off"
               layout="vertical"
-              onValuesChange={(newValues, allValues) => handleValuesChange(allValues)}>
+              onValuesChange={(_, allValues) => handleValuesChange(allValues)}>
               <Form.List name={`module-${moduleIndex}`} initialValue={[]}>
                 {(fields, { add, remove }) => (
                   <div style={{ display: "flex", rowGap: 16, flexDirection: "column" }}>

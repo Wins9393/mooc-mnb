@@ -21,14 +21,14 @@ import {
 /** Users */
 fastify.route<{ Params: {}; Body: {} }>({
   method: "GET",
-  url: "/users",
+  url: "/api/users",
   preHandler: [authenticate, checkPermissions],
   handler: getUsers,
 });
 
 fastify.route<{ Params: IdParams; Body: {} }>({
   method: "GET",
-  url: "/user/:id",
+  url: "/api/user/:id",
   preHandler: [authenticate, checkPermissions],
   handler: getOneUser,
 });
@@ -36,14 +36,14 @@ fastify.route<{ Params: IdParams; Body: {} }>({
 /** Formations */
 fastify.route<{ Params: {}; Body: Formation }>({
   method: "POST",
-  url: "/formation/update",
+  url: "/api/formation/update",
   preHandler: [authenticate, checkPermissions],
   handler: updateFormation,
 });
 
 fastify.route<{ Params: IdParams; Body: {} }>({
   method: "POST",
-  url: "/formation/:id/delete",
+  url: "/api/formation/:id/delete",
   preHandler: [authenticate, checkPermissions],
   handler: deleteFormation,
 });
@@ -51,7 +51,7 @@ fastify.route<{ Params: IdParams; Body: {} }>({
 /** Modules */
 fastify.route<{ Params: IdParams; Body: {} }>({
   method: "POST",
-  url: "/module/:id/delete",
+  url: "/api/module/:id/delete",
   preHandler: [authenticate, checkPermissions],
   handler: deleteModule,
 });
@@ -59,7 +59,7 @@ fastify.route<{ Params: IdParams; Body: {} }>({
 /** Videos */
 fastify.route<{ Params: IdParamsVideo; Body: {} }>({
   method: "POST",
-  url: "/video/:id_video/delete",
+  url: "/api/video/:id_video/delete",
   preHandler: [authenticate, checkPermissions],
   handler: deleteVideo,
 });
@@ -67,7 +67,7 @@ fastify.route<{ Params: IdParamsVideo; Body: {} }>({
 /** Texts */
 fastify.route<{ Params: IdParamsText; Body: {} }>({
   method: "POST",
-  url: "/text/:id_text/delete",
+  url: "/api/text/:id_text/delete",
   preHandler: [authenticate, checkPermissions],
   handler: deleteText,
 });
@@ -75,7 +75,7 @@ fastify.route<{ Params: IdParamsText; Body: {} }>({
 /** Photos + Texts */
 fastify.route<{ Params: IdParamsPhotoText; Body: {} }>({
   method: "POST",
-  url: "/photo_text/:id_photo_text/delete",
+  url: "/api/photo_text/:id_photo_text/delete",
   preHandler: [authenticate, checkPermissions],
   handler: deletePhotoText,
 });
@@ -83,7 +83,7 @@ fastify.route<{ Params: IdParamsPhotoText; Body: {} }>({
 /** Quiz */
 fastify.route<{ Params: IdParams; Body: {} }>({
   method: "POST",
-  url: "/quiz/:id/delete",
+  url: "/api/quiz/:id/delete",
   preHandler: [authenticate, checkPermissions],
   handler: deleteQuiz,
 });
@@ -91,7 +91,7 @@ fastify.route<{ Params: IdParams; Body: {} }>({
 /** Questions */
 fastify.route<{ Params: IdParams; Body: {} }>({
   method: "POST",
-  url: "/question/:id/delete",
+  url: "/api/question/:id/delete",
   preHandler: [authenticate, checkPermissions],
   handler: deleteQuestion,
 });
@@ -99,7 +99,7 @@ fastify.route<{ Params: IdParams; Body: {} }>({
 /** AnswerOptions */
 fastify.route<{ Params: IdParams; Body: {} }>({
   method: "POST",
-  url: "/answer_option/:id/delete",
+  url: "/api/answer_option/:id/delete",
   preHandler: [authenticate, checkPermissions],
   handler: deleteAnswerOption,
 });

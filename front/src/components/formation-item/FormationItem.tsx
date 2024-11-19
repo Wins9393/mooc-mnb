@@ -88,7 +88,7 @@ export const FormationItem: React.FC<FormationItemProps> = ({ formation }) => {
       )}
       <img
         className="formationItem__card--imageCover"
-        src={`${import.meta.env.VITE_API_URL}/public/${formation.cover_path}`}
+        src={`${import.meta.env.VITE_BACK_URL}/public/${formation.cover_path}`}
         alt={formation.cover_path}
       />
       <div className="formationItem__card--overlay">

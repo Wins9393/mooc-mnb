@@ -1,5 +1,5 @@
 import { Button, message, Modal } from "antd";
-import { Dispatch, MouseEvent, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { ContentByModule, ContentType, Quiz } from "../../../types/types";
 import {
   isAnswerOption,
@@ -58,7 +58,7 @@ export function ModalSupp({
     }
   }, [content]);
 
-  const handleOk = async (e: MouseEvent<HTMLButtonElement>) => {
+  const handleOk = async () => {
     try {
       setLoading(true);
       setIsModifiedContent(false);

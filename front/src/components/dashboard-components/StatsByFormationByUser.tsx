@@ -63,7 +63,9 @@ export const StatsByFormationByUser = ({ formation, idUser }: StatsByFormationBy
             setUserProgression(userProgressionResult);
             setContentsByFormation(contentsByFormationResult);
             setTotalUserAnswersByFormation(userAnswersResult);
-            setTotalQuestionsByFormation(questionsResult);
+            if (questionsResult) {
+              setTotalQuestionsByFormation(questionsResult);
+            }
             // setLoading(false);
           }
         )
@@ -100,7 +102,7 @@ export const StatsByFormationByUser = ({ formation, idUser }: StatsByFormationBy
       styles={{ body: { height: 256, padding: 0, position: "relative" } }}>
       {" "}
       <img
-        src={`${import.meta.env.VITE_API_URL}/public/${formation.cover_path}`}
+        src={`${import.meta.env.VITE_BACK_URL}/public/${formation.cover_path}`}
         style={{
           width: "100%",
           height: "100%",

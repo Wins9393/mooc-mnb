@@ -5,8 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc server.ts",
-    "start": "tsc && node ./js-build/server.js",
+    "build": "tsc",
+    "start": "node ./js-build/server.js",
     "restoredb": "psql -U postgres -c \"DROP DATABASE IF EXISTS \"moocmnb\";\" && psql -U postgres -c \"CREATE DATABASE \"moocmnb\";\" && psql -U postgres -d moocmnb -f db/db_mooc_mnb.sql"
   },
   "author": "",

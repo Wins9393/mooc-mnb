@@ -7,7 +7,7 @@ import { uploadFile } from "../controllers/upload";
 
 fastify.route<{ Params: {}; Body: {} }>({
   method: "POST",
-  url: "/upload/file",
+  url: "/api/upload/file",
   preHandler: [authenticate],
   handler: uploadFile,
 });
