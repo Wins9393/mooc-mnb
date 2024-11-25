@@ -2,15 +2,15 @@
 
 @font-face {
   font-family: "Avenir";
-  src: url("./src/assets/fonts/avenir/AvenirNextLTPro-Regular.otf") format("otf");
+  src: url("./assets/fonts/avenir/AvenirNextLTPro-Regular.otf") format("otf");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: "MADETommySoft";
-  src: url("./src/assets/fonts/madetommy/MADETommySoft.woff2") format("woff2"),
-    url("./src/assets/fonts/madetommy/MADETommySoft.woff") format("woff");
+  src: url("./assets/fonts/madetommy/MADETommySoft.woff2") format("woff2"),
+    url("./assets/fonts/madetommy/MADETommySoft.woff") format("woff");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -18,8 +18,8 @@
 
 @font-face {
   font-family: "MADETommySoft-Thin";
-  src: url("./src/assets/fonts/madetommy/MADETommySoft-Thin.woff2") format("woff2"),
-    url("./src/assets/fonts/madetommy/MADETommySoft-Thin.woff") format("woff");
+  src: url("./assets/fonts/madetommy/MADETommySoft-Thin.woff2") format("woff2"),
+    url("./assets/fonts/madetommy/MADETommySoft-Thin.woff") format("woff");
   font-weight: 100;
   font-style: normal;
   font-display: swap;
@@ -27,8 +27,8 @@
 
 @font-face {
   font-family: "MADETommySoft-Bold";
-  src: url("./src/assets/fonts/madetommy/MADETommySoft-Bold.woff2") format("woff2"),
-    url("./src/assets/fonts/madetommy/MADETommySoft-Bold.woff") format("woff");
+  src: url("./assets/fonts/madetommy/MADETommySoft-Bold.woff2") format("woff2"),
+    url("./assets/fonts/madetommy/MADETommySoft-Bold.woff") format("woff");
   font-weight: bold;
   font-style: normal;
   font-display: swap;
@@ -36,8 +36,8 @@
 
 @font-face {
   font-family: "MADETommySoft-Black";
-  src: url("./src/assets/fonts/madetommy/MADETommySoft-Black.woff2") format("woff2"),
-    url("./src/assets/fonts/madetommy/MADETommySoft-Black.woff") format("woff");
+  src: url("./assets/fonts/madetommy/MADETommySoft-Black.woff2") format("woff2"),
+    url("./assets/fonts/madetommy/MADETommySoft-Black.woff") format("woff");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
