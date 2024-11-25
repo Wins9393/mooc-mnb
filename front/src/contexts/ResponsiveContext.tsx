@@ -8,12 +8,8 @@ interface ResponsiveContext {
 const ResponsiveContext = createContext<ResponsiveContext | null>(null);
 
 const ResponsiveProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [vpHeight, setVPHeight] = useState<number>(0);
-  const [vpWidth, setVPWidth] = useState<number>(0);
-
-  useEffect(() => {
-    console.log(vpHeight, vpWidth);
-  }, [vpHeight, vpWidth]);
+  const [vpHeight, setVPHeight] = useState<number>(window.innerHeight);
+  const [vpWidth, setVPWidth] = useState<number>(window.innerWidth);
 
   useEffect(() => {
     window.addEventListener("resize", () => {

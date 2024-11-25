@@ -16,7 +16,6 @@ export function MainContent(props: React.PropsWithChildren) {
   const { vpWidth } = responsiveContext;
 
   useEffect(() => {
-    console.log("location: ", location);
     if (
       location.pathname === "/" ||
       location.pathname === "/login" ||
@@ -32,10 +31,6 @@ export function MainContent(props: React.PropsWithChildren) {
       setPadding(32);
     }
   }, [location, vpWidth]);
-
-  useEffect(() => {
-    console.log("vpWidth: ", vpWidth);
-  }, [vpWidth]);
 
   return (
     <div
