@@ -62,7 +62,7 @@ export const FormationItem: React.FC<FormationItemProps> = ({ formation }) => {
   }, [progress]);
 
   return (
-    <div className="formationItem__card">
+    <div className="formationItem__card" onClick={() => navigate(`/formation/${formation.id}`)}>
       {levelProgression === "awarded" ? (
         <img
           src="/gold.png"

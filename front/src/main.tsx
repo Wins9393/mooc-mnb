@@ -19,6 +19,7 @@ import { OneUserStats } from "./containers/dashboard/one-user-stats/OneUserStats
 import { PageNotFound } from "./components/page-not-found/PageNotFound.tsx";
 import { StatisticsProvider } from "./contexts/StatisticsContext.tsx";
 import { AllFormations } from "./containers/dashboard/all-formations/AllFormations.tsx";
+import { ResponsiveProvider } from "./contexts/ResponsiveContext.tsx";
 
 const router = createBrowserRouter([
   {
@@ -86,7 +87,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <MainProvider>
         <StatisticsProvider>
           <DashboardProvider>
-            <RouterProvider router={router} />
+            <ResponsiveProvider>
+              <RouterProvider router={router} />
+            </ResponsiveProvider>
           </DashboardProvider>
         </StatisticsProvider>
       </MainProvider>

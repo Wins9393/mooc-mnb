@@ -36,6 +36,11 @@
       }
     }
   }
+
+  .header__logo {
+    font-size: 1.4rem;
+    color: var(--white);
+  }
 }
 
 .second-header {
@@ -74,6 +79,21 @@
       .right-nav {
         justify-content: flex-end;
       }
+    }
+  }
+}
+
+.drawer__nav--list {
+  li {
+    font-size: 1.6rem;
+    margin: 16px 4px;
+
+    a {
+      color: var(--dark);
+    }
+
+    a:focus {
+      color: var(--accent-ambre);
     }
   }
 }
